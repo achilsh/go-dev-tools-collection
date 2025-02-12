@@ -3,3 +3,4 @@ goreplay
 .idea/
 http-client/http-client 
 http-server/http-server
+.vscode/

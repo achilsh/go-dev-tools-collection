@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/google/gops/agent"
 )
 
 // 处理带参数的 GET 请求
@@ -22,6 +24,11 @@ func paramHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	 if err := agent.Listen(agent.Options{
+		Addr:"0.0.0.0:6667",
+	 }); err != nil {
+       fmt.Println(err)
+    }
 	http.HandleFunc("/hello", paramHandler)
 	addr := ":6666"
 	fmt.Printf("服务器正在监听端口 %s...\n", addr)
