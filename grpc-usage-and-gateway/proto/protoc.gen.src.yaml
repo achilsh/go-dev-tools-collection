@@ -1,0 +1,24 @@
+version: v2
+plugins:
+  # - remote: buf.build/googleapis/googleapis
+  #   out: gen
+  # protoc-gen-go needs to be installed, generate go files based on proto files
+  - local: protoc-gen-go
+    out:  gen/go ###
+    opt:
+      - paths=source_relative
+  # protoc-gen-go-grpc needs to be installed, generate grpc go files based on proto files
+  - local: protoc-gen-go-grpc
+    out:  gen/go  ##
+    opt:
+      - paths=source_relative
+  #  protoc-gen-grpc-gateway 网关生成文件工具需要安装，产生 reverse-proxy
+  # 不修改 proto 文件内容，直接使用下面生成源文件，结果导致： not allow setting HTTP paths, request parameters or similar
+  - local: protoc-gen-grpc-gateway
+    out: gen/go ##
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  ## (Optional) Generate OpenAPI definitions using protoc-gen-openapiv2
+  - local: protoc-gen-openapiv2
+    out: gen/go

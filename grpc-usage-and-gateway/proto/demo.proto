@@ -1,0 +1,25 @@
+syntax = "proto3";
+package grpc.demo;
+option go_package = "./demo;demo";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+message StringMessage {
+  string value = 1;
+}
+
+// 使用注解 来设置 http 的url 和body
+service GrpcCallDemo {
+  rpc Echo(StringMessage) returns (StringMessage) {
+    option (google.api.http) = {
+      post: "/v1/example/echo"
+      body: "*"
+    };
+  }
+  rpc Hello(StringMessage) returns(StringMessage) {
+    option (google.api.http) = {
+      post: "/v2/example/hello"
+      body: "*"
+    };
+  }
+}

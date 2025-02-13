@@ -1,0 +1,25 @@
+
+POST http://localhost:8081/v2/example/hello
+Accept: application/json
+Content-Type: */*; charset=UTF-8
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.7)
+Accept-Encoding: br,deflate,gzip,x-gzip
+Content-Length: 29
+
+{
+  "value": "this is demo"
+}
+
+
+POST http://localhost:8081/v1/example/echo
+Accept: application/json
+Content-Type: */*; charset=UTF-8
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.7)
+Accept-Encoding: br,deflate,gzip,x-gzip
+Content-Length: 29
+
+{
+  "value": "this is demo"
+}
