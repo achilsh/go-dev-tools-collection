@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect

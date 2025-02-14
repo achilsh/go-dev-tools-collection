@@ -24,13 +24,17 @@ func RunServer() error {
 
 	// Register gRPC server endpoint
 	// Note: Make sure the gRPC server is running properly and accessible
-	mux := runtime.NewServeMux()
+	gateWayMux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := gw.RegisterGrpcCallDemoHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
+	err := gw.RegisterGrpcCallDemoHandlerFromEndpoint(ctx, gateWayMux, *grpcServerEndpoint, opts)
 	if err != nil {
 		return err
 	}
 
+	// register swagger
+	mux := http.NewServeMux()
+	mux.Handle("/", gateWayMux)
+	RegisterSwaggerUI(mux)
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
 	return http.ListenAndServe(":8081", mux)
 }

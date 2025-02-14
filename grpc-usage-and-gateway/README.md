@@ -30,8 +30,44 @@ go install \
 * 如果在单进程实现 http/grpc server， 参考： server-grpc.go, server-http.go 来定义。
 * 实现http、grpc 业务逻辑接口，参考：grpc-server-impl.go来实现
 
-*TODO: 如何访问 api swagger等。
-  
+#
+* 安装swagger 的必要插件：
+*  安装 protoc-gen-openapiv2： 
+*  go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+* 安装 go-bindata:
+* go install -a -v github.com/go-bindata/go-bindata/v3/...@latest
+* 安装 go-bindata-assetfs:
+* go install github.com/elazarl/go-bindata-assetfs/...@latest
+* 修改源码: 修改 pb 代码，比如修改 demo.proto源码：
+ ```
+ //增加插件引用：
+ import "protoc-gen-openapiv2/options/annotations.proto";
 
+ // 定义swagger内容
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+      info: {
+        title: "grpc gateway sample";
+        version: "1.0";
+      };
+      schemes: HTTP;
+    };
+```
+
+* 执行 buf dep updates 
+* 执行 buf generate   --template  proto/protoc.gen.src.yaml
+  
+#
+* 下载 swagger-ui 源码 git clone https://github.com/swagger-api/swagger-ui.git
+并将 dist 目录下的文件copy 到 thirdparty/swagger_ui 目录中。
+* 将swagger-ui源码转为datafile.go文件：
+ go-bindata --nocompress -pkg swagger -o ui/data/swagger/datafile.go thirdparty/swagger_ui/...
+
+* 生成 ui/data/swagger/目录下的 datafile.go
+* 在源码中修改，集成 swagger_ui.go
+* 代码结构如图所示：
+  ![目录结构图](swagger生成时的目录结构.jpg)
+
+* 获取api接口请求效果图:
+![效果图](swagger页面登陆界面.jpg)
 
     

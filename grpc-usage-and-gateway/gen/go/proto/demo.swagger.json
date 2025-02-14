@@ -1,13 +1,16 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "proto/demo.proto",
-    "version": "version not set"
+    "title": "grpc gateway sample",
+    "version": "1.0"
   },
   "tags": [
     {
       "name": "GrpcCallDemo"
     }
+  ],
+  "schemes": [
+    "http"
   ],
   "consumes": [
     "application/json"

@@ -4,6 +4,15 @@ option go_package = "./demo;demo";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+// 定义swagger内容
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: { title: "grpc gateway sample";
+    version: "1.0";
+  };
+  schemes: HTTP;
+};
+
+//
 message StringMessage {
   string value = 1;
 }
