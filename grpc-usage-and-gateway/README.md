@@ -68,6 +68,6 @@ go install \
   ![目录结构图](swagger生成时的目录结构.jpg)
 
 * 获取api接口请求效果图:
-![效果图](swagger页面登陆界面.jpg)
+  ![效果图](swagger页面登陆界面.jpg)
 
     
