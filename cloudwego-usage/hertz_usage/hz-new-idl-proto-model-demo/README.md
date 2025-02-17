@@ -1,0 +1,2 @@
+* 根据proto 生成 http 服务和 数据库 model 的源码：
+* 使用 hz 生成命令：  hz new --service hz-new-proto --mod hz-new-proto  --model_dir biz/model_gen --idl proto/user/* -I proto 比较好奇，设置 --model_dir的作用是什么？需要看如何被调用？参考：https://github.com/cloudwego/hertz-examples/tree/main/bizdemo/hertz_gorm 使用。
