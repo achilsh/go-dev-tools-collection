@@ -1,6 +1,6 @@
 *  使用 github.com/google/gops/agent 检测go实现进程性能参数,比如cpu使用，内存使用，栈空间，trace能力
 *  包括本地运行的和远程运行的。
-*  如何使用？ 如果在源码中没有集成 gops的agent，运行gops 只能得到一些基础信息，不如不带任何参数运行 gops只得到当前运行有哪些go进程。而像 memstats， pprof-cpu， pprof-heap，trace ，stack等。
+*  如何使用？ 如果在源码中没有集成 gops的agent，运行gops 只能得到一些基础信息，如不带任何参数运行 gops只得到当前运行go进程basic info。而像 memstats， pprof-cpu， pprof-heap，trace ，stack等 can't been getten。
 *  gops option pid
 *  远程诊断方式： gops option ip:port 要求在远程的服务上集成agent,比如：
 *   if err := agent.Listen(agent.Options{ \
