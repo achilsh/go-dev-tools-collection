@@ -281,6 +281,7 @@ func NewMoreItemInSameType() OUtUseTwoItemInSameType {
 	fmt.Println("new instance two for OUtUseTwoItemInOneType， value: ", ret.Item1.NameItem)
 	return ret
 }
+
 // 同时使用同种类型的多个实例，作为依赖项
 type InUseTwoItemInSameType struct {
 	dig.In
@@ -292,19 +293,53 @@ type BizUseTwoItemInSameType struct {
 	Item1 *NamedDepend
 	Item2 *NamedDepend
 }
+
 // 仅使用同中类型的多个实例的一个例子。
 type InUseOneTypeItem struct {
-	dig.In 
+	dig.In
 	ItemOne *NamedDepend `name:"one"`
 }
 type BizUseOneItemInSameType struct {
 	Item1 *NamedDepend
 }
 
+// 定义数据结构实现 provide(func)中func返回值是接口和func的入参是接口场景：
+type CallServer interface {
+	SetAge(age int)
+	GetAge()int 
+}
+//
+type XiaoMingCallServer struct {
+	Age int
+}
+func(s *XiaoMingCallServer) SetAge(age int) {
+	s.Age = age
+}
+func (s *XiaoMingCallServer)GetAge()int {
+	return s.Age
+}
+func NewXiaoMingCallServer() CallServer  {
+	return &XiaoMingCallServer{}
+}
+// 定义一个包含抽象接口的结构体类型.
+type WrapCallServer struct {
+	item CallServer
+}
+// 定义结构体创建函数,该函数用于注册到 provoide()入参数中.
+func SetCallServer(s CallServer) *WrapCallServer {
+	return &WrapCallServer{
+		item:s,
+	}
+}
+
 // NewContainer 创建一个容器
 func NewContainer() *dig.Container {
 	c := dig.New()
 
+	// 生成一个依赖项，类型为接口类型。
+	c.Provide(NewXiaoMingCallServer)
+	//注册一个依赖于接口的结构体 的创建函数
+	c.Provide(SetCallServer)
 
 	////type 1:
 	// c.Provide(NewMoreItemInSameType)
@@ -334,7 +369,7 @@ func NewContainer() *dig.Container {
 	})
 
 	//
-	c.Provide(func(in InUseOneTypeItem) *BizUseOneItemInSameType{	
+	c.Provide(func(in InUseOneTypeItem) *BizUseOneItemInSameType {
 		ret := &BizUseOneItemInSameType{
 			Item1: in.ItemOne,
 		}
@@ -382,6 +417,7 @@ func NewContainer() *dig.Container {
 	return c
 }
 
+// Run: 触发依赖项(Invokde(func)中func函数的入参)递归创建. 然后在运行 func()的函数体.
 func Run(d *dig.Container) {
 	// 先实例化 AObj 入参，然后再运行 函数体，说明在运行函数之前，函数入参AObj 已经创建好了。
 	// AObj 的对象创建过程是 根据他自身的依赖想来创建，依赖关系 是通过  Provide() 提供注册的。
@@ -416,8 +452,28 @@ func Run(d *dig.Container) {
 		fmt.Printf("item1 addr: %p, value: %v\n", demo.Item1, demo.Item1.NameItem)
 		fmt.Printf("item2 addr: %p, value: %v\n", demo.Item2, demo.Item2.NameItem)
 	})
-	//单独使用一种类型多实例下中一个实例： 
-	d.Invoke(func (demo *BizUseOneItemInSameType) {
+	//单独使用一种类型多实例下中一个实例：
+	d.Invoke(func(demo *BizUseOneItemInSameType) {
 		fmt.Printf(" use one item1 addr: %p, value: %v\n", demo.Item1, demo.Item1.NameItem)
+	})
+
+	// //使用接口作为依赖项,如果想替换不同的接口实例化对象，只需要修改 Provoide(func)中的func
+	// d.Invoke(func(demo CallServer) {
+	// 	demo.SetAge(100)
+	// 	fmt.Println("call server age: ", demo.GetAge())
+	// })
+
+	// // 触发依赖项的递归创建.
+	// d.Invoke(func(demo *WrapCallServer){
+	// 	demo.item.SetAge(300)
+	// 	fmt.Println("wrapper interface data: ", demo.item.GetAge())
+	// })
+	d.Invoke(func(d1 CallServer, d2 *WrapCallServer) {
+		d1.SetAge(400)
+		fmt.Println("call server data: ", d1.GetAge())
+		d2.item.SetAge(500)
+		fmt.Println("wrapper interface data: ", d2.item.GetAge())
+		//
+		fmt.Println("again call server data: ", d1.GetAge())
 	})
 }
