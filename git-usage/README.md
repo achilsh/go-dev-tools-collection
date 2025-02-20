@@ -10,6 +10,7 @@
 * 合并多次已经提交的commit：（因为前期随意commit，现在需要做规范处理。） 使用 git rebase -i  before-begin-to-rebase-commitid 其中 before-begin-to-rebase-commitid 是要开始 rebase commitid的前一个id。再修改合并的 commit：把要被合并的commitid前面的pick改成squash， 这样这个commitid就会被合并到 前一个pick commitid上，只要想合并的commitid，都可以在前面的Pick改成 squash.
 
 * 以行为单位查看提交commit： git log --oneline 
+* git log --pretty=reference or git log --pretty=oneline
 
 * 查看git的所有历史commit，包括reset的。命令: git reflog 
 * 
