@@ -150,3 +150,6 @@
 3 ) 连接客户端： adp.Connect() 
 4 ）发布消息 adp.Publish()
 
+
+* #
+* 参考示例：https://github.com/eclipse-paho/paho.mqtt.golang/blob/master/cmd
