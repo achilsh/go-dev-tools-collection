@@ -28,6 +28,11 @@ var ErrNilClient = fmt.Errorf("no MQTT client available")
 // Message is a message received from the broker.
 type Message paho.Message
 
+type SubNodeHandle struct {
+	TopicName string
+	ReplyTopicName string
+	TopicHandle  func(msg Message) ([]byte, error)
+}
 // Adaptor is the Gobot Adaptor for MQTT; 
 // 用于mqtt 发布者，订阅者使用
 type Adaptor struct {
@@ -45,6 +50,13 @@ type Adaptor struct {
 	// 
 	client        paho.Client
 	qos           int
+	// 设置连接上后订阅topic的逻辑处理函数
+	subNodeHandles []SubNodeHandle
+
+	//增加额外的字段，该字段时通过上面字段初始化而来，
+	//所以在该对象创建完后再修改上线字段，效果是不生效的。
+	//正确的使用方是 先设置上面参数字段，然后在创建 下面字段
+	cliOptions  *paho.ClientOptions
 }
 
 // NewAdaptor creates a new mqtt adaptor with specified host and client id
@@ -71,6 +83,9 @@ func NewAdaptorWithAuth(host, clientID, username, password string) *Adaptor {
 		username:      username,
 		password:      password,
 	}
+}
+func (a *Adaptor) AddSubscriptCallBack(item SubNodeHandle) {
+	a.subNodeHandles = append(a.subNodeHandles, item)
 }
 
 // 下面是 获取 Adaptor 属性操作。
@@ -126,7 +141,8 @@ func (a *Adaptor) SetClientKey(val string) { a.clientKey = val }
 
 // Connect returns true if connection to mqtt is established
 func (a *Adaptor) Connect() error {
-	a.client = paho.NewClient(a.createClientOptions())
+	a.cliOptions = a.createClientOptions()
+	a.client = paho.NewClient(a.cliOptions)
 	if token := a.client.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
@@ -192,6 +208,7 @@ func (a *Adaptor) On(event string, f func(msg Message)) bool {
 }
 
 /// 创建client的Option, 该Option用于 client的创建。NewClient()函数的入参值。
+// 应该包含订阅的回调函数
 func (a *Adaptor) createClientOptions() *paho.ClientOptions {
 	opts := paho.NewClientOptions()
 	opts.AddBroker(a.Host)
@@ -203,6 +220,30 @@ func (a *Adaptor) createClientOptions() *paho.ClientOptions {
 	opts.AutoReconnect = a.autoReconnect
 	opts.CleanSession = a.cleanSession
 
+	//
+	if len(a.subNodeHandles) > 0  {
+		opts.SetOnConnectHandler(func( c paho.Client) {
+			for i:= 0; i < len(a.subNodeHandles) && a.subNodeHandles[i].TopicHandle != nil; i++ {
+				t := c.Subscribe(a.subNodeHandles[i].TopicName, byte(a.qos), func(client paho.Client, msg paho.Message) {
+					// 调用订阅的回调函数
+					data, err := a.subNodeHandles[i].TopicHandle(msg)
+					if err == nil && len(a.subNodeHandles[i].ReplyTopicName) > 0 {
+						// 发布应答数据
+						client.Publish(a.subNodeHandles[i].ReplyTopicName, byte(a.qos), false, data)
+					}
+				})
+				//
+				go func() {
+					_ = t.Wait() // Can also use '<-t.Done()' in releases > 1.2.0
+					if t.Error() != nil {
+						fmt.Printf("ERROR SUBSCRIBING: %s\n", t.Error())
+					} else {
+						fmt.Println("subscribed to: ", a.subNodeHandles[i].TopicName)
+					}
+				}()
+		}})
+	}
+	//
 	if a.UseSSL() {
 		opts.SetTLSConfig(a.newTLSConfig())
 	}
