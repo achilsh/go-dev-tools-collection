@@ -14,10 +14,12 @@ type CmdMessageInfo struct {
 
 
 
-// ReadWriter is a Dialect Reader and Writer.
+// ReadWriter 一个连接的 读写器
 type ReadWriter struct {
-	codeHandle codecs.BaseCodecs //编解码处理器
-	messagePackage map[uint16] *CmdMsgReadWriter //消息类型集合
+	//连接上的编码器
+	codeHandle codecs.BaseCodecs
+	// 所有消息类型枚举和消息类型结构体抽象
+	messagePackage map[uint16] *CmdMsgReadWriter
 }
 func (rw *ReadWriter) GetCodecs() codecs.BaseCodecs {
 	return rw.codeHandle
@@ -27,7 +29,6 @@ func (rw *ReadWriter) AllocateMsgData(cmd uint16) any {
 	if !ok {
 		return nil
 	}
-
 	return item.NewElemItem(cmd)
 }
 
@@ -52,22 +53,11 @@ func NewReadWriter(d []*CmdMessageInfo) (*ReadWriter, error) {
 		rw.messagePackage[m.Cmd] = de
 	}
 
-	// for _, m := range d.Messages {
-	// 	if _, ok := rw.messageRWs[m.GetID()]; ok {
-	// 		return nil, fmt.Errorf("duplicate message with id %d", m.GetID())
-	// 	}
-
-	// 	de, err := message.NewReadWriter(m)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("message %T: %w", m, err)
-	// 	}
-
-	// 	rw.messageRWs[m.GetID()] = de
-	// }
-
 	return rw, nil
 }
 
+
+// GetCmdMessage 根据消息类型枚举获取消息结构体
 func (rw *ReadWriter) GetCmdMessage(id uint16) *CmdMsgReadWriter {
 	cmsg, ok := rw.messagePackage[id]
 	if !ok {

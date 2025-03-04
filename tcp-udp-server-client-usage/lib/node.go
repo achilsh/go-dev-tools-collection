@@ -7,6 +7,7 @@ import (
 
 	"server-transport-go-usage/lib/frame"
 	"server-transport-go-usage/lib/message"
+	. "server-transport-go-usage/lib/utils"
 )
 
 var errTerminated = fmt.Errorf("terminated")
@@ -21,24 +22,27 @@ type writeExceptReq struct {
 	what   interface{}
 }
 
-// Node: 是请求，相应的节点抽象 
+// Node 抽象服务，节点
 type Node struct {
 	// conf 是 配置 node的信息，包括 节点连接信息等。
-	conf             NodeConf
+	conf NodeConf
+	// 所有消息的读写器集合
 	dialectRW        *message.ReadWriter
 	wg               sync.WaitGroup
+	// 消息连接器
 	channelProviders map[*channelProvider]struct{}
-	channels         map[*Channel]struct{}
+	// 新建立的连接集合
+	channels          map[*Channel]struct{}
 
-	// in 
+	// in
 	// 用于通知新连接的通道
 	chNewChannel   chan *Channel
 	chCloseChannel chan *Channel
-	// 用于通知 写数据的通道chWriteTo
-	chWriteTo      chan writeToReq
-	chWriteAll     chan interface{}
-	chWriteExcept  chan writeExceptReq
-	terminate      chan struct{}
+	// 写数据的通道chWriteTo
+	chWriteTo     chan writeToReq
+	chWriteAll    chan interface{}
+	chWriteExcept chan writeExceptReq
+	terminate     chan struct{}
 
 	// out
 	chEvent chan Event
@@ -74,8 +78,8 @@ func NewNode(conf NodeConf) (*Node, error) {
 		conf:             conf,
 		dialectRW:        dialectRW,
 		channelProviders: make(map[*channelProvider]struct{}),
-		channels:         make(map[*Channel]struct{}),
 		chNewChannel:     make(chan *Channel),
+		channels:         make(map[*Channel]struct{}),
 		chCloseChannel:   make(chan *Channel),
 		chWriteTo:        make(chan writeToReq),
 		chWriteAll:       make(chan interface{}),
@@ -86,6 +90,7 @@ func NewNode(conf NodeConf) (*Node, error) {
 	}
 
 	closeExisting := func() {
+		//关闭现有连接
 		for ch := range n.channels {
 			ch.close()
 		}
@@ -112,26 +117,13 @@ func NewNode(conf NodeConf) (*Node, error) {
 
 			n.channelProviders[ca] = struct{}{}
 
-		// case endpointChannelSingle:
-		// 	ch, err := newChannel(n, ttp, ttp.label(), ttp)
-		// 	if err != nil {
-		// 		closeExisting()
-		// 		return nil, err
-		// 	}
-
-		// 	n.channels[ch] = struct{}{}
-
 		default:
-			panic(fmt.Errorf("endpoint %T does not implement any interface", tp))
+			LogPrintf("endpoint %T does not implement any interface", tp)
 		}
 	}
 
-	// for ch := range n.channels {
-	// 	ch.start()
-	// }
-
 	for ca := range n.channelProviders {
-		ca.start()
+		ca.start() //每个服务创建listener， 等待client的连接
 	}
 
 	go n.run()
@@ -310,13 +302,14 @@ func (n *Node) WriteFrameTo(channel *Channel, fr frame.MsgFrame) error {
 
 	return nil
 }
+
 // 把数据帧序列化成二进制数据
 func (n *Node) encodeFrame(fr frame.MsgFrame) error {
 	payLoad := fr.GetMessage()
 	if payLoad == nil {
 		return nil
 	}
-	
+
 	binPayLoad, err := n.dialectRW.GetCodecs().Encode(payLoad)
 	if err != nil {
 		fmt.Println("encode msg fail, err: ", err)

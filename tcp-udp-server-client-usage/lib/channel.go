@@ -5,12 +5,11 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
-
 	"server-transport-go-usage/lib/frame"
 )
 
 const (
-	writeBufferSize = 64
+	writeBufferSize = 128 //TODO: need check on biz.
 )
 
 func randomByte() (byte, error) {
@@ -41,31 +40,17 @@ type Channel struct {
 	done chan struct{}
 }
 
+// 一个连接包括：基于该连接的读写接口，所有消息的编解码接口实现
 func newChannel(
 	n *Node,
 	e Endpoint,
 	label string,
 	rwc io.ReadWriteCloser, // 一个新的连接
 ) (*Channel, error) {
-	linkID, err := randomByte()
-	if err != nil {
-		return nil, err
-	}
-
+	//每个连接都分配一个读写器；读用于接收和解析协议；写用于编码协议和发送
 	frw, err := frame.NewReadWriter(frame.ReadWriterConf{
 		ReadWriter: rwc,
 		DialectRW:  n.dialectRW,
-		//InKey:       n.conf.InKey,
-		//OutSystemID: n.conf.OutSystemID,
-		//OutVersion: func() frame.WriterOutVersion {
-		//	if n.conf.OutVersion == V2 {
-		//		return frame.V2
-		//	}
-		//	return frame.V1
-		//}(),
-		// OutComponentID:     n.conf.OutComponentID,
-		OutSignatureLinkID: linkID,
-		//OutKey:             n.conf.OutKey,
 	})
 	if err != nil {
 		return nil, err
@@ -141,16 +126,16 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 	ch.n.pushEvent(&EventChannelOpen{ch})
 
 	for {
-		fr, err := ch.frw.ReadPkg()	
+		fr, err := ch.frw.ReadPkg()
 		if err != nil {
-			var eerr frame.ReadError
-			if errors.As(err, &eerr){
+			var errRead frame.ReadError
+			if errors.As(err, &errRead) {
 				ch.n.pushEvent(&EventParseError{err, ch})
 				continue
 			}
 			return
 		}
-		
+
 		evt := &EventFrame{Frame: fr, Channel: ch}
 		ch.n.pushEvent(evt)
 	}
@@ -184,7 +169,7 @@ func (ch *Channel) Endpoint() Endpoint {
 	return ch.e
 }
 
-//向具体指定的 channel上发送写数据（因为每个channel都一个独立的写协程在处理。）
+// 向具体指定的 channel上发送写数据（因为每个channel都一个独立的写协程在处理。）
 func (ch *Channel) write(what interface{}) {
 	select {
 	case ch.chWrite <- what:

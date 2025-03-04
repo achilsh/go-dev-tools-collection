@@ -2,7 +2,8 @@ package lib
 
 import (
 	"errors"
-	"fmt"
+
+	. "server-transport-go-usage/lib/utils"
 )
 
 type channelProvider struct {
@@ -27,6 +28,7 @@ func (cp *channelProvider) close() {
 
 func (cp *channelProvider) start() {
 	cp.n.wg.Add(1)
+	//启动一个新线程 循环等待新连接，如果有新连接请求，则创建新连接 chan，并将 chan 发送到 框架node 统一处理。
 	go cp.run()
 }
 
@@ -37,21 +39,19 @@ func (cp *channelProvider) run() {
 		label, rwc, err := cp.eca.provide()
 		if err != nil {
 			if !errors.Is(err, errTerminated) {
-				panic("errTerminated is the only error allowed here")
+			LogPrintln("errTerminated is the only error allowed here")
 			}
 			break
 		}
 
 		ch, err := newChannel(cp.n, cp.eca, label, rwc)
 		if err != nil {
-			panic(fmt.Errorf("newChannel unexpected error: %w", err))
+			LogPrintf("newChannel unexpected error: %w\n", err)
 		}
 
-		cp.n.newChannel(ch) //床架一个新连接，把创建的新连接 发送到队列中，让其他线程处理该 新连接。
+		cp.n.newChannel(ch) //把创建的新连接 发送到框架Node的统一处理；
 
 		if cp.eca.oneChannelAtAtime() {
-			// wait the channel to emit EventChannelClose
-			// before creating another channel
 			select {
 			case <-ch.done:
 			case <-cp.terminate:

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	bufferSize = 1024// frames cannot go beyond len(header) + 255 + len(check) + len(sig)
+	bufferSize = 1024 // frames default size is 1k.
 )
 
 // 1st January 2015 GMT
@@ -39,10 +39,6 @@ type ReaderConf struct {
 	// (optional) the dialect which contains the messages that will be read.
 	// If not provided, messages are decoded into the MessageRaw struct.
 	DialectRW *message.ReadWriter
-
-	// (optional) the secret key used to validate incoming frames.
-	// Non-signed frames are discarded. This feature requires v2 frames.
-	//InKey *V2Key
 }
 
 // Reader is a Frame reader.
@@ -50,7 +46,7 @@ type Reader struct {
 	conf                 ReaderConf
 	br                   *bufio.Reader // 新连接
 	curReadSignatureTime uint64
-	scer *bufio.Scanner // 用于读取，切分协议
+	scer                 *bufio.Scanner // 用于读取，切分协议
 }
 
 // NewReader allocates a Reader.
@@ -70,83 +66,11 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	return ret, nil
 }
 
-// Read reads a Frame from the reader.
-// It must not be called by multiple routines in parallel.
-func (r *Reader) Read() (Frame, error) {
-	magicByte, err := r.br.ReadByte()
-	if err != nil {
-		return nil, err
-	}
-
-	f, err := func() (Frame, error) {
-		switch magicByte {
-		//case V1MagicByte:
-		//	return &V1Frame{}, nil
-		//
-		//case V2MagicByte:
-		//	return &V2Frame{}, nil
-		}
-
-		return nil, newError("invalid magic byte: %x", magicByte)
-	}()
-	if err != nil {
-		return nil, err
-	}
-
-	err = f.decode(r.br)
-	if err != nil {
-		return nil, newError("%s", err.Error())
-	}
-	//
-	//if r.conf.InKey != nil {
-	//	ff, ok := f.(*V2Frame)
-	//	if !ok {
-	//		return nil, newError("signature required but packet is not v2")
-	//	}
-	//
-	//	if sig := ff.GenerateSignature(r.conf.InKey); *sig != *ff.Signature {
-	//		return nil, newError("wrong signature")
-	//	}
-	//
-	//	// in UDP, packet order is not guaranteed. Therefore, we accept frames
-	//	// with a timestamp within 10 seconds with respect to the previous
-	//	if r.curReadSignatureTime > 0 &&
-	//		ff.SignatureTimestamp < (r.curReadSignatureTime-(10*100000)) {
-	//		return nil, newError("signature timestamp is too old")
-	//	}
-	//
-	//	if ff.SignatureTimestamp > r.curReadSignatureTime {
-	//		r.curReadSignatureTime = ff.SignatureTimestamp
-	//	}
-	//}
-
-	// decode message if in dialect and validate checksum
-	if r.conf.DialectRW != nil {
-		if mp := r.conf.DialectRW.GetMessage(f.GetMessage().GetID()); mp != nil {
-			if sum := f.GenerateChecksum(mp.CRCExtra()); sum != f.GetChecksum() {
-				return nil, newError("wrong checksum, expected %.4x, got %.4x, message id is %d",
-					sum, f.GetChecksum(), f.GetMessage().GetID())
-			}
-
-			//_, isV2 := f.(*V2Frame)
-			//msg, err := mp.Read(f.GetMessage().(*message.MessageRaw), isV2)
-			//if err != nil {
-			//	return nil, newError("unable to decode message: %s", err.Error())
-			//}
-			//
-			//switch ff := f.(type) {
-			//case *V1Frame:
-			//	ff.Message = msg
-			//case *V2Frame:
-			//	ff.Message = msg
-			//}
-		}
-	}
-
-	return f, nil
-}
-
+// ReadPkg reads a Frame from the reader.
+// It must not be called by multiple routines in parallell.
 // ReadPkg 从底层网络中读取 多个包
-func (r *Reader) ReadPkg() (*message.DecodedMessage, error){
-	return message.ReadAndParseMessage(r.scer, r.conf.DialectRW)
+func (r *Reader) ReadPkg() (MsgFrame, error) {
+	item := &message.DecodedMessage{}
+	err := item.UnPackageMessage(r.scer, r.conf.DialectRW)
+	return item, err
 }

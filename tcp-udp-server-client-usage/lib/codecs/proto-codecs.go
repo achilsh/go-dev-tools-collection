@@ -7,7 +7,7 @@ import (
 type ProtoCodecs struct {
 }
 
-// 将 pb 结构体序列化成二进制。
+// Encode 将 pb 结构体序列化成二进制。
 func (pc *ProtoCodecs) Encode(in any) ([]byte, error) {
 	pbIn := in.(proto.Message)
 	ret, err := proto.Marshal(pbIn)

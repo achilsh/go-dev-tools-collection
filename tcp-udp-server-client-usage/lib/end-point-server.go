@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"server-transport-go-usage/lib/timednetconn"
 	"time"
 
 	"github.com/pion/transport/v2/udp"
+
+	"server-transport-go-usage/lib/timednetconn"
 )
 
 type endpointServerConf interface {
@@ -50,7 +51,7 @@ func (conf EndpointUDPServer) getAddress() string {
 	return conf.Address
 }
 
-// endpointServer implement Endpoint interface.
+// endpointServer 是一个服务端的实现
 type endpointServer struct {
 	conf         endpointServerConf
 	listener     net.Listener

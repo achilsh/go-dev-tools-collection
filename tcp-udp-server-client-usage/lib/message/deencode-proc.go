@@ -1,14 +1,9 @@
 package message
 
 import (
-	"bufio"
 	"encoding/binary"
-	"fmt"
-	"errors"
 
 	"github.com/sigurn/crc16"
-
-	"server-transport-go-usage/lib/dialect"
 )
 
 const (
@@ -20,7 +15,7 @@ const (
 
 var crcTable = crc16.MakeTable(crc16.CRC16_CCITT_FALSE)
 
-// 自定义协议分割函数（支持错误恢复）
+// ProtocolSplitter 自定义协议分割函数（支持错误恢复）
 func ProtocolSplitter(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	dataLen := len(data)
 
@@ -62,94 +57,4 @@ func ProtocolSplitter(data []byte, atEOF bool) (advance int, token []byte, err e
 	}
 
 	return dataLen, nil, nil // 遍历完未找到有效包
-}
-
-
-// 解析并校验数据包； 返回有效的包：
-func parseAndValidate(pkt []byte) (error, *UnDecodedMessage) {
-        // 基础长度校验
-        if len(pkt) < minPacket {
-                return errors.New("数据包长度不足"),nil
-        }
-
-        // 分解数据包
-        header := pkt[:headerSize]
-        payload := pkt[headerSize : len(pkt)-crcSize]
-        storedCRC := binary.BigEndian.Uint16(pkt[len(pkt)-crcSize:])
-
-        // 校验payload长度
-        payloadLen := binary.BigEndian.Uint16(header[1:3])
-        if int(payloadLen) != len(payload) {
-            return fmt.Errorf("payload长度不匹配（头声明:%d 实际:%d）", payloadLen, len(payload)), nil
-        }
-
-        // CRC校验（仅payload）
-        computedCRC := crc16.Checksum(payload, crcTable)
-        if computedCRC != storedCRC {
-                return fmt.Errorf("CRC校验失败（预期:0x%04X 实际:0x%04X）", storedCRC, computedCRC),nil
-        }
-
-        // 解析其他头字段
-        seq := binary.BigEndian.Uint16(header[3:5])
-        source := header[5]
-        msgType := binary.BigEndian.Uint16(header[6:8])
-
-        // 输出结果
-        fmt.Printf("有效数据包: seq=%d source=0x%02X type=0x%04X payload_len=%d\n",
-                seq, source, msgType, len(payload))
-
-        retMessage := &HeaderMessage  {
-			StartFlag: header[0:1]   // 消息起始位 1
-			PayLoadLen : payloadLen  // 消息体长度 2
-			PkgSeq: binary.BigEndian.Uint16(header[3:5]) //每次发送消息的序列号
-			DevType:  header[5:6]// 发送方类型
-			PkgType: binary.BigEndian.Uint16(header[6:8])// 消息类型
-        }
-        //
-        var ret = &UnDecodedMessage {
-            HeaderMessage:retMessage,
-            PayLoad: payload,
-        }
-        return nil, ret
-}
-
-func Unpackage(msg *UnDecodedMessage, rw *ReadWriter) any {
-	// add item.
-	// 解析： 使用 payload  和  msgType 进行解析
-	msgData := rw.AllocateMsgData(msg.PkgType)
-	codeHandle := rw.GetCodecs()
-	codeHandle(msg.PayLoad, msgData)
-
-	// msgType 和 msgData 作为一个整体发给业务处理线程。
-	return msgData
-
-}
-
-// ReadAndParseMessage 通过 io.reader 读取数据
-func ReadAndParseMessage(scanner *bufio.Scanner, rw *ReadWriter) (*DecodedMessage, error) {
-	var parsedMessage *DecodedMessage
-	if scanner.Scan() {
-		pkt := scanner.Bytes()
-		err, pkgUncoded:= parseAndValidate(pkt);
-		if err != nil {
-			fmt.Printf( "无效数据包: %v\n", err)
-			return nil, err
-		}
-
-		// 解包，返回一个 特性类型的 数据指针。
-		codedMsg :=  Unpackage(pkgUncoded, rw)
-		// 把解析好的包发送到业务处理协程中。
-		decodedMsg := &DecodedMessage {
-			HeaderMessage: pkgUncoded.HeaderMessage,
-			DecodedMsg: codedMsg,
-		}
-		// return decodedMsg
-		parsedMessage =  decodedMsg
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("扫描错误:", err)
-		return nil, err
-	}
-	return parsedMessage, nil
 }

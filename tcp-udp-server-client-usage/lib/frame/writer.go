@@ -1,11 +1,12 @@
 package frame
 
 import (
+	"errors"
 	"fmt"
 	"io"
-
-	"server-transport-go-usage/lib/dialect"
 	"server-transport-go-usage/lib/message"
+
+	. "server-transport-go-usage/lib/utils"
 )
 
 // WriterConf is the configuration of a Writer.
@@ -14,21 +15,7 @@ type WriterConf struct {
 	Writer io.Writer
 
 	// (optional) the dialect which contains the messages that will be written.
-	DialectRW *dialect.ReadWriter
-
-	// Mavlink version used to encode messages.
-	//OutVersion WriterOutVersion
-	// the system id, added to every outgoing frame and used to identify this
-	// node in the network.
-	OutSystemID byte
-	// (optional) the component id, added to every outgoing frame, defaults to 1.
-	OutComponentID byte
-	// (optional) the value to insert into the signature link id.
-	// This feature requires v2 frames.
-	OutSignatureLinkID byte
-	// (optional) the secret key used to sign outgoing frames.
-	// This feature requires v2 frames.
-	//OutKey *V2Key
+	DialectRW *message.ReadWriter
 }
 
 // Writer is a Frame writer.
@@ -50,21 +37,10 @@ func NewWriter(conf WriterConf) (*Writer, error) {
 	}, nil
 }
 
-// WriteMessage writes a Message.
-// The Message is wrapped into a Frame whose fields are filled automatically.
-// It must not be called by multiple routines in parallel.
-func (w *Writer) WriteMessage(m message.Message) error {
-	//if w.conf.OutVersion == V1 {
-	//	return w.writeFrameAndFill(&V1Frame{Message: m})
-	//}
-	//return w.writeFrameAndFill(&V2Frame{Message: m})
-	//TODO:
-	return nil
-}
-
 func (w *Writer) writeFrameAndFill(fr MsgFrame) error {
 	if fr.GetMessage() == nil {
-		return fmt.Errorf("message is nil")
+		LogPrintln("message is nil")
+		return errors.New("message is nil")
 	}
 
 	w.curWriteSequenceNumber++
@@ -98,12 +74,9 @@ func (w *Writer) writeFrameInner(fr MsgFrame) error {
 	return err
 }
 
-
-
 func (w *Writer) WriteMsgFrame(fr MsgFrame) error {
 	if fr.GetMessage() == nil {
 		return fmt.Errorf("message is nil")
 	}
-
 	return w.writeFrameInner(fr)
 }
