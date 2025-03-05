@@ -134,6 +134,7 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 		if err != nil {
 			var errRead message.ReadError
 			if errors.As(err, &errRead) {
+				LogPrintln("read fail, err: %v", errRead)
 				ch.n.pushEvent(&EventParseError{err, ch})
 				continue
 			}

@@ -2,11 +2,15 @@ package lib
 
 import (
 	"reflect"
+	"server-transport-go-usage/lib/message"
 	"time"
 
-	"server-transport-go-usage/lib/message"
 	. "server-transport-go-usage/lib/utils"
 )
+
+func RegisterCmdMessage[M any](ncf *NodeConf, cmd uint16) {
+	ncf.RegisterCmdMessage(cmd, new(M))
+}
 
 // NodeConf 是 Node的配置信息
 type NodeConf struct {
@@ -27,6 +31,8 @@ type NodeConf struct {
 	// It defaults to 60 seconds.
 	IdleTimeout time.Duration
 }
+
+// RegisterCmdMessage add message struct format on this cmd.
 func (nf *NodeConf) RegisterCmdMessage(cmd uint16, msg any) {
 	if nf.Dialect == nil {
 		nf.Dialect = make(map[uint16]*message.CmdMessageInfo)
@@ -41,7 +47,7 @@ func (nf *NodeConf) RegisterCmdMessage(cmd uint16, msg any) {
 	}
 
 	nf.Dialect[cmd] = &message.CmdMessageInfo{
-		Cmd: cmd,
+		Cmd:     cmd,
 		MsgType: reflect.TypeOf(msg),
 	}
 }

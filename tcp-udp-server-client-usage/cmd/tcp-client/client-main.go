@@ -20,8 +20,9 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  0,
 	}
-	endCnf.RegisterCmdMessage(1, new(demo.BizReqMsg))
-	endCnf.RegisterCmdMessage(2, new(demo.BizReqMsg))
+	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 1)
+	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 2)
+	
 	n, err := lib.NewNode(endCnf)
 	if err != nil {
 		LogPrintln("new client end node fail, err: ", err)
@@ -33,7 +34,11 @@ func main() {
 	}
 	defer n.Close()
 
-	time.Sleep(5 * time.Second)
+	mockInitCost := func() {
+		time.Sleep(5 * time.Second)
+	}
+	mockInitCost()
+
 	for i := 0; i < 10; i++ {
 		testDemoSeq++
 		toSendMsg := &message.DecodedMessage{

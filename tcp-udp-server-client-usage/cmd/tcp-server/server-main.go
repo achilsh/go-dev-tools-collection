@@ -20,8 +20,8 @@ func main() {
 		IdleTimeout:  0 * time.Second,
 	}
 	//
-	endCnf.RegisterCmdMessage(1, new(demo.BizReqMsg))
-	endCnf.RegisterCmdMessage(2, new(demo.BizReqMsg))
+	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 1)
+	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 2)
 
 	n, err := lib.NewNode(endCnf)
 	if err != nil {
@@ -38,12 +38,17 @@ func main() {
 		if item, ok := evt.(*lib.EventFrame); ok {
 			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n",
 				item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
+			continue
 		} else {
 			if item, ok := evt.(*lib.EventParseError); ok {
 				LogPrintf("receive err parse message: %v", item)
+				continue
 			}
-			LogPrintln("receive msg.")
+			if item, ok := evt.(*lib.EventChannelOpen); ok {
+				LogPrintf("receive open new connect event, %v", item)
+				continue
+			}
 		}
-
+		LogPrintf("receive msg, value: %v", evt)
 	}
 }
