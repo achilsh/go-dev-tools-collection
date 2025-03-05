@@ -41,6 +41,7 @@ func (cp *channelProvider) run() {
 			if !errors.Is(err, errTerminated) {
 				LogPrintln("errTerminated is the only error allowed here")
 			}
+			LogPrintf("connect to peer fail, err: %v", err)
 			break
 		}
 

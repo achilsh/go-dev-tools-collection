@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"net"
 
 	"github.com/sigurn/crc16"
 	. "server-transport-go-usage/lib/utils"
@@ -80,7 +81,7 @@ func (m *DecodedMessage) PackageMessage(buf []byte) (int, error) {
 }
 
 // UnPackageMessage 读取数据，解析协议，获取要每个有效的包。
-func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter) error {
+func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter, wrio BizIoWRWrapper) error {
 	if scanner.Scan() {
 		err := m.parseAndValidPkg(scanner.Bytes())
 		if err != nil {
@@ -92,13 +93,20 @@ func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter
 			LogPrintln("parse message fail, err: ", err)
 			return err
 		}
+		return nil
 	}
 
 	if err := scanner.Err(); err != nil {
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			//if errors.Is(err, os.ErrDeadlineExceeded) {
+			LogPrintln("it timeout.")
+			return newIoTimeoutError("time out")
+		}
+
 		LogPrintln("scan request message fail: ", err)
 		return err
 	}
-	return nil
+	return newEmptyPkgError("skip empty pkg")
 }
 
 func (m *DecodedMessage) Unpackage(rw *ReadWriter) error {
@@ -118,7 +126,7 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	pkgLen := len(pkt)
 	// 基础长度校验
 	if pkgLen < minPacket {
-		//LogPrintf("receive pkg msg len: %d, less head len\n", pkgLen)
+		LogPrintf("receive pkg msg len: %d, less head len.", pkgLen)
 		return newError("package received len: %v less than: %v; 数据包长度不足", pkgLen, minPacket)
 	}
 
@@ -130,14 +138,14 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	// 校验payload长度
 	payloadLen := binary.BigEndian.Uint16(header[1:3])
 	if int(payloadLen) != len(payload) {
-		//LogPrintf("payload长度不匹配 (头声明:%d 实际:%d)\n", payloadLen, len(payload))
+		LogPrintf("payload长度不匹配 (头声明:%d 实际:%d)\n", payloadLen, len(payload))
 		return newError("payload data len: %v not eq payload len field: %v", len(payload), int(payloadLen))
 	}
 
 	// CRC校验（仅payload）
 	computedCRC := crc16.Checksum(payload, crcTable)
 	if computedCRC != storedCRC {
-		//LogPrintf("CRC校验失败 (预期:0x%04X 实际:0x%04X)\n", storedCRC, computedCRC)
+		LogPrintf("CRC校验失败 (预期:0x%04X 实际:0x%04X)\n", storedCRC, computedCRC)
 		return newError("crc field: %x not eq calc value: %x", storedCRC, storedCRC)
 	}
 

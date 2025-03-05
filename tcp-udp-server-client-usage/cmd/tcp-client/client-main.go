@@ -1,7 +1,7 @@
 package main
 
 import (
-	demo "server-transport-go-usage/gen/go/lib"
+	demo "server-transport-go-usage/gen/go/proto"
 	"server-transport-go-usage/lib"
 	"server-transport-go-usage/lib/message"
 	"time"
@@ -16,14 +16,14 @@ func main() {
 	endPCnf = append(endPCnf, lib.EndpointTCPClient{Address: "0.0.0.0:5600"})
 	var endCnf = lib.NodeConf{
 		Endpoints:    endPCnf,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  0,
+		ReadTimeout:  2 * time.Second,
+		WriteTimeout: 2 * time.Second,
+		IdleTimeout:  2 * time.Second,
 	}
 	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 1)
 	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 2)
-	
-	n, err := lib.NewNode(endCnf)
+
+	n, err := lib.NewNode(&endCnf)
 	if err != nil {
 		LogPrintln("new client end node fail, err: ", err)
 		return
@@ -35,7 +35,7 @@ func main() {
 	defer n.Close()
 
 	mockInitCost := func() {
-		time.Sleep(5 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 	}
 	mockInitCost()
 
@@ -59,5 +59,5 @@ func main() {
 			LogPrintln("write frame data fail, err: ", err)
 		}
 	}
-	select {}
+	time.Sleep(2 * time.Minute)
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	demo "server-transport-go-usage/gen/go/lib"
+	demo "server-transport-go-usage/gen/go/proto"
 	"server-transport-go-usage/lib"
 	"time"
 
@@ -15,15 +15,15 @@ func main() {
 	//
 	var endCnf = lib.NodeConf{
 		Endpoints:    endPCnf,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 1 * time.Second,
-		IdleTimeout:  0 * time.Second,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+		IdleTimeout:  5 * time.Second,
 	}
 	//
 	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 1)
 	lib.RegisterCmdMessage[demo.BizReqMsg](&endCnf, 2)
 
-	n, err := lib.NewNode(endCnf)
+	n, err := lib.NewNode(&endCnf)
 	if err != nil {
 		LogPrintln("new node fail, err: ", err)
 		return
@@ -33,22 +33,30 @@ func main() {
 		return
 	}
 	defer n.Close()
+	defer func() {
+		if e := recover(); e != nil {
+			LogPrintln("panic: ", e)
+		}
+	}()
 
+	// 需要注册数据包的业务逻辑：
+	// BizHandle(context.Context, *EventFrame) (error, any)
 	for evt := range n.Events() {
 		if item, ok := evt.(*lib.EventFrame); ok {
 			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n",
 				item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
 			continue
-		} else {
-			if item, ok := evt.(*lib.EventParseError); ok {
-				LogPrintf("receive err parse message: %v", item)
-				continue
-			}
-			if item, ok := evt.(*lib.EventChannelOpen); ok {
-				LogPrintf("receive open new connect event, %v", item)
-				continue
-			}
 		}
+		if item, ok := evt.(*lib.EventParseError); ok {
+			LogPrintf("receive err parse message: %v", item)
+			continue
+		}
+		if item, ok := evt.(*lib.EventChannelOpen); ok {
+			LogPrintf("receive open new connect event, %v", item)
+			continue
+		}
+
 		LogPrintf("receive msg, value: %v", evt)
 	}
+	LogPrintf("exist on server mian.")
 }

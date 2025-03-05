@@ -33,7 +33,7 @@ type Channel struct {
 
 	ctx       context.Context
 	ctxCancel func()
-	frw       *frame.ReadWriter //在新连接上 做读写能力，封装了 scanner 读协议能力
+	frw       *frame.ReadWriter //在新连接上 做读写，封装了 scanner 读协议能力
 	running   bool
 
 	// in
@@ -103,6 +103,7 @@ func (ch *Channel) run() {
 	select {
 	case <-readerDone:
 		ch.rwc.Close()
+		LogPrintf("receive close reader signal.")
 
 		close(writerTerminate)
 		<-writerDone
@@ -138,10 +139,23 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 				ch.n.pushEvent(&EventParseError{err, ch})
 				continue
 			}
+
+			var emptyErr message.EmptyPkgError
+			if errors.As(err, &emptyErr) {
+				LogPrintf("receive empty pkg  error. %v", err)
+				continue
+			}
+
+			var ioTmout message.IoTimeoutError
+			if errors.As(err, &ioTmout) {
+				continue
+			}
+			LogPrintf("receive msg fail, err: %v", err)
 			return
 		}
 
 		evt := &EventFrame{Frame: fr, Channel: ch}
+		LogPrintf("send notify frame: %v", fr)
 		ch.n.pushEvent(evt)
 	}
 }

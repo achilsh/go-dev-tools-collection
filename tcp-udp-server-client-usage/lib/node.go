@@ -25,7 +25,7 @@ type writeExceptReq struct {
 // Node 抽象服务，节点
 type Node struct {
 	// conf 是 配置 node的信息，包括 节点连接信息等。
-	conf NodeConf
+	conf *NodeConf
 	// 所有消息的读写器集合
 	dialectRW *message.ReadWriter
 	wg        sync.WaitGroup
@@ -50,7 +50,7 @@ type Node struct {
 }
 
 // NewNode allocates a Node. See NodeConf for the options.
-func NewNode(conf NodeConf) (*Node, error) {
+func NewNode(conf *NodeConf) (*Node, error) {
 	if len(conf.Endpoints) == 0 {
 		return nil, fmt.Errorf("at least one endpoint must be provided")
 	}
@@ -92,9 +92,11 @@ func NewNode(conf NodeConf) (*Node, error) {
 	closeExisting := func() {
 		//关闭现有连接
 		for ch := range n.channels {
+			LogPrintf("call close connect chan: %v", ch)
 			ch.close()
 		}
 		for ca := range n.channelProviders {
+			LogPrintf("call close connected chan: %v", ca)
 			ca.close()
 		}
 	}
@@ -112,6 +114,7 @@ func NewNode(conf NodeConf) (*Node, error) {
 			ca, err := newChannelProvider(n, ttp) //ttp is endpoint;
 			if err != nil {
 				closeExisting()
+				LogPrintf("new chan provider fail, err: %v", err)
 				return nil, err
 			}
 
@@ -155,6 +158,7 @@ func (n *Node) closeChannel(ch *Channel) {
 
 // Close halts node operations and waits for all routines to return.
 func (n *Node) Close() {
+	LogPrintf("node close.")
 	close(n.terminate)
 	<-n.done
 }
@@ -167,6 +171,7 @@ outer:
 		select {
 		case ch := <-n.chNewChannel:
 			n.channels[ch] = struct{}{}
+			LogPrintf("receive new connect.")
 			ch.start()
 
 		case ch := <-n.chCloseChannel:
@@ -191,11 +196,13 @@ outer:
 			}
 
 		case <-n.terminate:
+			LogPrintf("receive on terminate chan.")
 			break outer
 		}
 	}
 
 	for ca := range n.channelProviders {
+		LogPrintf("to begin close end point.")
 		ca.close()
 	}
 

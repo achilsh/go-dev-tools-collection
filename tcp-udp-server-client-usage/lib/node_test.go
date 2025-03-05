@@ -2,7 +2,7 @@ package lib
 
 import (
 	"fmt"
-	demo "server-transport-go-usage/gen/go/lib"
+	demo "server-transport-go-usage/gen/go/proto"
 	"server-transport-go-usage/lib/message"
 	"testing"
 	"time"
@@ -24,7 +24,7 @@ func TestTcpClient(t *testing.T) {
 	}
 	endCnf.RegisterCmdMessage(1, new(demo.BizReqMsg))
 	endCnf.RegisterCmdMessage(2, new(demo.BizReqMsg))
-	n, err := NewNode(endCnf)
+	n, err := NewNode(&endCnf)
 	assert.Nil(t, err)
 	assert.NotNil(t, n)
 	defer n.Close()
@@ -63,7 +63,7 @@ func TestNodeServer(t *testing.T) {
 	endCnf.RegisterCmdMessage(1, new(demo.BizReqMsg))
 	endCnf.RegisterCmdMessage(2, new(demo.BizReqMsg))
 
-	n, err := NewNode(endCnf)
+	n, err := NewNode(&endCnf)
 	assert.Nil(t, err)
 	assert.NotNil(t, n)
 	defer n.Close()

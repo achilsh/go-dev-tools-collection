@@ -2,9 +2,11 @@ package frame
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"server-transport-go-usage/lib/message"
+	"server-transport-go-usage/lib/utils"
 	"time"
 )
 
@@ -46,8 +48,14 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	}
 
 	ret.scer.Buffer(make([]byte, bufferSize), bufferSize*2)
-	ret.scer.Split(message.ProtocolSplitter)
+	ret.scer.Split(message.ProtocolSplitter) //TODO:
 	return ret, nil
+}
+
+func ResetScanner(r *Reader) {
+	r.scer = bufio.NewScanner(r.conf.Reader)
+	r.scer.Buffer(make([]byte, bufferSize), bufferSize*2)
+	r.scer.Split(message.ProtocolSplitter)
 }
 
 // ReadPkg reads a Frame from the reader.
@@ -55,6 +63,16 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 // ReadPkg 从底层网络中读取数据
 func (r *Reader) ReadPkg() (MsgFrame, error) {
 	item := &message.DecodedMessage{}
-	err := item.UnPackageMessage(r.scer, r.conf.DialectRW)
+	///
+	ioRW, ok := r.conf.Reader.(utils.BizIoWRWrapper)
+	if !ok {
+		utils.LogPrintf("io reader is not implement BizIoWRWrapper interface.")
+		//
+	}
+	err := item.UnPackageMessage(r.scer, r.conf.DialectRW, ioRW)
+	if errors.As(err, &message.IoTimeoutError{}) {
+		ResetScanner(r)
+		ioRW.SetReadDeadline()
+	}
 	return item, err
 }

@@ -16,3 +16,29 @@ func newError(format string, args ...interface{}) ReadError {
 		str: fmt.Sprintf(format, args...),
 	}
 }
+
+type EmptyPkgError struct {
+	str string
+}
+
+func (e EmptyPkgError) Error() string {
+	return e.str
+}
+func newEmptyPkgError(format string, args ...any) EmptyPkgError {
+	return EmptyPkgError{
+		str: fmt.Sprintf(format, args...),
+	}
+}
+
+type IoTimeoutError struct {
+	str string
+}
+
+func (e IoTimeoutError) Error() string {
+	return e.str
+}
+func newIoTimeoutError(format string, args ...any) IoTimeoutError {
+	return IoTimeoutError{
+		str: fmt.Sprintf(format, args...),
+	}
+}

@@ -5,6 +5,8 @@ import (
 	"io"
 	"sync"
 	"time"
+
+	. "server-transport-go-usage/lib/utils"
 )
 
 var reconnectPeriod = 2 * time.Second
@@ -90,7 +92,9 @@ func (a *Reconnector) Reconnect() (io.ReadWriteCloser, bool) {
 	if a.curConn != nil {
 		select {
 		case <-a.curConn.ctx.Done():
+			LogPrintf("connected close.")
 		case <-a.ctx.Done():
+			LogPrintf("global close.")
 			return nil, false
 		}
 	}
@@ -100,12 +104,14 @@ func (a *Reconnector) Reconnect() (io.ReadWriteCloser, bool) {
 		if err != nil {
 			select {
 			case <-time.After(reconnectPeriod):
+				LogPrintf("retry connect.")
 				continue
 			case <-a.ctx.Done():
+				LogPrintf("reconnect receive close signal.")
 				return nil, false
 			}
 		}
-
+		LogPrintf("connect to server succ.")
 		a.curConn = newConnWithContext(conn)
 		return a.curConn, true
 	}

@@ -2,8 +2,8 @@ package frame
 
 import (
 	"bufio"
-
 	"server-transport-go-usage/lib/message"
+	"server-transport-go-usage/lib/utils"
 )
 
 type MsgFrame interface {
@@ -19,5 +19,5 @@ type MsgFrame interface {
 	// 把消息体和头部 打包成二进制数据
 	PackageMessage(buf []byte) (int, error)
 	// 读数据，解具体协议
-	UnPackageMessage(*bufio.Scanner, *message.ReadWriter) error
+	UnPackageMessage(*bufio.Scanner, *message.ReadWriter, utils.BizIoWRWrapper) error
 }

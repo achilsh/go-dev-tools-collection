@@ -1,14 +1,15 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
+	"server-transport-go-usage/lib/timednetconn"
 	"time"
 
 	"github.com/pion/transport/v2/udp"
-
-	"server-transport-go-usage/lib/timednetconn"
+	. "server-transport-go-usage/lib/utils"
 )
 
 type endpointServerConf interface {
@@ -109,6 +110,8 @@ func (t *endpointServer) Conf() EndpointConf {
 
 func (t *endpointServer) close() {
 	close(t.terminate)
+	//
+	LogPrintf("close end pointer server.")
 	t.listener.Close()
 }
 
@@ -120,9 +123,14 @@ func (t *endpointServer) provide() (string, io.ReadWriteCloser, error) {
 	nconn, err := t.listener.Accept()
 	// wait termination, do not report errors
 	if err != nil {
+		if errors.Is(err, net.ErrClosed) {
+			LogPrintln("Listener closed, exiting Accept loop")
+		}
+		LogPrintf("accept fail, err: %v", err)
 		<-t.terminate
 		return "", nil, errTerminated
 	}
+	LogPrintf("receive new connection, %v", nconn)
 
 	label := fmt.Sprintf("%s:%s", func() string {
 		if t.conf.isUDP() {
