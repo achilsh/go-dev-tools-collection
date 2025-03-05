@@ -26,9 +26,8 @@ func (*EventChannelClose) isEventOut() {}
 // EventFrame is the event fired when a frame is received.
 type EventFrame struct {
 	// the frame
-	// Frame frame.Frame 
+	// Frame frame.Frame
 	Frame frame.MsgFrame
-	
 
 	// the channel from which the frame was received
 	Channel *Channel

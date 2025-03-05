@@ -2,8 +2,8 @@ package frame
 
 import (
 	"io"
-
 	"server-transport-go-usage/lib/message"
+
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -36,8 +36,8 @@ func NewReadWriter(conf ReadWriterConf) (*ReadWriter, error) {
 	}
 
 	w, err := NewWriter(WriterConf{
-		Writer:             conf.ReadWriter,
-		DialectRW:          conf.DialectRW,
+		Writer:    conf.ReadWriter,
+		DialectRW: conf.DialectRW,
 	})
 	if err != nil {
 		return nil, err

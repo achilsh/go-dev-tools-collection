@@ -2,11 +2,11 @@ package lib
 
 import (
 	"fmt"
+	"server-transport-go-usage/lib/frame"
+	"server-transport-go-usage/lib/message"
 	"sync"
 	"time"
 
-	"server-transport-go-usage/lib/frame"
-	"server-transport-go-usage/lib/message"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -27,12 +27,12 @@ type Node struct {
 	// conf 是 配置 node的信息，包括 节点连接信息等。
 	conf NodeConf
 	// 所有消息的读写器集合
-	dialectRW        *message.ReadWriter
-	wg               sync.WaitGroup
+	dialectRW *message.ReadWriter
+	wg        sync.WaitGroup
 	// 消息连接器
 	channelProviders map[*channelProvider]struct{}
 	// 新建立的连接集合
-	channels          map[*Channel]struct{}
+	channels map[*Channel]struct{}
 
 	// in
 	// 用于通知新连接的通道
@@ -208,80 +208,16 @@ outer:
 	close(n.chEvent)
 }
 
-func (n *Node) encodeMessage(msg message.Message) (message.Message, error) {
-	if _, ok := msg.(*message.MessageRaw); !ok {
-		if n.dialectRW == nil {
-			return nil, fmt.Errorf("dialect is nil")
-		}
-
-		mp := n.dialectRW.GetMessage(msg.GetID())
-		if mp == nil {
-			return nil, fmt.Errorf("message is not in the dialect")
-		}
-
-		msgRaw := mp.Write(msg, n.conf.OutVersion == V2)
-		return msgRaw, nil
-	}
-
-	return msg, nil
-}
-
 // Events returns a channel from which receiving events. Possible events are:
 //
 // * EventChannelOpen
 // * EventChannelClose
 // * EventFrame
 // * EventParseError
-// * EventStreamRequested
 //
 // See individual events for details.
 func (n *Node) Events() chan Event {
 	return n.chEvent
-}
-
-// WriteMessageTo writes a message to given channel.
-func (n *Node) WriteMessageTo(channel *Channel, m message.Message) error {
-	m, err := n.encodeMessage(m)
-	if err != nil {
-		return err
-	}
-
-	select {
-	case n.chWriteTo <- writeToReq{channel, m}:
-	case <-n.terminate:
-	}
-
-	return nil
-}
-
-// WriteMessageAll writes a message to all channels.
-func (n *Node) WriteMessageAll(m message.Message) error {
-	m, err := n.encodeMessage(m)
-	if err != nil {
-		return err
-	}
-
-	select {
-	case n.chWriteAll <- m:
-	case <-n.terminate:
-	}
-
-	return nil
-}
-
-// WriteMessageExcept writes a message to all channels except specified channel.
-func (n *Node) WriteMessageExcept(exceptChannel *Channel, m message.Message) error {
-	m, err := n.encodeMessage(m)
-	if err != nil {
-		return err
-	}
-
-	select {
-	case n.chWriteExcept <- writeExceptReq{exceptChannel, m}:
-	case <-n.terminate:
-	}
-
-	return nil
 }
 
 // WriteFrameTo writes a frame to given channel.

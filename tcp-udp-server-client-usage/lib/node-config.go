@@ -1,9 +1,11 @@
 package lib
 
 import (
+	"reflect"
 	"time"
 
 	"server-transport-go-usage/lib/message"
+	. "server-transport-go-usage/lib/utils"
 )
 
 // NodeConf 是 Node的配置信息
@@ -12,8 +14,8 @@ type NodeConf struct {
 	// communicate. Each endpoint contains zero or more channels
 	Endpoints []EndpointConf
 
-	// 消息类型集合(业务)
-	Dialect []*message.CmdMessageInfo
+	// 消息类型集合(业务); 消息的类型要保持全局唯一
+	Dialect map[uint16]*message.CmdMessageInfo
 
 	// (optional) read timeout.
 	// It defaults to 10 seconds.
@@ -24,4 +26,22 @@ type NodeConf struct {
 	// (optional) timeout before closing idle connections.
 	// It defaults to 60 seconds.
 	IdleTimeout time.Duration
+}
+func (nf *NodeConf) RegisterCmdMessage(cmd uint16, msg any) {
+	if nf.Dialect == nil {
+		nf.Dialect = make(map[uint16]*message.CmdMessageInfo)
+	}
+	if reflect.TypeOf(msg).Kind() != reflect.Pointer {
+		LogPrintf("cmd: %v, msg kind: %v is not pointer\n", cmd, reflect.TypeOf(msg).Kind())
+		return
+	}
+
+	if _, ok := nf.Dialect[cmd]; ok {
+		return
+	}
+
+	nf.Dialect[cmd] = &message.CmdMessageInfo{
+		Cmd: cmd,
+		MsgType: reflect.TypeOf(msg),
+	}
 }

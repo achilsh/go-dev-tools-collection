@@ -6,6 +6,7 @@ import (
 )
 
 var logInst *log.Logger = nil
+
 func init() {
 	logInst = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
 }

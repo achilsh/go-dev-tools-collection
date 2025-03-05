@@ -39,14 +39,14 @@ func (cp *channelProvider) run() {
 		label, rwc, err := cp.eca.provide()
 		if err != nil {
 			if !errors.Is(err, errTerminated) {
-			LogPrintln("errTerminated is the only error allowed here")
+				LogPrintln("errTerminated is the only error allowed here")
 			}
 			break
 		}
 
 		ch, err := newChannel(cp.n, cp.eca, label, rwc)
 		if err != nil {
-			LogPrintf("newChannel unexpected error: %w\n", err)
+			LogPrintf("newChannel unexpected error: %v\n", err)
 		}
 
 		cp.n.newChannel(ch) //把创建的新连接 发送到框架Node的统一处理；
