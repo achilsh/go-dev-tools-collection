@@ -1,0 +1,60 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+syntax = "proto3";
+package grpc.demo;
+option go_package = "/demo";
+import "google/api/annotations.proto";
+
+message BizReqMsg {
+    string Name = 1;
+    int32 Aget = 2;
+}

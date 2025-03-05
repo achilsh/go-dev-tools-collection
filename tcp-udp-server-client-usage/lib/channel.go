@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
+
 	"server-transport-go-usage/lib/frame"
 )
 
@@ -118,6 +119,7 @@ func (ch *Channel) run() {
 	ch.n.closeChannel(ch)
 }
 
+// runReader 从创建的连接上 读取数据
 func (ch *Channel) runReader(readerDone chan struct{}) {
 	defer close(readerDone)
 

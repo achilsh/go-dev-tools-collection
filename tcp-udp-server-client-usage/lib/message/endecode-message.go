@@ -7,16 +7,17 @@ import (
 	"errors"
 
 	"github.com/sigurn/crc16"
+
 	. "server-transport-go-usage/lib/utils"
 )
 
 const (
-	PKG_START_FLAG = 0xFD
+	PKG_START_FLAG = uint8(0xFD)
 )
 
 // protocal format is : 8 byte head + payload + 2 byte(payload crc16)
 type HeaderMessage struct {
-	StartFlag  int8   // 消息起始位
+	StartFlag  uint8   // 消息起始位
 	PayLoadLen uint16 // 消息体长度
 	PkgSeq     uint16 //每次发送消息的序列号
 	DevType    int8   // 发送方类型
@@ -105,6 +106,7 @@ func (m *DecodedMessage) Unpackage(rw *ReadWriter) error {
 	// 解析： 使用 payload  和  msgType 进行解析
 	msgData := rw.AllocateMsgData(m.PkgType)
 	codeHandle := rw.GetCodecs()
+	m.DecodedMsg = msgData
 	return codeHandle.Decode(m.payloadBin, msgData)
 }
 
@@ -148,7 +150,7 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 
 	m.HeaderMessage = &HeaderMessage{
 		// 消息起始位
-		StartFlag:  int8(header[0]),                      //
+		StartFlag:  uint8(header[0]),                      //
 		PayLoadLen: payloadLen,                           // 消息体长度 2
 		PkgSeq:     binary.BigEndian.Uint16(header[3:5]), //每次发送消息的序列号
 		DevType:    int8(header[5]),                      // 发送方类型

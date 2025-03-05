@@ -68,7 +68,7 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 
 // ReadPkg reads a Frame from the reader.
 // It must not be called by multiple routines in parallell.
-// ReadPkg 从底层网络中读取 多个包
+// ReadPkg 从底层网络中读取数据
 func (r *Reader) ReadPkg() (MsgFrame, error) {
 	item := &message.DecodedMessage{}
 	err := item.UnPackageMessage(r.scer, r.conf.DialectRW)
