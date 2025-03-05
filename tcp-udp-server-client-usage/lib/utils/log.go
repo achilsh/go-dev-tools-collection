@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -11,8 +12,8 @@ func init() {
 	logInst = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 func LogPrintln(data ...any) {
-	logInst.Println(data...)
+	logInst.Output(2, fmt.Sprintln(data...))
 }
 func LogPrintf(format string, data ...any) {
-	logInst.Printf(format, data...)
+	logInst.Output(2, fmt.Sprintf(format, data...))
 }

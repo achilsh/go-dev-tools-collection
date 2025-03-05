@@ -35,21 +35,6 @@ type EventFrame struct {
 
 func (*EventFrame) isEventOut() {}
 
-// // SystemID returns the frame system id.
-// func (res *EventFrame) SystemID() byte {
-// 	return res.Frame.GetSystemID()
-// }
-
-// // ComponentID returns the frame component id.
-// func (res *EventFrame) ComponentID() byte {
-// 	return res.Frame.GetComponentID()
-// }
-
-// // Message returns the message inside the frame.
-// func (res *EventFrame) Message() message.Message {
-// 	return res.Frame.GetMessage()
-// }
-
 // EventParseError is the event fired when a parse error occurs.
 type EventParseError struct {
 	// the error

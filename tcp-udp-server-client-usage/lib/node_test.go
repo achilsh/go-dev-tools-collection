@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	demo "server-transport-go-usage/gen/go/lib"
 	"server-transport-go-usage/lib/message"
 	"testing"
@@ -38,7 +39,7 @@ func TestTcpClient(t *testing.T) {
 		},
 		DecodedMsg: &demo.BizReqMsg{
 			Name: "achilsh",
-			Aget: 120,
+			Age:  120,
 		},
 	}
 
@@ -46,7 +47,9 @@ func TestTcpClient(t *testing.T) {
 	err = n.WriteFrameAll(toSendMsg)
 	assert.Nil(t, err)
 }
-func TestNodeDemo(t *testing.T) {
+func TestNodeServer(t *testing.T) {
+	fmt.Println("aaa.....")
+	LogPrintln("running server.....")
 	var endPCnf []EndpointConf
 	endPCnf = append(endPCnf, EndpointTCPServer{Address: "0.0.0.0:5600"})
 	//

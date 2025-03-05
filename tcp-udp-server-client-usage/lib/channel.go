@@ -5,8 +5,9 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
-
 	"server-transport-go-usage/lib/frame"
+
+	. "server-transport-go-usage/lib/utils"
 )
 
 const (
@@ -152,7 +153,11 @@ func (ch *Channel) runWriter(writerTerminate chan struct{}, writerDone chan stru
 		case what := <-ch.chWrite:
 			switch wh := what.(type) {
 			case frame.MsgFrame:
-				ch.frw.WriteMsgFrame(wh) //nolint:errcheck
+				LogPrintln("send msg. ")
+				err := ch.frw.WriteMsgFrame(wh) //nolint:errcheck
+				if err != nil {
+					LogPrintln("write msg frame fail, err: ", err)
+				}
 			}
 
 		case <-writerTerminate:

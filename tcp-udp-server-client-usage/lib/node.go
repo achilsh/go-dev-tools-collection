@@ -2,11 +2,11 @@ package lib
 
 import (
 	"fmt"
+	"server-transport-go-usage/lib/frame"
+	"server-transport-go-usage/lib/message"
 	"sync"
 	"time"
 
-	"server-transport-go-usage/lib/frame"
-	"server-transport-go-usage/lib/message"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -243,12 +243,13 @@ func (n *Node) WriteFrameTo(channel *Channel, fr frame.MsgFrame) error {
 func (n *Node) encodeFrame(fr frame.MsgFrame) error {
 	payLoad := fr.GetMessage()
 	if payLoad == nil {
+		LogPrintln("get biz message is nil")
 		return nil
 	}
 
 	binPayLoad, err := n.dialectRW.GetCodecs().Encode(payLoad)
 	if err != nil {
-		fmt.Println("encode msg fail, err: ", err)
+		LogPrintln("encode msg fail, err: ", err)
 		return err
 	}
 

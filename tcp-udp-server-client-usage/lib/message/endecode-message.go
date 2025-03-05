@@ -7,17 +7,16 @@ import (
 	"errors"
 
 	"github.com/sigurn/crc16"
-
 	. "server-transport-go-usage/lib/utils"
 )
 
 const (
-	PKG_START_FLAG = uint8(0xFD)
+	PKG_START_FLAG = uint8(0xFE)
 )
 
 // protocal format is : 8 byte head + payload + 2 byte(payload crc16)
 type HeaderMessage struct {
-	StartFlag  uint8   // 消息起始位
+	StartFlag  uint8  // 消息起始位
 	PayLoadLen uint16 // 消息体长度
 	PkgSeq     uint16 //每次发送消息的序列号
 	DevType    int8   // 发送方类型
@@ -63,7 +62,7 @@ func (m *DecodedMessage) SetPayLoadLen(clen uint16) {
 func (m *DecodedMessage) PackageMessage(buf []byte) (int, error) {
 	header := make([]byte, headerSize)
 
-	header[0] = byte(m.HeaderMessage.StartFlag)
+	header[0] = m.HeaderMessage.StartFlag
 	binary.BigEndian.PutUint16(header[1:3], m.HeaderMessage.PayLoadLen)
 	binary.BigEndian.PutUint16(header[3:5], m.HeaderMessage.PkgSeq)
 	header[5] = byte(m.HeaderMessage.DevType)
@@ -77,6 +76,7 @@ func (m *DecodedMessage) PackageMessage(buf []byte) (int, error) {
 	bufTmp.Write(m.payloadBin)
 	binary.Write(bufTmp, binary.BigEndian, crc)
 	n := copy(buf, bufTmp.Bytes())
+	LogPrintf("encoded whole package len: %v\n", n)
 	return n, nil
 }
 
@@ -145,12 +145,11 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	msgType := binary.BigEndian.Uint16(header[6:8])
 
 	// 输出结果
-	LogPrintf("有效数据包: seq=%d source=0x%02X type=0x%04X payload_len=%d\n",
-		seq, source, msgType, len(payload))
+	LogPrintf("有效数据包: seq=%d source=0x%02X type=0x%04X payload_len=%d \n", seq, source, msgType, len(payload))
 
 	m.HeaderMessage = &HeaderMessage{
 		// 消息起始位
-		StartFlag:  uint8(header[0]),                      //
+		StartFlag:  uint8(header[0]),                     //
 		PayLoadLen: payloadLen,                           // 消息体长度 2
 		PkgSeq:     binary.BigEndian.Uint16(header[3:5]), //每次发送消息的序列号
 		DevType:    int8(header[5]),                      // 发送方类型

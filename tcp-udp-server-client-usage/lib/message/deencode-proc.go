@@ -8,7 +8,6 @@ import (
 
 const (
 	headerSize = 8 // 1(magic) + 2(payloadLen) + 2(seq) + 1(source) + 2(type)
-	magicByte  = 0xFE
 	crcSize    = 2
 	minPacket  = headerSize + crcSize // 最小有效包长度（空payload情况）
 )
@@ -32,7 +31,7 @@ func ProtocolSplitter(data []byte, atEOF bool) (advance int, token []byte, err e
 		}
 
 		// 检查 Magic 字节有效性
-		if data[i] != magicByte {
+		if data[i] != PKG_START_FLAG {
 			i++ // 尝试下一个字节
 			continue
 		}
