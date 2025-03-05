@@ -36,8 +36,8 @@ func main() {
 
 	for evt := range n.Events() {
 		if item, ok := evt.(*lib.EventFrame); ok {
-			LogPrintf("msg type: %v, seq: %v, msg data: %v\n",
-				item.Frame.GetPkgSeq(), item.Frame.GetDevType(), item.Frame.GetMessage())
+			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n",
+				item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
 		} else {
 			if item, ok := evt.(*lib.EventParseError); ok {
 				LogPrintf("receive err parse message: %v", item)

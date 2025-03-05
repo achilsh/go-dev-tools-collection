@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"errors"
 
 	"github.com/sigurn/crc16"
 	. "server-transport-go-usage/lib/utils"
@@ -107,7 +106,11 @@ func (m *DecodedMessage) Unpackage(rw *ReadWriter) error {
 	msgData := rw.AllocateMsgData(m.PkgType)
 	codeHandle := rw.GetCodecs()
 	m.DecodedMsg = msgData
-	return codeHandle.Decode(m.payloadBin, msgData)
+	err := codeHandle.Decode(m.payloadBin, msgData)
+	if err != nil {
+		return newError("decode payload bin fail, err: %v", err)
+	}
+	return nil
 }
 
 // 解析并校验数据包； 返回有效的包：
@@ -115,8 +118,8 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	pkgLen := len(pkt)
 	// 基础长度校验
 	if pkgLen < minPacket {
-		LogPrintf("receive pkg msg len: %d, less head len\n", pkgLen)
-		return errors.New("数据包长度不足")
+		//LogPrintf("receive pkg msg len: %d, less head len\n", pkgLen)
+		return newError("package received len: %v less than: %v; 数据包长度不足", pkgLen, minPacket)
 	}
 
 	// 分解数据包
@@ -127,16 +130,15 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	// 校验payload长度
 	payloadLen := binary.BigEndian.Uint16(header[1:3])
 	if int(payloadLen) != len(payload) {
-		LogPrintf("payload长度不匹配 (头声明:%d 实际:%d)\n", payloadLen, len(payload))
-
-		return errors.New("pkg payload len not eq len field.")
+		//LogPrintf("payload长度不匹配 (头声明:%d 实际:%d)\n", payloadLen, len(payload))
+		return newError("payload data len: %v not eq payload len field: %v", len(payload), int(payloadLen))
 	}
 
 	// CRC校验（仅payload）
 	computedCRC := crc16.Checksum(payload, crcTable)
 	if computedCRC != storedCRC {
-		LogPrintf("CRC校验失败 (预期:0x%04X 实际:0x%04X)\n", storedCRC, computedCRC)
-		return errors.New("received pkg crc checksum not eq.")
+		//LogPrintf("CRC校验失败 (预期:0x%04X 实际:0x%04X)\n", storedCRC, computedCRC)
+		return newError("crc field: %x not eq calc value: %x", storedCRC, storedCRC)
 	}
 
 	// 解析其他头字段

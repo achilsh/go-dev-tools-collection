@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"server-transport-go-usage/lib/frame"
+	"server-transport-go-usage/lib/message"
 
 	. "server-transport-go-usage/lib/utils"
 )
@@ -131,7 +132,7 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 	for {
 		fr, err := ch.frw.ReadPkg()
 		if err != nil {
-			var errRead frame.ReadError
+			var errRead message.ReadError
 			if errors.As(err, &errRead) {
 				ch.n.pushEvent(&EventParseError{err, ch})
 				continue

@@ -4,9 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"time"
-
 	"server-transport-go-usage/lib/message"
+	"time"
 )
 
 const (
@@ -15,21 +14,6 @@ const (
 
 // 1st January 2015 GMT
 var signatureReferenceDate = time.Date(2015, 0o1, 0o1, 0, 0, 0, 0, time.UTC)
-
-// ReadError is the error returned in case of non-fatal parsing errors.
-type ReadError struct {
-	str string
-}
-
-func (e ReadError) Error() string {
-	return e.str
-}
-
-func newError(format string, args ...interface{}) ReadError {
-	return ReadError{
-		str: fmt.Sprintf(format, args...),
-	}
-}
 
 // ReaderConf is the configuration of a Reader.
 type ReaderConf struct {
