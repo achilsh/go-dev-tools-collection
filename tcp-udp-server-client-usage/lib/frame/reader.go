@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
+
 	"server-transport-go-usage/lib/message"
 	"server-transport-go-usage/lib/utils"
-	"time"
 )
 
 const (
@@ -63,10 +64,10 @@ func ResetScanner(r *Reader) {
 // ReadPkg 从底层网络中读取数据
 func (r *Reader) ReadPkg() (MsgFrame, error) {
 	item := &message.DecodedMessage{}
-	///
+	//
 	ioRW, ok := r.conf.Reader.(utils.BizIoWRWrapper)
 	if !ok {
-		utils.LogPrintf("io reader is not implement BizIoWRWrapper interface.")
+		utils.LogPrintf("io reader is not implement BizIoWRWrapper interface, %v", r.conf.Reader)
 		//
 	}
 	err := item.UnPackageMessage(r.scer, r.conf.DialectRW, ioRW)

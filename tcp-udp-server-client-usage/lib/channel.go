@@ -5,9 +5,9 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
+
 	"server-transport-go-usage/lib/frame"
 	"server-transport-go-usage/lib/message"
-
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -135,7 +135,7 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 		if err != nil {
 			var errRead message.ReadError
 			if errors.As(err, &errRead) {
-				LogPrintln("read fail, err: %v", errRead)
+				LogPrintf("read fail, err: %v", errRead)
 				ch.n.pushEvent(&EventParseError{err, ch})
 				continue
 			}
@@ -148,7 +148,8 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 
 			var ioTmout message.IoTimeoutError
 			if errors.As(err, &ioTmout) {
-				continue
+				// continue
+				//直接结束本次连接
 			}
 			LogPrintf("receive msg fail, err: %v", err)
 			return

@@ -6,5 +6,7 @@ http-server/http-server
 .vscode/
 cloudwego-usage/hertz_usage/hz-new-demo/.hz
 cloudwego-usage/hertz_usage/hz-new-demo/.hz
-tcp-udp-server-client-usage/cmd/tcp-server
-tcp-udp-server-client-usage/cmd/tcp-client
+tcp-udp-server-client-usage/cmd/tcp-server/tcp-server
+tcp-udp-server-client-usage/cmd/tcp-client/tcp-client
+tcp-udp-server-client-usage/cmd/udp-client/udp-client
+tcp-udp-server-client-usage/cmd/udp-server/udp-server
