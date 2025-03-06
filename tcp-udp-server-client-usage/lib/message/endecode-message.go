@@ -4,9 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"errors"
+	"fmt"
+	"io"
 	"net"
 
 	"github.com/sigurn/crc16"
+
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -81,7 +85,7 @@ func (m *DecodedMessage) PackageMessage(buf []byte) (int, error) {
 }
 
 // UnPackageMessage 读取数据，解析协议，获取要每个有效的包。
-func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter, wrio BizIoWRWrapper) error {
+func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter) error {
 	if scanner.Scan() {
 		err := m.parseAndValidPkg(scanner.Bytes())
 		if err != nil {
@@ -167,5 +171,109 @@ func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
 	}
 
 	m.payloadBin = payload
+	return nil
+}
+
+func (m *DecodedMessage)parsePackage(reader *bufio.Reader)  (*HeaderMessage, []byte, error) {
+	for {
+		// 1. 寻找起始标志0xFD
+		for {
+			// 尝试读取一个字节，不推进Reader位置
+			peekBytes, err := reader.Peek(1)
+			if err != nil {
+				if err == io.EOF {
+					LogPrintf("peek fail, err: %v", err)
+					return nil, nil, err // 数据不足，需重试
+				}
+				return nil, nil, fmt.Errorf("peak start flag, 读取错误: %v", err)
+			}
+
+			if peekBytes[0] == PKG_START_FLAG {
+				break // 找到起始标志
+			}
+
+			// 丢弃非起始标志的字节
+			_, _ = reader.Discard(1)
+		}
+
+		// 2. 检查是否有完整的8字节头部
+		if _, err := reader.Peek(headerSize); err != nil {
+			if err == io.EOF {
+				LogPrintf("peek header fail, err: %v", err)
+				return nil, nil, err // 数据不足，需等待
+			}
+			return nil, nil, fmt.Errorf("peak header, 读取头部失败: %v", err)
+		}
+
+		// 3. 读取完整头部
+		headerBytes := make([]byte,headerSize)
+		if _, err := io.ReadFull(reader, headerBytes); err != nil {
+			return nil, nil, fmt.Errorf("读取头部失败: %v", err)
+		}
+
+		// 4. 解析头部（大端序）
+		hdr := &HeaderMessage{
+			StartFlag:  headerBytes[0],
+			PayLoadLen: binary.BigEndian.Uint16(headerBytes[1:3]),
+			PkgSeq:     binary.BigEndian.Uint16(headerBytes[3:5]),
+			DevType:    int8(headerBytes[5]),
+			PkgType:    binary.BigEndian.Uint16(headerBytes[6:8]),
+		}
+
+		// 5. 计算总需数据长度（头部+Payload+CRC）
+		totalNeeded := int(hdr.PayLoadLen) + crcSize
+		if _, err := reader.Peek(totalNeeded); err != nil {
+			// 数据不足，需等待（此处已消耗头部，无法回退）
+			return nil, nil, fmt.Errorf("peak payload and crc16, 等待Payload和CRC: %v", err)
+		}
+
+		// 6. 读取Payload和CRC
+		payload := make([]byte, hdr.PayLoadLen)
+		if _, err := io.ReadFull(reader, payload); err != nil {
+			return nil, nil, fmt.Errorf("读取Payload失败: %v", err)
+		}
+
+		crcBytes := make([]byte, crcSize)
+		if _, err := io.ReadFull(reader, crcBytes); err != nil {
+			return nil, nil, fmt.Errorf("读取CRC失败: %v", err)
+		}
+
+		// 7. 校验CRC（Payload）
+		receivedCRC := binary.BigEndian.Uint16(crcBytes)
+		computedCRC := crc16.Checksum(payload, crc16.MakeTable(crc16.CRC16_CCITT_FALSE))
+		if computedCRC != receivedCRC {
+			// CRC失败，继续寻找下一个起始标志
+			return nil, nil, errors.New("crc checksum is not right.")
+		}
+
+		// 8. 返回有效数据
+		return hdr, payload, nil
+	}
+}
+func( m*DecodedMessage) UnPackageMessageV2(reader *bufio.Reader, rw *ReadWriter) error {
+	h, body, err := m.parsePackage(reader)
+	if err != nil {
+		return err
+	}
+	if h == nil {
+		return fmt.Errorf("parsed fail.")
+	}
+	m.payloadBin = body
+	m.HeaderMessage = h
+
+	if h.PayLoadLen == 0 {
+		m.DecodedMsg = nil
+		m.payloadBin = nil
+		return nil
+	}
+
+		// 解析： 使用 payload  和  msgType 进行解析
+	msgData := rw.AllocateMsgData(m.PkgType)
+	codeHandle := rw.GetCodecs()
+	m.DecodedMsg = msgData
+	err = codeHandle.Decode(m.payloadBin, msgData)
+	if err != nil {
+		return newError("decode payload bin fail, err: %v", err)
+	}
 	return nil
 }

@@ -33,7 +33,8 @@ type Reader struct {
 	conf                 ReaderConf
 	br                   *bufio.Reader // 新连接
 	curReadSignatureTime uint64
-	scer                 *bufio.Scanner // 用于读取，切分协议
+	scer                 *bufio.Scanner                                                       // 用于读取，切分协议
+	splitFunc            func(data []byte, atEOF bool) (advance int, token []byte, err error) //切分的规则函数
 }
 
 // NewReader allocates a Reader.
@@ -45,18 +46,18 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	ret := &Reader{
 		conf: conf,
 		br:   bufio.NewReaderSize(conf.Reader, bufferSize),
-		scer: bufio.NewScanner(conf.Reader),
 	}
 
-	ret.scer.Buffer(make([]byte, bufferSize), bufferSize*2)
-	ret.scer.Split(message.ProtocolSplitter) //TODO:
+	//设置scanner对象
+	// ResetScanner(ret)
 	return ret, nil
 }
 
 func ResetScanner(r *Reader) {
+	r.splitFunc = message.ProtocolSplitter
 	r.scer = bufio.NewScanner(r.conf.Reader)
 	r.scer.Buffer(make([]byte, bufferSize), bufferSize*2)
-	r.scer.Split(message.ProtocolSplitter)
+	r.scer.Split(r.splitFunc)
 }
 
 // ReadPkg reads a Frame from the reader.
@@ -64,15 +65,28 @@ func ResetScanner(r *Reader) {
 // ReadPkg 从底层网络中读取数据
 func (r *Reader) ReadPkg() (MsgFrame, error) {
 	item := &message.DecodedMessage{}
-	//
 	ioRW, ok := r.conf.Reader.(utils.BizIoWRWrapper)
 	if !ok {
 		utils.LogPrintf("io reader is not implement BizIoWRWrapper interface, %v", r.conf.Reader)
 		//
 	}
-	err := item.UnPackageMessage(r.scer, r.conf.DialectRW, ioRW)
+	err := item.UnPackageMessage(r.scer, r.conf.DialectRW)
 	if errors.As(err, &message.IoTimeoutError{}) {
 		ResetScanner(r)
+		ioRW.SetReadDeadline()
+	}
+	return item, err
+}
+
+func (r *Reader) ReadPkgV2() (MsgFrame, error) {
+	item := &message.DecodedMessage{}
+	ioRW, ok := r.conf.Reader.(utils.BizIoWRWrapper)
+	if !ok {
+		utils.LogPrintf("io reader is not implement BizIoWRWrapper interface, %v", r.conf.Reader)
+		//
+	}
+	err := item.UnPackageMessageV2(r.br, r.conf.DialectRW)
+	if errors.As(err, &message.IoTimeoutError{}) {
 		ioRW.SetReadDeadline()
 	}
 	return item, err

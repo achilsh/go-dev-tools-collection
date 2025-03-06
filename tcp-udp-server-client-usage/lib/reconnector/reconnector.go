@@ -2,6 +2,7 @@ package reconnector
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -29,6 +30,27 @@ func newConnWithContext(rwc io.ReadWriteCloser) *connWithContext {
 		ctx:       ctx,
 		ctxCancel: ctxCancel,
 	}
+}
+
+func (c *connWithContext)SetReadDeadline() error {
+	if rwc, ok := c.rwc.(BizIoWRWrapper); ok {
+		rwc.SetReadDeadline()
+		return nil
+	} else {
+		LogPrintf("not is bizIoRWWrapper for c.rwc type.")
+		return fmt.Errorf("not c.rwc obj")
+	}
+	return nil
+}
+func (c *connWithContext)SetWriteDeadline() error {
+	if rwc, ok := c.rwc.(BizIoWRWrapper); ok {
+		rwc.SetWriteDeadline()
+		return nil
+	} else {
+		LogPrintf("not is bizIoRWWrapper for c.rwc type.")
+		return fmt.Errorf("not c.rwc obj")
+	}
+	return nil
 }
 
 func (c *connWithContext) Close() error {

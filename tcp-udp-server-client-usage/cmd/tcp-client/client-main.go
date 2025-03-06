@@ -1,11 +1,11 @@
 package main
 
 import (
+	"time"
+
 	demo "server-transport-go-usage/gen/go/proto"
 	"server-transport-go-usage/lib"
 	"server-transport-go-usage/lib/message"
-	"time"
-
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -59,5 +59,5 @@ func main() {
 			LogPrintln("write frame data fail, err: ", err)
 		}
 	}
-	time.Sleep(2 * time.Minute)
+	time.Sleep(1 * time.Minute)
 }

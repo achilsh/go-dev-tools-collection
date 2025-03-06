@@ -131,7 +131,7 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 	ch.n.pushEvent(&EventChannelOpen{ch})
 
 	for {
-		fr, err := ch.frw.ReadPkg()
+		fr, err := ch.frw.ReadPkgV2() //ReadPkg()
 		if err != nil {
 			var errRead message.ReadError
 			if errors.As(err, &errRead) {
