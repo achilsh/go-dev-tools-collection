@@ -1,12 +1,13 @@
 package lib
 
 import (
+	"context"
 	"fmt"
-	"server-transport-go-usage/lib/frame"
-	"server-transport-go-usage/lib/message"
 	"sync"
 	"time"
 
+	"server-transport-go-usage/lib/frame"
+	"server-transport-go-usage/lib/message"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -47,6 +48,9 @@ type Node struct {
 	// out
 	chEvent chan Event
 	done    chan struct{}
+	//
+	router *BizLogicRouter
+	getCmd func(*EventFrame) string
 }
 
 // NewNode allocates a Node. See NodeConf for the options.
@@ -87,6 +91,14 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		terminate:        make(chan struct{}),
 		chEvent:          make(chan Event),
 		done:             make(chan struct{}),
+		router: NewBizLogicRouter(),
+	}
+	//根据消息类型获取该消息的处理函数
+	n.getCmd = func(fr *EventFrame)string {
+		if fr == nil {
+			return ""
+		}
+		return fmt.Sprintf("pKey:%v", fr.Frame.GetPkgType())
 	}
 
 	closeExisting := func() {
@@ -133,6 +145,35 @@ func NewNode(conf *NodeConf) (*Node, error) {
 
 	return n, nil
 }
+
+func (n *Node)BlockHandleLogic() {
+	for evt := range n.Events() {
+		if item, ok := evt.(*EventFrame); ok {
+			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n", item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
+			//
+			cmdValue := n.getCmd(item)
+			logicProcess, err := n.router.GetRouterHandle(cmdValue)
+			if err != nil {
+				LogPrintf("cmd get handle fail, %v", err)
+				continue
+			}
+			logicProcess.Handle(context.Background(), item)
+			continue
+		}
+		if item, ok := evt.(*EventParseError); ok {
+			LogPrintf("receive err parse message: %v", item)
+			continue
+		}
+		if item, ok := evt.(*EventChannelOpen); ok {
+			LogPrintf("receive open new connect event, %v", item)
+			continue
+		}
+
+		LogPrintf("receive msg, value: %v", evt)
+	}
+	LogPrintf("exit Logic Handle.")
+}
+
 
 func (n *Node) pushEvent(evt Event) {
 	select {
