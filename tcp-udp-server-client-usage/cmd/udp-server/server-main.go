@@ -1,10 +1,10 @@
-package main 
+package main
 
 import (
-	demo "server-transport-go-usage/gen/go/proto"
-	"server-transport-go-usage/lib"
 	"time"
 
+	demo "server-transport-go-usage/gen/go/proto"
+	"server-transport-go-usage/lib"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -39,24 +39,27 @@ func main() {
 		}
 	}()
 
+outStep:
 	// 需要注册数据包的业务逻辑：
 	// BizHandle(context.Context, *EventFrame) (error, any)
 	for evt := range n.Events() {
-		if item, ok := evt.(*lib.EventFrame); ok {
+		switch dataFrame := evt.(type) {
+		case *lib.EventFrame:
 			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n",
-				item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
-			continue
-		}
-		if item, ok := evt.(*lib.EventParseError); ok {
-			LogPrintf("receive err parse message: %v", item)
-			continue
-		}
-		if item, ok := evt.(*lib.EventChannelOpen); ok {
-			LogPrintf("receive open new connect event, %v", item)
-			continue
-		}
+				dataFrame.Frame.GetPkgSeq(), dataFrame.Frame.GetPkgType(), dataFrame.Frame.GetMessage())
+		case *lib.EventParseError:
+			LogPrintf("receive err parse message: %v", dataFrame)
 
-		LogPrintf("receive msg, value: %v", evt)
+		case *lib.EventChannelOpen:
+			LogPrintf("receive open new connect event, %v", dataFrame)
+
+		case *lib.EventChannelClose:
+			LogPrintf("receive close connect event, %v", dataFrame)
+			goto outStep
+		default:
+			LogPrintf("receive msg, value: %v", evt)
+			goto outStep
+		}
 	}
 	LogPrintf("exist on server mian.")
 }
