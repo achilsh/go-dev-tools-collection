@@ -50,7 +50,7 @@ type Node struct {
 	done    chan struct{}
 	//
 	router *BizLogicRouter
-	getCmd func(*EventFrame) string
+	getCmd func(uint16) string
 }
 
 // NewNode allocates a Node. See NodeConf for the options.
@@ -93,14 +93,12 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		done:             make(chan struct{}),
 		router: NewBizLogicRouter(),
 	}
-	//根据消息类型获取该消息的处理函数
-	n.getCmd = func(fr *EventFrame)string {
-		if fr == nil {
-			return ""
-		}
-		return fmt.Sprintf("pKey:%v", fr.Frame.GetPkgType())
-	}
+	n.router.AddWithoutBizRouter(new(FailLogicProcesser))
+	n.router.AddRouter(GetProcessId(1), new(MsgOneProcess))
+	//add others.
 
+	//根据消息类型获取该消息的处理函数
+	n.getCmd = GetProcessId
 	closeExisting := func() {
 		//关闭现有连接
 		for ch := range n.channels {
@@ -146,25 +144,30 @@ func NewNode(conf *NodeConf) (*Node, error) {
 	return n, nil
 }
 
-func (n *Node)BlockHandleLogic() {
+func (n *Node) BlockHandleLogic() {
 	for evt := range n.Events() {
 		if item, ok := evt.(*EventFrame); ok {
 			LogPrintf("msg seq: %v, msg Type: %v, msg data: %v\n", item.Frame.GetPkgSeq(), item.Frame.GetPkgType(), item.Frame.GetMessage())
 			//
-			cmdValue := n.getCmd(item)
+			cmdValue := n.getCmd(item.Frame.GetPkgType())
 			logicProcess, err := n.router.GetRouterHandle(cmdValue)
 			if err != nil {
 				LogPrintf("cmd get handle fail, %v", err)
 				continue
 			}
+
 			logicProcess.Handle(context.Background(), item)
 			continue
 		}
 		if item, ok := evt.(*EventParseError); ok {
+			parseFailHandle  := n.router.GetBizNoHandle()
+			parseFailHandle.HandleParseFail(context.Background(), item)
 			LogPrintf("receive err parse message: %v", item)
 			continue
 		}
 		if item, ok := evt.(*EventChannelOpen); ok {
+			connHandle := n.router.GetBizNoHandle()
+			connHandle.HandleNewConn(context.Background(), item)
 			LogPrintf("receive open new connect event, %v", item)
 			continue
 		}
