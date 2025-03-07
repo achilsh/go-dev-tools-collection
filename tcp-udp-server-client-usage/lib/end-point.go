@@ -21,3 +21,11 @@ type endpointChannelProvider interface {
 	oneChannelAtAtime() bool
 	provide() (string, io.ReadWriteCloser, error)
 }
+
+
+
+type endpointChannelSingle interface {
+	Endpoint
+	label() string
+	io.ReadWriteCloser
+}

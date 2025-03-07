@@ -59,13 +59,13 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		return nil, fmt.Errorf("at least one endpoint must be provided")
 	}
 	if conf.ReadTimeout == 0 {
-		conf.ReadTimeout = 10*time.Second
+		conf.ReadTimeout = 10 * time.Second
 	}
 	if conf.WriteTimeout == 0 {
 		conf.WriteTimeout = 10 * time.Second
 	}
 	if conf.IdleTimeout == 0 {
-		conf.IdleTimeout = 60*time.Second
+		conf.IdleTimeout = 60 * time.Second
 	}
 
 	dialectRW, err := func() (*message.ReadWriter, error) {
@@ -91,7 +91,7 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		terminate:        make(chan struct{}),
 		chEvent:          make(chan Event),
 		done:             make(chan struct{}),
-		router: NewBizLogicRouter(),
+		router:           NewBizLogicRouter(),
 	}
 	n.router.AddWithoutBizRouter(new(FailLogicProcesser))
 	n.router.AddRouter(GetProcessId(1), new(MsgOneProcess))
@@ -129,15 +129,30 @@ func NewNode(conf *NodeConf) (*Node, error) {
 			}
 
 			n.channelProviders[ca] = struct{}{}
+		case endpointChannelSingle:
+			ch, err := newChannel(n, ttp, ttp.label(), ttp) // return Channel on once no-connect request. only connect for no-connect-udp servers
+			if err != nil {
+				closeExisting()
+				return nil, err
+			}
+			LogPrintf("is single listen, %v", ch)
+
+			n.channels[ch] = struct{}{}
 
 		default:
 			LogPrintf("endpoint %T does not implement any interface", tp)
 		}
 	}
 
+	for ch := range n.channels {
+		ch.start() // direct read msg on no-connect.
+	}
+
+	//必须先 把 channels 启动起来
 	for ca := range n.channelProviders {
 		ca.start() //每个服务创建listener， 等待client的连接
 	}
+
 
 	go n.run()
 
@@ -160,7 +175,7 @@ func (n *Node) BlockHandleLogic() {
 			continue
 		}
 		if item, ok := evt.(*EventParseError); ok {
-			parseFailHandle  := n.router.GetBizNoHandle()
+			parseFailHandle := n.router.GetBizNoHandle()
 			parseFailHandle.HandleParseFail(context.Background(), item)
 			LogPrintf("receive err parse message: %v", item)
 			continue
@@ -176,7 +191,6 @@ func (n *Node) BlockHandleLogic() {
 	}
 	LogPrintf("exit Logic Handle.")
 }
-
 
 func (n *Node) pushEvent(evt Event) {
 	select {

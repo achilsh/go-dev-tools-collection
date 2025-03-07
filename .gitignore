@@ -10,3 +10,5 @@ tcp-udp-server-client-usage/cmd/tcp-server/tcp-server
 tcp-udp-server-client-usage/cmd/tcp-client/tcp-client
 tcp-udp-server-client-usage/cmd/udp-client/udp-client
 tcp-udp-server-client-usage/cmd/udp-server/udp-server
+tcp-udp-server-client-usage/cmd/udp-single-client/udp-single-client
+tcp-udp-server-client-usage/cmd/cmd/udp-single-server/udp-single-server

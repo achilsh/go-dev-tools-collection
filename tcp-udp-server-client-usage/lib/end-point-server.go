@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"server-transport-go-usage/lib/timednetconn"
 	"time"
 
 	"github.com/pion/transport/v2/udp"
-
-	"server-transport-go-usage/lib/timednetconn"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -32,6 +31,87 @@ func (EndpointTCPServer) isUDP() bool {
 
 func (conf EndpointTCPServer) getAddress() string {
 	return conf.Address
+}
+
+// udp 单播服务
+type EndPointUDPSingleServer struct {
+	Address string
+}
+
+type endPointUDPSingleServer struct {
+	conf         EndPointUDPSingleServer
+	pc           net.PacketConn // listen addr.
+	writeTimeout time.Duration
+	idleTimeout  time.Duration
+	singleAddr   net.Addr
+
+	// in
+	terminate chan struct{}
+}
+
+// 实现
+func (conf EndPointUDPSingleServer) init(node *Node) (Endpoint, error) {
+	pc, err := net.ListenPacket("udp4", conf.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &endPointUDPSingleServer{
+		conf: conf,
+		pc:   pc,
+		// singleAddr: ,
+		writeTimeout: node.conf.WriteTimeout,
+		idleTimeout:  node.conf.IdleTimeout,
+		terminate:    make(chan struct{}),
+	}
+	return t, nil
+}
+
+func (t *endPointUDPSingleServer) isEndpoint() {}
+
+func (t *endPointUDPSingleServer) Conf() EndpointConf {
+	return t.conf
+}
+
+func (t *endPointUDPSingleServer) label() string {
+	return fmt.Sprintf("udp:%s", t.pc)
+}
+
+func (t *endPointUDPSingleServer) Close() error {
+	close(t.terminate)
+	t.pc.Close()
+	return nil
+}
+func (t *endPointUDPSingleServer) SetReadDeadline() error {
+	err := t.pc.SetWriteDeadline(time.Now().Add(t.idleTimeout))
+	return err
+}
+func (t *endPointUDPSingleServer) SetWriteDeadline() error {
+	err := t.pc.SetWriteDeadline(time.Now().Add(t.writeTimeout))
+	return err
+}
+
+// 读数据
+func (t *endPointUDPSingleServer) Read(buf []byte) (int, error) {
+	// read WITHOUT deadline. Long periods without packets are normal since
+	// we're not directly connected to someone.
+	n, _, err := t.pc.ReadFrom(buf)
+	// wait termination, do not report errors
+	if err != nil {
+		<-t.terminate
+		return 0, errTerminated
+	}
+
+	return n, nil
+}
+
+// 写数据
+func (t *endPointUDPSingleServer) Write(buf []byte) (int, error) {
+	err := t.pc.SetWriteDeadline(time.Now().Add(t.writeTimeout))
+	if err != nil {
+		return 0, err
+	}
+	return t.pc.WriteTo(buf, t.pc.LocalAddr())
 }
 
 // EndpointUDPServer sets up a endpoint that works with an UDP server.
@@ -139,7 +219,6 @@ func (t *endpointServer) provide() (string, io.ReadWriteCloser, error) {
 		}
 		return "tcp"
 	}(), nconn.RemoteAddr())
-
 
 	conn := timednetconn.New(
 		t.idleTimeout,
