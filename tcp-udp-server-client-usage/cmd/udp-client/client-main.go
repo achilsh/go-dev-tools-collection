@@ -1,11 +1,11 @@
 package main
 
 import (
+	"time"
+
 	demo "server-transport-go-usage/gen/go/proto"
 	"server-transport-go-usage/lib"
 	"server-transport-go-usage/lib/message"
-	"time"
-
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -39,7 +39,7 @@ func main() {
 	}
 	mockInitCost()
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 3; i++ {
 		testDemoSeq++
 		toSendMsg := &message.DecodedMessage{
 			HeaderMessage: &message.HeaderMessage{
@@ -59,5 +59,29 @@ func main() {
 			LogPrintln("write frame data fail, err: ", err)
 		}
 	}
-	time.Sleep(2 * time.Minute)
+	//空闲一段时间。
+	time.Sleep(6*time.Second)
+	for i := 0; i < 2; i++ {
+		testDemoSeq++
+		toSendMsg := &message.DecodedMessage{
+			HeaderMessage: &message.HeaderMessage{
+				StartFlag: message.PKG_START_FLAG,
+				PkgSeq:    testDemoSeq,
+				DevType:   1,
+				PkgType:   1,
+			},
+			DecodedMsg: &demo.BizReqMsg{
+				Name: "achilsh",
+				Age:  120,
+			},
+		}
+
+		err = n.WriteFrameAll(toSendMsg)
+		if err != nil {
+			LogPrintln("write frame data fail, err: ", err)
+		}
+	}
+	//等待一段时间客户端退出 
+	time.Sleep(4*time.Second)
+	LogPrintf("client exit now.")
 }

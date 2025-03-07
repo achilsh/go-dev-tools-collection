@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"server-transport-go-usage/lib/timednetconn"
 	"time"
 
 	"github.com/pion/transport/v2/udp"
+
+	"server-transport-go-usage/lib/timednetconn"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -138,6 +139,7 @@ func (t *endpointServer) provide() (string, io.ReadWriteCloser, error) {
 		}
 		return "tcp"
 	}(), nconn.RemoteAddr())
+
 
 	conn := timednetconn.New(
 		t.idleTimeout,

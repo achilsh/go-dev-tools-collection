@@ -185,6 +185,11 @@ func (m *DecodedMessage)parsePackage(reader *bufio.Reader)  (*HeaderMessage, []b
 					LogPrintf("peek fail, err: %v", err)
 					return nil, nil, err // 数据不足，需重试
 				}
+				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+					//if errors.Is(err, os.ErrDeadlineExceeded) {
+					LogPrintln("it timeout.")
+					return nil,nil, newIoTimeoutError("time out")
+				}
 				return nil, nil, fmt.Errorf("peak start flag, 读取错误: %v", err)
 			}
 

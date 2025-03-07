@@ -39,7 +39,8 @@ func main() {
 	}
 	mockInitCost()
 
-	for i := 0; i < 10; i++ {
+	//第一次请求。
+	for i := 0; i < 3; i++ {
 		testDemoSeq++
 		toSendMsg := &message.DecodedMessage{
 			HeaderMessage: &message.HeaderMessage{
@@ -59,5 +60,29 @@ func main() {
 			LogPrintln("write frame data fail, err: ", err)
 		}
 	}
-	time.Sleep(1 * time.Minute)
+	//空闲一段时间
+	time.Sleep(6* time.Second)
+	//等待 一次 对端 io time.
+	for i := 0; i < 3; i++ {
+		testDemoSeq++
+		toSendMsg := &message.DecodedMessage{
+			HeaderMessage: &message.HeaderMessage{
+				StartFlag: message.PKG_START_FLAG,
+				PkgSeq:    testDemoSeq,
+				DevType:   1,
+				PkgType:   1,
+			},
+			DecodedMsg: &demo.BizReqMsg{
+				Name: "achilsh",
+				Age:  120,
+			},
+		}
+
+		err = n.WriteFrameAll(toSendMsg)
+		if err != nil {
+			LogPrintln("write frame data fail, err: ", err)
+		}
+	}
+
+	time.Sleep(4*time.Second)
 }

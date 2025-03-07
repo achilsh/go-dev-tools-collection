@@ -148,8 +148,9 @@ func (ch *Channel) runReader(readerDone chan struct{}) {
 
 			var ioTmout message.IoTimeoutError
 			if errors.As(err, &ioTmout) {
-				// continue
-				//直接结束本次连接
+				 continue
+				//如果节点直接存在心跳数据，对数据超时是0容忍的， 那么就直接退出，结束本次连接。
+				//否则，如果直接没有心跳数据，对空链路存在的场景，那么要继续等待数据接收，继续 continue.
 			}
 			LogPrintf("receive msg fail, err: %v", err)
 			return

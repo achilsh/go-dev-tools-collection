@@ -59,13 +59,13 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		return nil, fmt.Errorf("at least one endpoint must be provided")
 	}
 	if conf.ReadTimeout == 0 {
-		conf.ReadTimeout = 10 * time.Second
+		conf.ReadTimeout = 10*time.Second
 	}
 	if conf.WriteTimeout == 0 {
 		conf.WriteTimeout = 10 * time.Second
 	}
 	if conf.IdleTimeout == 0 {
-		conf.IdleTimeout = 60 * time.Second
+		conf.IdleTimeout = 60*time.Second
 	}
 
 	dialectRW, err := func() (*message.ReadWriter, error) {
@@ -205,6 +205,7 @@ func (n *Node) Close() {
 	LogPrintf("node close.")
 	close(n.terminate)
 	<-n.done
+	LogPrintf("receive done signal.")
 }
 
 func (n *Node) run() {
@@ -251,6 +252,7 @@ outer:
 	}
 
 	for ch := range n.channels {
+		LogPrintln("close connect chan.")
 		ch.close()
 	}
 
