@@ -290,6 +290,9 @@ outer:
 		LogPrintln("close connect chan.")
 		ch.close()
 	}
+	if n.channelNoDirectConnProvider != nil {
+		n.channelNoDirectConnProvider.close()
+	}
 
 	n.wg.Wait()
 
