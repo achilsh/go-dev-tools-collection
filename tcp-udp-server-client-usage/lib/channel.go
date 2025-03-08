@@ -43,6 +43,10 @@ type Channel struct {
 	done chan struct{}
 }
 
+func newDataChannel()(*Channel, error) {
+	return nil, nil
+}
+
 // 一个连接包括：基于该连接的读写接口，所有消息的编解码接口实现
 func newChannel(
 	n *Node,

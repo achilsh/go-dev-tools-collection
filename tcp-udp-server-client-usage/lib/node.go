@@ -35,10 +35,15 @@ type Node struct {
 	// 新建立的连接集合
 	channels map[*Channel]struct{}
 
+	// 存储 一个Udp 启动返回conn的节点；仅有一个节点
+	channelNoDirectConnProvider *channelNoDirectReceiver
+
 	// in
 	// 用于通知新连接的通道
 	chNewChannel   chan *Channel
 	chCloseChannel chan *Channel
+	//非链接的udp 原始数据包。
+	udpOriginDataCh chan *UdpChanData
 	// 写数据的通道chWriteTo
 	chWriteTo     chan writeToReq
 	chWriteAll    chan interface{}
@@ -84,6 +89,7 @@ func NewNode(conf *NodeConf) (*Node, error) {
 		channelProviders: make(map[*channelProvider]struct{}),
 		chNewChannel:     make(chan *Channel),
 		channels:         make(map[*Channel]struct{}),
+		udpOriginDataCh:    make(chan *UdpChanData),
 		chCloseChannel:   make(chan *Channel),
 		chWriteTo:        make(chan writeToReq),
 		chWriteAll:       make(chan interface{}),
@@ -139,9 +145,18 @@ func NewNode(conf *NodeConf) (*Node, error) {
 
 			n.channels[ch] = struct{}{}
 
+		case endpointNoDirectReceiver: //返回一个udp服务 节点。
+			ch, _ := newChannelDirectReceiver(n, ttp)
+			n.channelNoDirectConnProvider = ch
+
 		default:
 			LogPrintf("endpoint %T does not implement any interface", tp)
 		}
+	}
+
+	if ch := n.channelNoDirectConnProvider; ch != nil {
+		LogPrintf("run begin to receive udp data asyn mode.")
+		ch.start()
 	}
 
 	for ch := range n.channels {
@@ -228,6 +243,12 @@ func (n *Node) run() {
 outer:
 	for {
 		select {
+		case udpData := <-n.udpOriginDataCh:
+			LogPrintf("frame receive origin udp data")
+			if udpData != nil {
+				udpData.Parse()
+			}
+
 		case ch := <-n.chNewChannel:
 			n.channels[ch] = struct{}{}
 			LogPrintf("receive new connect.")

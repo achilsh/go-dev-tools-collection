@@ -87,7 +87,7 @@ func (m *DecodedMessage) PackageMessage(buf []byte) (int, error) {
 // UnPackageMessage 读取数据，解析协议，获取要每个有效的包。
 func (m *DecodedMessage) UnPackageMessage(scanner *bufio.Scanner, rw *ReadWriter) error {
 	if scanner.Scan() {
-		err := m.parseAndValidPkg(scanner.Bytes())
+		err := m.ParseAndValidPkg(scanner.Bytes())
 		if err != nil {
 			LogPrintf("无效数据包: %v\n", err)
 			return err
@@ -126,7 +126,7 @@ func (m *DecodedMessage) Unpackage(rw *ReadWriter) error {
 }
 
 // 解析并校验数据包； 返回有效的包：
-func (m *DecodedMessage) parseAndValidPkg(pkt []byte) error {
+func (m *DecodedMessage) ParseAndValidPkg(pkt []byte) error {
 	pkgLen := len(pkt)
 	// 基础长度校验
 	if pkgLen < minPacket {

@@ -13,41 +13,77 @@ import (
 	. "server-transport-go-usage/lib/utils"
 )
 
-type endpointServerConf interface {
-	isUDP() bool
-	getAddress() string
-	init(*Node) (Endpoint, error)
-}
-
-// EndpointTCPServer sets up a endpoint that works with a TCP server.
-// TCP is fit for routing frames through the internet
-type EndpointTCPServer struct {
-	// listen address, example: 0.0.0.0:5600
+// 非面向连接 udp 服务
+type EndPointUDPNoDirectServer struct {
 	Address string
 }
 
-func (EndpointTCPServer) isUDP() bool {
-	return false
+func(EndPointUDPNoDirectServer)isUDP() bool {
+	return true
+}
+func(e EndPointUDPNoDirectServer) getAddress() string {
+	return e.Address
 }
 
-func (conf EndpointTCPServer) getAddress() string {
-	return conf.Address
+func (conf EndPointUDPNoDirectServer) init (node *Node) (Endpoint , error) {
+	return initEndpointUDPNoDirectServer(node, conf)
 }
 
-// udp 单播服务
-type EndPointUDPSingleServer struct {
-	Address string
+func initEndpointUDPNoDirectServer(node *Node, conf endpointServerConf) (Endpoint, error) {
+	conn, err := net.ListenPacket("udp4", conf.getAddress())
+    if err != nil {
+        return nil, fmt.Errorf("invalid address")
+    }
+
+	t := &endPointUDPNoDirectServer{
+		conf:         conf,
+		writeTimeout: node.conf.WriteTimeout,
+		idleTimeout:  node.conf.IdleTimeout,
+		listener:     conn,
+		terminate:    make(chan struct{}),
+	}
+	return t, nil
 }
 
-type endPointUDPSingleServer struct {
-	conf         EndPointUDPSingleServer
-	pc           net.PacketConn // listen addr.
+type endPointUDPNoDirectServer struct {
+	conf endpointServerConf
+	listener     net.PacketConn
 	writeTimeout time.Duration
 	idleTimeout  time.Duration
 
 	// in
 	terminate chan struct{}
 }
+func(t *endPointUDPNoDirectServer) getConn() net.PacketConn{
+	return t.listener
+}
+
+func (t *endPointUDPNoDirectServer) isEndpoint() {}
+
+func (t *endPointUDPNoDirectServer) Conf() EndpointConf {
+	return t.conf
+}
+func (t *endPointUDPNoDirectServer) close() {
+	close(t.terminate)
+	//
+	LogPrintf("close end udp-no-direct-connect server.")
+	t.listener.Close()
+}
+
+func (t *endPointUDPNoDirectServer) oneChannelAtAtime() bool {
+	return false
+}
+func (t *endPointUDPNoDirectServer) label() string {
+	return fmt.Sprintf("udp:%s", t.listener)
+}
+
+
+
+// udp 单播服务
+type EndPointUDPSingleServer struct {
+	Address string
+}
+
 
 // 实现 一个 conn 对象； 使用该对象 直接进行 ReadFrom 数据.
 func (conf EndPointUDPSingleServer) init(node *Node) (Endpoint, error) {
@@ -64,6 +100,16 @@ func (conf EndPointUDPSingleServer) init(node *Node) (Endpoint, error) {
 		terminate:    make(chan struct{}),
 	}
 	return t, nil
+}
+
+type endPointUDPSingleServer struct {
+	conf         EndPointUDPSingleServer
+	pc           net.PacketConn // listen addr.
+	writeTimeout time.Duration
+	idleTimeout  time.Duration
+
+	// in
+	terminate chan struct{}
 }
 
 func (t *endPointUDPSingleServer) isEndpoint() {}
@@ -128,16 +174,29 @@ func (conf EndpointUDPServer) getAddress() string {
 	return conf.Address
 }
 
-// endpointServer 是一个服务端的实现
-type endpointServer struct {
-	conf         endpointServerConf
-	listener     net.Listener
-	writeTimeout time.Duration
-	idleTimeout  time.Duration
 
-	// in
-	terminate chan struct{}
+type endpointServerConf interface {
+	isUDP() bool
+	getAddress() string
+	init(*Node) (Endpoint, error)
 }
+
+// EndpointTCPServer sets up a endpoint that works with a TCP server.
+// TCP is fit for routing frames through the internet
+type EndpointTCPServer struct {
+	// listen address, example: 0.0.0.0:5600
+	Address string
+}
+
+func (EndpointTCPServer) isUDP() bool {
+	return false
+}
+
+func (conf EndpointTCPServer) getAddress() string {
+	return conf.Address
+}
+
+
 
 func (conf EndpointTCPServer) init(node *Node) (Endpoint, error) {
 	return initEndpointServer(node, conf)
@@ -181,6 +240,17 @@ func initEndpointServer(node *Node, conf endpointServerConf) (Endpoint, error) {
 		terminate:    make(chan struct{}),
 	}
 	return t, nil
+}
+
+// endpointServer 是一个服务端的实现
+type endpointServer struct {
+	conf         endpointServerConf
+	listener     net.Listener
+	writeTimeout time.Duration
+	idleTimeout  time.Duration
+
+	// in
+	terminate chan struct{}
 }
 
 func (t *endpointServer) isEndpoint() {}

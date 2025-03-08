@@ -1,6 +1,9 @@
 package lib
 
-import "io"
+import (
+	"io"
+	"net"
+)
 
 // EndpointConf is the interface implemented by all endpoint configurations.
 type EndpointConf interface {
@@ -20,6 +23,14 @@ type endpointChannelProvider interface {
 	close()
 	oneChannelAtAtime() bool
 	provide() (string, io.ReadWriteCloser, error)
+}
+
+type endpointNoDirectReceiver interface {
+	Endpoint
+	label() string
+	getConn() net.PacketConn
+	//关闭能力
+	close()
 }
 
 

@@ -31,6 +31,8 @@ type EventFrame struct {
 
 	// the channel from which the frame was received
 	Channel *Channel
+	// 用于 传递其他数据
+	ExtData *UdpChanData
 }
 
 func (*EventFrame) isEventOut() {}
