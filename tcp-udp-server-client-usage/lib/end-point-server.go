@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"server-transport-go-usage/lib/timednetconn"
 	"time"
 
 	"github.com/pion/transport/v2/udp"
+
+	"server-transport-go-usage/lib/timednetconn"
 	. "server-transport-go-usage/lib/utils"
 )
 
@@ -43,13 +44,12 @@ type endPointUDPSingleServer struct {
 	pc           net.PacketConn // listen addr.
 	writeTimeout time.Duration
 	idleTimeout  time.Duration
-	singleAddr   net.Addr
 
 	// in
 	terminate chan struct{}
 }
 
-// 实现
+// 实现 一个 conn 对象； 使用该对象 直接进行 ReadFrom 数据.
 func (conf EndPointUDPSingleServer) init(node *Node) (Endpoint, error) {
 	pc, err := net.ListenPacket("udp4", conf.Address)
 	if err != nil {
@@ -59,7 +59,6 @@ func (conf EndPointUDPSingleServer) init(node *Node) (Endpoint, error) {
 	t := &endPointUDPSingleServer{
 		conf: conf,
 		pc:   pc,
-		// singleAddr: ,
 		writeTimeout: node.conf.WriteTimeout,
 		idleTimeout:  node.conf.IdleTimeout,
 		terminate:    make(chan struct{}),
@@ -144,6 +143,7 @@ func (conf EndpointTCPServer) init(node *Node) (Endpoint, error) {
 	return initEndpointServer(node, conf)
 }
 
+// 创建一个 监听服务
 func (conf EndpointUDPServer) init(node *Node) (Endpoint, error) {
 	return initEndpointServer(node, conf)
 }

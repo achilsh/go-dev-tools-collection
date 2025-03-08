@@ -35,6 +35,7 @@ func (cp *channelProvider) start() {
 func (cp *channelProvider) run() {
 	defer cp.n.wg.Done()
 
+	// 非连接性请求： 可循环读取数据： 根据数据组装一个对象（数据，源对象）；把数据发给框架通道；
 	for {
 		label, rwc, err := cp.eca.provide()
 		if err != nil {

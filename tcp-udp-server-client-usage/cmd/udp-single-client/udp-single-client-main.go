@@ -24,7 +24,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 1; i++ {
 		testDemoSeq++
 		toSendMsg := &message.DecodedMessage{
 			HeaderMessage: &message.HeaderMessage{
