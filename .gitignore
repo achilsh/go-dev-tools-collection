@@ -14,4 +14,7 @@ tcp-udp-server-client-usage/cmd/udp-single-client/udp-single-client
 tcp-udp-server-client-usage/cmd/cmd/udp-single-server/udp-single-server
 tcp-udp-server-client-usage/cmd/udp-no-direct-conn-client/udp-no-direct-conn-client
 tcp-udp-server-client-usage/cmd/udp-no-direct-conn-server/udp-no-direct-conn-server
+mysql-wrapper/mysql-wrapper-demo
+redis-wrapper/redis-wrapper-demo
+cobra-usage/
 
