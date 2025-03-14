@@ -17,4 +17,5 @@ tcp-udp-server-client-usage/cmd/udp-no-direct-conn-server/udp-no-direct-conn-ser
 mysql-wrapper/mysql-wrapper-demo
 redis-wrapper/redis-wrapper-demo
 cobra-usage/
+cmd_parse_demo/cmd_parse_demo
 
