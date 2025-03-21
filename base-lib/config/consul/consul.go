@@ -3,7 +3,7 @@ package consul
 import (
 	"errors"
 
-	conf "ai-customer-service/service/utils/base_lib/config"
+	conf "github.com/achilsh/go-dev-tools-collection/base-lib/config"
 	"github.com/go-micro/plugins/v4/config/encoder/yaml"
 	"github.com/go-micro/plugins/v4/config/source/consul"
 	"go-micro.dev/v4/config"

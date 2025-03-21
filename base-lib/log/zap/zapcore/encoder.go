@@ -26,7 +26,7 @@ import (
 	"time"
 
 	//"go.uber.org/zap/buffer"
-	buffer "ai-customer-service/service/utils/base_lib/log/zap/buffer"
+	buffer "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/buffer"
 )
 
 // DefaultLineEnding defines the default line ending when writing logs.

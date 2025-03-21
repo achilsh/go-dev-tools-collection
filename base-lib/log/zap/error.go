@@ -23,8 +23,8 @@ package zap
 import (
 	//"go.uber.org/zap/internal/pool"
 	//"go.uber.org/zap/zapcore"
-	pool "ai-customer-service/service/utils/base_lib/log/zap/internal/pool"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	pool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/pool"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 var _errArrayElemPool = pool.New(func() *errArrayElem {

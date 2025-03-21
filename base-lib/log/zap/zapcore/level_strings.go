@@ -21,7 +21,7 @@
 package zapcore
 
 //import "go.uber.org/zap/internal/color"
-import color "ai-customer-service/service/utils/base_lib/log/zap/internal/color"
+import color "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/color"
 
 var (
 	_levelToColor = map[Level]color.Color{

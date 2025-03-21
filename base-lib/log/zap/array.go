@@ -24,7 +24,7 @@ import (
 	"time"
 
 	//"go.uber.org/zap/zapcore"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 // Array constructs a field with the given key and ArrayMarshaler. It provides

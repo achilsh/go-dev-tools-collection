@@ -3,7 +3,7 @@ package file
 import (
 	"errors"
 
-	conf "ai-customer-service/service/utils/base_lib/config"
+	conf "github.com/achilsh/go-dev-tools-collection/base-lib/config"
 	"github.com/spf13/viper"
 	"go-micro.dev/v4/config"
 	"go-micro.dev/v4/config/reader"

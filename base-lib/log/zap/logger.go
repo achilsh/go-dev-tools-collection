@@ -28,8 +28,8 @@ import (
 
 	//"go.uber.org/zap/internal/bufferpool"
 	//"go.uber.org/zap/zapcore"
-	bufferpool "ai-customer-service/service/utils/base_lib/log/zap/internal/bufferpool"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	bufferpool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/bufferpool"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 // A Logger provides fast, leveled, structured logging. All methods are safe

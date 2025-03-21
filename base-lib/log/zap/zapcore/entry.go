@@ -31,9 +31,9 @@ import (
 	//"go.uber.org/zap/internal/exit"
 	//"go.uber.org/zap/internal/pool"
 
-	bufferpool "ai-customer-service/service/utils/base_lib/log/zap/internal/bufferpool"
-	exit "ai-customer-service/service/utils/base_lib/log/zap/internal/exit"
-	pool "ai-customer-service/service/utils/base_lib/log/zap/internal/pool"
+	bufferpool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/bufferpool"
+	exit "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/exit"
+	pool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/pool"
 )
 
 var _cePool = pool.New(func() *CheckedEntry {

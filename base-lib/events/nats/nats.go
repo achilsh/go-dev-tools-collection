@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	mq "ai-customer-service/service/utils/base_lib/events"
+	mq "github.com/achilsh/go-dev-tools-collection/base-lib/events"
 	"github.com/go-micro/plugins/v4/events/natsjs"
 	"go-micro.dev/v4/events"
 	"go-micro.dev/v4/logger"

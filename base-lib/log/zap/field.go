@@ -26,7 +26,7 @@ import (
 	"time"
 
 	//"go.uber.org/zap/zapcore"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 // Field is an alias for Field. Aliasing this type dramatically

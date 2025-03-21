@@ -23,7 +23,7 @@
 package internal
 
 //import "go.uber.org/zap/zapcore"
-import zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+import zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 
 // LeveledEnabler is an interface satisfied by LevelEnablers that are able to
 // report their own level.

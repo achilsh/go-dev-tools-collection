@@ -25,7 +25,7 @@ import (
 	"reflect"
 
 	//"go.uber.org/zap/internal/pool"
-	pool "ai-customer-service/service/utils/base_lib/log/zap/internal/pool"
+	pool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/pool"
 )
 
 // Encodes the given error into fields of an object. A field with the given

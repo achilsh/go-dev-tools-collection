@@ -26,8 +26,8 @@ import (
 
 	//"go.uber.org/zap"
 	//"go.uber.org/zap/zapcore"
-	zap "ai-customer-service/service/utils/base_lib/log/zap"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	zap "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 // See https://github.com/grpc/grpc-go/blob/v1.35.0/grpclog/loggerv2.go#L77-L86

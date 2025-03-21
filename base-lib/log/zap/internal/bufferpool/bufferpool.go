@@ -23,7 +23,7 @@
 package bufferpool
 
 //import "go.uber.org/zap/buffer"
-import buffer "ai-customer-service/service/utils/base_lib/log/zap/buffer"
+import buffer "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/buffer"
 
 var (
 	_pool = buffer.NewPool()

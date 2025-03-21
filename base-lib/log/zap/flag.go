@@ -24,7 +24,7 @@ import (
 	"flag"
 
 	//"go.uber.org/zap/zapcore"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 // LevelFlag uses the standard library's flag.Var to declare a global flag

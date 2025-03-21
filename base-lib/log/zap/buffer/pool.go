@@ -22,7 +22,7 @@ package buffer
 
 import (
 	//"go.uber.org/zap/internal/pool"
-	pool "ai-customer-service/service/utils/base_lib/log/zap/internal/pool"
+	pool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/pool"
 )
 
 // A Pool is a type-safe wrapper around a sync.Pool.

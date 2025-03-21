@@ -26,9 +26,9 @@ import (
 	//"go.uber.org/zap/buffer"
 	//"go.uber.org/zap/internal/bufferpool"
 	//"go.uber.org/zap/internal/pool"
-	buffer "ai-customer-service/service/utils/base_lib/log/zap/buffer"
-	bufferpool "ai-customer-service/service/utils/base_lib/log/zap/internal/bufferpool"
-	pool "ai-customer-service/service/utils/base_lib/log/zap/internal/pool"
+	buffer "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/buffer"
+	bufferpool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/bufferpool"
+	pool "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal/pool"
 )
 
 var _stacktracePool = pool.New(func() *stacktrace {

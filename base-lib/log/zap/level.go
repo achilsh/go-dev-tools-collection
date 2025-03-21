@@ -25,8 +25,8 @@ import (
 
 	//"go.uber.org/zap/internal"
 	//"go.uber.org/zap/zapcore"
-	internal "ai-customer-service/service/utils/base_lib/log/zap/internal"
-	zapcore "ai-customer-service/service/utils/base_lib/log/zap/zapcore"
+	internal "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/internal"
+	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 )
 
 const (
