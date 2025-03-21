@@ -1,0 +1,19 @@
+db:
+  host: 0.0.0.0
+  port: 123
+
+redis:
+    host: 1.1.1.1
+    port: 234
+
+
+logger:
+  encoding: text
+  level: debug
+  rotate:
+    compress: true
+    filename: logs/app.log
+    localtime: true
+    maxage: 30
+    maxbackups: 100
+    maxsize: 50

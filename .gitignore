@@ -18,4 +18,5 @@ mysql-wrapper/mysql-wrapper-demo
 redis-wrapper/redis-wrapper-demo
 cobra-usage/
 cmd_parse_demo/cmd_parse_demo
+base-lib/example/log
 
