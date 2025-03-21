@@ -1,17 +1,18 @@
 package log
 
 import (
-	logconf "ai-customer-service/service/utils/base_lib/log/config"
-	"ai-customer-service/service/utils/base_lib/log/lumberjack"
-	"ai-customer-service/service/utils/base_lib/log/zap"
-	"ai-customer-service/service/utils/base_lib/log/zap/zapcore"
 	"fmt"
-	"github.com/go-yaml/yaml"
-	"github.com/jinzhu/copier"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	logconf "github.com/achilsh/go-dev-tools-collection/base-lib/log/config"
+	"github.com/achilsh/go-dev-tools-collection/base-lib/log/lumberjack"
+	"github.com/achilsh/go-dev-tools-collection/base-lib/log/zap"
+	"github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
+	"github.com/go-yaml/yaml"
+	"github.com/jinzhu/copier"
 )
 
 // / if in config file set level is "debug", add output to console for debug mode
