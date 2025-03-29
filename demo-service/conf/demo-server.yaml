@@ -1,0 +1,31 @@
+server:
+  port: 5657
+
+secretKey:
+  apiSignKey: 12
+  aesKeyToken: 123
+  aesIVToken: 123
+  refreshTokenKey: 123
+
+db:
+  host: 127.0.0.1
+  port: 3360
+  dbname: ai-user-db
+  username: root
+  pwd: a123test1123
+redis:
+  host: 10.240.34.32
+  port: 6379
+  database: 1
+  password: ZAQ!2wsx
+logger:
+  encoding: text
+  logPath: ../../log/
+  level: debug
+  rotate:
+    compress: true
+    filename: logs/app.log
+    localtime: true
+    maxage: 30
+    maxbackups: 1000
+    maxsize: 50
