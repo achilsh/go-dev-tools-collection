@@ -27,6 +27,8 @@ func handlex1_v1(ctx *gin.Context, in *X1V1RequestMsg) (*X1V1Response, error) {
 func Handles(r *ginWrapper.Router) {
 	cliWrap.RegisterPostInOut(r.Engine, "/xyz/x1/v1", handlex1_v1)
 }
+// 请求 http 示例: 
+// curl -X POST http://127.0.0.1:8080/xyz/x1/v1 -H "Content-Type: application/json" -d '{"a1":123}'
 func main() {
 	r := ginWrapper.NewRouter(middleware.ParseBody())
 	if r == nil {
