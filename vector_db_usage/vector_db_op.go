@@ -6,6 +6,15 @@ type DbDetailer interface {
 	GetName() string
 	GetDetails() map[string]string
 }
+
+type Indexer interface {
+	BuildCreateIndexOptions() ([]any, error)
+}
+
+type Schemaer interface {
+	BuildSchema() (any, error)
+}
+
 type VectOper interface {
 	//Init 比如创建client, 建立连接，
 	Connect(ctx context.Context) bool
@@ -18,7 +27,7 @@ type VectOper interface {
 	// GetDBDetail 获取库的信息
 	GetDBDetail(ctx context.Context, dbName string) (DbDetailer, bool)
 	// 创建 一个 collection
-	CreateCollection() bool
+	CreateCollection(ctx context.Context, collectName string, idx Indexer, sch Schemaer) bool
 	// 列举db下的所有 collection
 	ListCollection() bool
 	// 选择某个集合

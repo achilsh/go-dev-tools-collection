@@ -2,11 +2,13 @@ package mivus_interface
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	dbUsage "github.com/achilsh/go-dev-tools-collection/vector_db_usage"
 	"github.com/milvus-io/milvus/client/v2/entity"
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
+	"github.com/milvus-io/milvus/client/v2/index"
 )
 
 type MilvusDbDetail struct {
@@ -76,7 +78,7 @@ func (m *MilvusVectOp) Connect(ctx context.Context) bool {
 
 // CreateDB 初始化， 创建 db
 func (m *MilvusVectOp) CreateDB(ctx context.Context, dbName string) bool {
-	if m.checkClientIsOK() == false {
+	if !m.checkClientIsOK() {
 		return false
 	}
 	err := m.cli.CreateDatabase(ctx, client.NewCreateDatabaseOption(dbName))
@@ -90,7 +92,7 @@ func (m *MilvusVectOp) CreateDB(ctx context.Context, dbName string) bool {
 
 // 列举该连接的主机的 已创建的 db
 func (m *MilvusVectOp) ListDB(ctx context.Context) []string {
-	if m.checkClientIsOK() == false {
+	if !m.checkClientIsOK() {
 		return nil
 	}
 
@@ -104,7 +106,7 @@ func (m *MilvusVectOp) ListDB(ctx context.Context) []string {
 
 // UsingDB 选择某个库
 func (m *MilvusVectOp) UsingDB(ctx context.Context, dbName string) bool {
-	if m.checkClientIsOK() == false {
+	if !m.checkClientIsOK() {
 		return false
 	}
 	err := m.cli.UseDatabase(ctx, client.NewUseDatabaseOption(dbName))
@@ -117,7 +119,7 @@ func (m *MilvusVectOp) UsingDB(ctx context.Context, dbName string) bool {
 
 // GetDBDetail 获取库的信息
 func (m *MilvusVectOp) GetDBDetail(ctx context.Context, dbName string) (dbUsage.DbDetailer, bool) {
-	if m.checkClientIsOK() == false {
+	if !m.checkClientIsOK() {
 		return nil, false
 	}
 
@@ -134,4 +136,143 @@ func (m *MilvusVectOp) GetDBDetail(ctx context.Context, dbName string) (dbUsage.
 	return &MilvusDbDetail{
 		dbDetail: dbDetail,
 	}, true
+}
+
+func (m *MilvusVectOp) CreateCollection(ctx context.Context, collectName string, idx dbUsage.Indexer, sch dbUsage.Schemaer) bool {
+	if !m.checkClientIsOK() {
+		return false
+	}
+	//
+	var indexCreatOption []client.CreateIndexOption = nil
+	//
+	indexOptions, err := idx.BuildCreateIndexOptions()
+	if err != nil {
+		log.Printf("get index option fail, err: %v", err)
+		return false
+	}
+	for _, item := range indexOptions {
+		tmpItem, ok := item.(client.CreateIndexOption)
+		if !ok {
+			log.Printf("input index option is not CreateIndexOption")
+			return false
+		}
+		indexCreatOption = append(indexCreatOption, tmpItem)
+	}
+
+	//
+	schemaItemTmp, err := sch.BuildSchema()
+	if err != nil {
+		log.Printf("get schema item fail, err: %v", err)
+		return false
+	}
+	//
+	schemaItem, ok := schemaItemTmp.(*entity.Schema)
+	if !ok || nil == schemaItem {
+		log.Printf("is not entity schema or is empty")
+		return false
+	}
+
+	collectOptions := client.NewCreateCollectionOption(collectName, schemaItem)
+	if len(indexCreatOption) > 0 {
+		err = m.cli.CreateCollection(ctx, collectOptions.WithIndexOptions(indexCreatOption...))
+	} else {
+		err = m.cli.CreateCollection(ctx, collectOptions)
+	}
+
+	if err != nil {
+		log.Printf("create collection fail, err: %v", err)
+		return false
+	}
+	return true
+}
+
+type MilvusIndexOptItem struct {
+	collectName string 
+	fieldName string 
+	indexName string 
+	//
+	indexItem index.Index
+}
+
+type MilvusIndexCreate func(*MilvusIndexOptItem)
+
+func WithMilvusBasic(collName, fieldName, indexName string) MilvusIndexCreate {
+	return func(opt *MilvusIndexOptItem) {
+		opt.collectName = collName 
+		opt.fieldName = fieldName
+		opt.indexName = indexName
+	}
+}
+
+func WithIndexMetricType(mectricType index.MetricType, indexType int ) MilvusIndexCreate{
+	var indexItem index.Index = nil
+
+	switch indexType {
+	case IndexTypeAutoIndex:
+		indexItem= index.NewAutoIndex(mectricType)
+	case IndexTypediskANNIndex:
+		indexItem = index.NewDiskANNIndex(mectricType)
+	case IndexTypeflatIndex:
+		indexItem = index.NewFlatIndex(mectricType)
+	case IndexTypebinFlatIndex:
+		indexItem = index.NewBinFlatIndex(mectricType)
+	case IndexTypegpuBruteForceIndex:
+		indexItem = index.NewGPUBruteForceIndex(mectricType)
+	case IndexTypegpuIVFFlatIndex:
+		indexItem = index.NewGPUIVPFlatIndex(mectricType)
+	case IndexTypegpuIVFPQIndex:
+		indexItem = index.NewGPUIVPPQIndex(mectricType)
+	}
+
+	return func(opt *MilvusIndexOptItem) {
+		opt.indexItem = indexItem
+
+	}
+}
+
+func WithIndexGPUCagraIndex(metricType index.MetricType, intermediateGD, gd int)MilvusIndexCreate{
+	var indexItem index.Index =  index.NewGPUCagraIndex(metricType, intermediateGD, gd)
+	return func(opt *MilvusIndexOptItem) {
+		opt.indexItem = indexItem
+	}
+}
+func WithHNSWIndex(metricType index.MetricType, m, efConstruction int) MilvusIndexCreate {
+	var indexItem index.Index =  index.NewHNSWIndex(metricType, m, efConstruction)
+	return func(opt *MilvusIndexOptItem) {
+		opt.indexItem = indexItem
+	}
+}
+
+func WithGenericIndex(metricType index.MetricType, name string, params map[string]string) MilvusIndexCreate {
+	var indexItem index.Index =  index.NewGenericIndex(name, params).WithMetricType(metricType)
+	return func(opt *MilvusIndexOptItem) {
+		opt.indexItem = indexItem
+	}
+}
+
+func WithIvfFlatIndex(metricType index.MetricType, nlist int) MilvusIndexCreate {
+	var indexItem index.Index =  index.NewIvfFlatIndex(metricType, nlist)
+	return func(opt *MilvusIndexOptItem) {
+		opt.indexItem = indexItem
+	}
+}
+type MilvusIndexOption struct {
+	indexOptionList []*MilvusIndexOptItem
+}
+
+func (mi *MilvusIndexOption) BuildCreateIndexOptions() ([]any, error) {
+	var retCreateIndexOptions []client.CreateIndexOption = nil
+	if mi == nil {
+		return nil, fmt.Errorf("is nil")
+	}
+	for _, item := range mi.indexOptionList {
+		if item == nil {
+			continue
+		}
+
+		opt := client.NewCreateIndexOption(collectionName, "my_vector", index.NewAutoIndex(entity.COSINE)).WithIndexName("my_vector"),
+		retCreateIndexOptions = append(retCreateIndexOptions, )
+
+	}
+
 }
