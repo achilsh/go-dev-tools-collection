@@ -8,7 +8,7 @@ type DbDetailer interface {
 }
 
 type Indexer interface {
-	BuildCreateIndexOptions() ([]any, error)
+	BuildCreateIndexOptions() (any, error)
 }
 
 type Schemaer interface {
@@ -18,6 +18,8 @@ type Schemaer interface {
 type VectOper interface {
 	//Init 比如创建client, 建立连接，
 	Connect(ctx context.Context) bool
+	//
+	DisConnect(ctx context.Context) bool
 	// CreateDB 初始化， 创建 db
 	CreateDB(ctx context.Context, dbName string) bool
 	// 列举该主机上的 db
@@ -29,17 +31,14 @@ type VectOper interface {
 	// 创建 一个 collection
 	CreateCollection(ctx context.Context, collectName string, idx Indexer, sch Schemaer) bool
 	// 列举db下的所有 collection
-	ListCollection() bool
-	// 选择某个集合
-	UsingCollection(string) bool
+	ListCollection(ctx context.Context) []string
 	//
-	LoadCollection() bool
+	LoadCollection(ctx context.Context, collName string, async bool) bool
 	//
-	ReleaseCollection() bool
+	ReleaseCollection(ctx context.Context, collName string) bool
 
 	//
-	InsertVectors() bool
+	InsertColumns(collectName string) bool
 	//
 	QueryVector() bool
-	//
 }
