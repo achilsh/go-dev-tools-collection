@@ -74,9 +74,10 @@ func WelcomeWordHandle(ctx *gin.Context, _ *model.RequestWelcomeWordParam) (*mod
 	)
 	lanVal := lang.GetLanguage(ctx)
 
-	wg.AsyncRun(true, func() {
+	wg.AsyncTimeoutRun(true, 500, func() {
+		// wg.AsyncRun(true, func() {
 		welcomeWord := GetWelcomeWordInstance(WelcomeWordTypeFromCnf).GetMessage(lanVal)
-		if welcomeWord == nil || len(welcomeWord) == 0 {
+		if len(welcomeWord) == 0 {
 			errGetWord = error_code.WelcomeWordError
 			logger.Warnf("not get valid welcome word for lang: %v", lanVal)
 			return
@@ -84,10 +85,10 @@ func WelcomeWordHandle(ctx *gin.Context, _ *model.RequestWelcomeWordParam) (*mod
 		ret.WelcomeWords = welcomeWord
 	})
 
-	wg.AsyncRun(true, func() {
+	wg.AsyncTimeoutRun(true, 500, func() {
 		handle := &GuessQuestionFromDB{}
 		guessQ := handle.GetGuessQuestions(lanVal)
-		if len(guessQ) == 0 || guessQ == nil {
+		if len(guessQ) == 0 {
 			logger.Warnf("get guess question is empty")
 			return
 		}

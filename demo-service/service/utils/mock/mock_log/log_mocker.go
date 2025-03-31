@@ -7,7 +7,7 @@ import (
 )
 
 var mockErrorf = func(template string, args ...interface{}) {
-	fmt.Printf(template, args...)
+	fmt.Printf(fmt.Sprintf("%s\n", template), args...)
 	return
 }
 var mockError = func(v ...interface{}) {
