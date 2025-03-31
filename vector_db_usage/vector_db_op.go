@@ -44,9 +44,14 @@ type VectDBOper interface {
 	//
 	InsertColumns(cctx context.Context, collectName string, insertOpter InsertOptionBuilder) bool
 	//
-	QueryVector(ctx context.Context, collectName string, searchOpt SearchVectOpter) bool
+	SearchVector(ctx context.Context, collectName string, searchOpt SearchVectOpter) (any, bool)
+	QueryScalar(ctx context.Context, collectName string, queryOpt QueryScalarer) (any, bool)
 }
 
 type SearchVectOpter interface {
 	BuildSearchVectOpt() (any, bool)
+}
+
+type QueryScalarer interface {
+	BuildQueryScalarOpt() (any, bool)
 }

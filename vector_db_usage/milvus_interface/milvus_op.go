@@ -260,14 +260,14 @@ func (m *MilvusVectOp) InsertColumns(ctx context.Context, collectName string, in
 	return true
 }
 
-func (m *MilvusVectOp) QueryVector(ctx context.Context, collectName string, searchOpt dbUsage.SearchVectOpter) (any, bool) {
+func (m *MilvusVectOp) SearchVector(ctx context.Context, collectName string, searchOpt dbUsage.SearchVectOpter) (any, bool) {
 	if !m.checkClientIsOK() {
 		return nil, false
 	}
 
 	optRet, succ := searchOpt.BuildSearchVectOpt()
 	if !succ {
-		log.Printf("query vector fail")
+		log.Printf("search vector fail")
 		return nil, false
 	}
 
@@ -279,8 +279,34 @@ func (m *MilvusVectOp) QueryVector(ctx context.Context, collectName string, sear
 
 	searchRet, err := m.cli.Search(ctx, opt)
 	if err != nil {
-		log.Printf("query fail, err: %v", err)
+		log.Printf("search fail, err: %v", err)
 		return nil, false
 	}
 	return searchRet, true
+}
+
+func (m *MilvusVectOp) QueryScalar(ctx context.Context, collectName string, queryOpt dbUsage.QueryScalarer) (any, bool) {
+	if !m.checkClientIsOK() {
+		return nil, false
+	}
+
+	optRet, succ := queryOpt.BuildQueryScalarOpt()
+	if !succ {
+		log.Printf("query vector fail")
+		return nil, false
+	}
+
+	opt, ok := (optRet).(client.QueryOption)
+	if !ok {
+		log.Printf("query option not get")
+		return nil, false
+	}
+
+	queryRet, err := m.cli.Query(ctx, opt)
+	if err != nil {
+		log.Printf("query fail, err: %v", err)
+		return nil, false
+	}
+	return queryRet, true
+
 }
