@@ -43,6 +43,7 @@ func WithSchemaField(fieldOpts ...FieldOption) SchemaOption {
 	}
 }
 
+// Register 中参数可以是： WithSchemaName， WithSchemaField
 func (msc *MilvusSchema) Register(opts ...SchemaOption) {
 	if msc.sch == nil {
 		return

@@ -80,7 +80,6 @@ func WithIndexMetricType(mectricType index.MetricType, indexType int) MilvusInde
 
 	return func(opt *MilvusIndexOptItem) {
 		opt.indexItem = indexItem
-
 	}
 }
 
@@ -110,14 +109,6 @@ func WithBinIvfFlatIndex(metricType index.MetricType, nlist int) MilvusIndexCrea
 		opt.indexItem = indexItem
 	}
 }
-
-// TODO:
-// func WithJSONPathIndex(idexType index.IndexType, jsonCastType, jsonPath string) MilvusIndexCreate {
-// 	var indexItem index.Index = index.NewJSONPathIndex(idexType, jsonCastType, jsonPath)
-// 	return func(opt *MilvusIndexOptItem) {
-// 		opt.indexItem = indexItem
-// 	}
-// }
 
 func WithGenericIndex(metricType index.MetricType, name string, params map[string]string) MilvusIndexCreate {
 	item := index.NewGenericIndex(name, params)
@@ -203,6 +194,7 @@ func NewMilvusCreateIndexOptionList() *MilvusCreateIndexOptionList {
 }
 
 // RegisterCreateIndexOpt 注册 集合名，索引列名，索引名和创建索引动作； 用于该列索引的创建。
+// 其中 createIndexOpts 有： WithIndexMetricType 等
 func (mcList *MilvusCreateIndexOptionList) RegisterCreateIndexOpt(collectName string, fieldName string, indexName string, createIndexopts ...MilvusIndexCreate) {
 	item := &milvusCreateIndexOption{
 		optionDetails: &MilvusIndexOptItem{

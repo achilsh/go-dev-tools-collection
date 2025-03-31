@@ -15,7 +15,11 @@ type Schemaer interface {
 	BuildSchema() (any, error)
 }
 
-type VectOper interface {
+type InsertOptionBuilder interface {
+	BuildInsertOption() (any, bool)
+}
+
+type VectDBOper interface {
 	//Init 比如创建client, 建立连接，
 	Connect(ctx context.Context) bool
 	//
@@ -38,7 +42,11 @@ type VectOper interface {
 	ReleaseCollection(ctx context.Context, collName string) bool
 
 	//
-	InsertColumns(collectName string) bool
+	InsertColumns(cctx context.Context, collectName string, insertOpter InsertOptionBuilder) bool
 	//
-	QueryVector() bool
+	QueryVector(ctx context.Context, collectName string, searchOpt SearchVectOpter) bool
+}
+
+type SearchVectOpter interface {
+	BuildSearchVectOpt() (any, bool)
 }

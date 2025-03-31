@@ -3,10 +3,8 @@ package mivus_interface
 import (
 	"context"
 	"log"
-	"reflect"
 
 	dbUsage "github.com/achilsh/go-dev-tools-collection/vector_db_usage"
-	"github.com/milvus-io/milvus/client/v2/column"
 	"github.com/milvus-io/milvus/client/v2/entity"
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
 )
@@ -41,6 +39,7 @@ type MilvusVectOp struct {
 	cli *client.Client
 }
 
+// ops: WithAddress()
 func NewVectMilvusOpInst(ops ...Options) *MilvusVectOp {
 	config := &MilvusVectOption{}
 	for _, op := range ops {
@@ -192,7 +191,6 @@ func (m *MilvusVectOp) CreateCollection(ctx context.Context, collectName string,
 }
 
 func (m *MilvusVectOp) ListCollection(ctx context.Context) []string {
-
 	if !m.checkClientIsOK() {
 		return nil
 	}
@@ -236,118 +234,53 @@ func (m *MilvusVectOp) ReleaseCollection(ctx context.Context, collName string) b
 	return true
 }
 
-type columnItem[T any | string] struct {
-	columnName string
-	columnData []T
-}
-
-func NewcolumnItem[T any]() *columnItem[T] {
-	return &columnItem[T]{}
-}
-
-type columnVecItem[T any] struct {
-	columnName string
-	columnData [][]T
-	dim        int
-}
-
-func NewcolumnVectItem[T any]() *columnVecItem[T] {
-	return &columnVecItem[T]{}
-}
-
-type miluvsInsertOption struct {
-	collectName string
-	//
-	columnScar map[int]any // value: []*columnItem[T], T: int64, int32, int16, int8, bool, string
-	//
-	// columnInt64   []*columnItem[int64]
-	// columnVarChar []*columnItem[string]
-	// columnInt32   []*columnItem[int32]
-	// columnInt16   []*columnItem[int16]
-	// columnInt8    []*columnItem[int8]
-	// columnBool    []*columnItem[bool]
-
-	columnVect map[int]any /// []*columnVecItem[T]; T:float32, byte, int8
-	// columnVectF32  []*columnVecItem[float32]
-	// columnVectF16  []*columnVecItem[float32]
-	// columnVectBF16 []*columnVecItem[float32]
-	// columnVectBin  []*columnVecItem[byte]
-	// columnVectI8   []*columnVecItem[int8]
-}
-type InsertOptions func(*miluvsInsertOption)
-
-func WithCollectName(collName string) InsertOptions {
-	return func(item *miluvsInsertOption) {
-		item.collectName = collName
-	}
-}
-
-func WithColumnNums[T any](columnName string, data []T) InsertOptions {
-	return func(item *miluvsInsertOption) {
-		var colItem *columnItem[T] = &columnItem[T]{
-			columnName: columnName,
-			columnData: data,
-		}
-		//
-		tmp := new(T)
-		vType := int(reflect.ValueOf(tmp).Elem().Kind())
-		item.columnScar[vType] = colItem
-	}
-
-}
-
-// func WithColumnI64(columnName string, data []int64) InsertOptions {
-// 	return func(item *miluvsInsertOption) {
-// 		var colItem *columnItem[int64] = &columnItem[int64]{
-// 			columnName: columnName,
-// 			columnData: data,
-// 		}
-
-//			item.columnInt64 = append(item.columnInt64, colItem)
-//		}
-//	}
-func WithColumnVect[T any](columnName string, dim int, dataType int, data [][]T) InsertOptions {
-	return func(item *miluvsInsertOption) {
-		var colItem *columnVecItem[T] = &columnVecItem[T]{
-			columnName: columnName,
-			columnData: data,
-			dim:        dim,
-		}
-		item.columnVect[dataType] = colItem
-	}
-}
-
-type InsertOps struct {
-	options      *miluvsInsertOption
-	insertOption column.Column
-}
-
-func (iops *InsertOps) BuildInsertOption() (any, bool) {
-	for k, v := range iops.options.columnScar {
-		iops.insertOption.
-	}
-	iops.insertOption.
-}
-
-func (iops *InsertOps) Register(collectName string, ops ...InsertOptions) {
-	WithCollectName(collectName)(iops.options)
-	for _, op := range ops {
-		if op == nil {
-			continue
-		}
-		op(iops.options)
-	}
-	iops.insertOption = client.NewColumnBasedInsertOption(iops.options.collectName)
-}
-
-func (m *MilvusVectOp) InsertColumns(ctx context.Context, collectName string) bool {
+// 插入接口
+func (m *MilvusVectOp) InsertColumns(ctx context.Context, collectName string, insertOpter dbUsage.InsertOptionBuilder) bool {
 	if !m.checkClientIsOK() {
 		return false
 	}
-	//
+	opts, ok := insertOpter.BuildInsertOption()
+	if !ok {
+		log.Printf("build insert option fail")
+		return false
+	}
 
+	insertOpt, ok := opts.(client.InsertOption)
+	if !ok || insertOpt == nil {
+		log.Printf("get build insert option is nil")
+		return false
+	}
+
+	retInsert, err := m.cli.Insert(ctx, insertOpt)
+	if err != nil {
+		log.Printf("insert to vec db fail, err: %v, collectName: %v", err, collectName)
+		return false
+	}
+	log.Printf("insert succ, insert nums: %v", retInsert.InsertCount)
+	return true
 }
 
-func (m *MilvusVectOp) QueryVector() bool {
+func (m *MilvusVectOp) QueryVector(ctx context.Context, collectName string, searchOpt dbUsage.SearchVectOpter) (any, bool) {
+	if !m.checkClientIsOK() {
+		return nil, false
+	}
 
+	optRet, succ := searchOpt.BuildSearchVectOpt()
+	if !succ {
+		log.Printf("query vector fail")
+		return nil, false
+	}
+
+	opt, ok := (optRet).(client.SearchOption)
+	if !ok {
+		log.Printf("search option not get")
+		return nil, false
+	}
+
+	searchRet, err := m.cli.Search(ctx, opt)
+	if err != nil {
+		log.Printf("query fail, err: %v", err)
+		return nil, false
+	}
+	return searchRet, true
 }
