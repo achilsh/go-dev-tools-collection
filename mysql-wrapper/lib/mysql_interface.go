@@ -303,7 +303,3 @@ func (a *dBModeTplWrapper[T]) RawQueryRun(whereCond string, whereVal []any) ([]*
 	}
 	return ret, nil
 }
-
-
-
-
