@@ -9,8 +9,7 @@ import (
 
 var RETNil = redis.Nil
 
-
-// SkyFendRedisOps redis的操作接口
+// RedisOps redis的操作接口
 type RedisOps interface {
 	GetRedisRow() *redisV9.Client
 	// SetAtomic 增加一个带时间戳的key
