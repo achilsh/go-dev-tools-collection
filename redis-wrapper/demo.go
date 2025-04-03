@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"redis-wrapper-demo/lib"
+	lib "github.com/achilsh/go-dev-tools-collection/redis-wrapper/lib"
 )
 
 func main() {
