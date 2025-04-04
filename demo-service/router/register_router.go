@@ -22,6 +22,9 @@ func RegisterRouter() {
 		rw.RegisterGetNoInProcess(srvRouteV1, "y2", handler.DemoGetNoIn)
 		rw.RegisterGetNoOutProcess(srvRouteV1, "y3", handler.DemoGetNoOut)
 	}
+	{
+		rw.RegisterPostForm(srvRouteV1, "f1", handler.DemoFormInOut)
+	}
 
 	//
 	rw.RegisterPostProcess(srvRouteV1, UrlPathSuffixWelcomeWord, handler.WelcomeWordHandle)

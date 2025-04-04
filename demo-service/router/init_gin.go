@@ -12,7 +12,16 @@ import (
 
 var globalRouter *init_res.Router = nil
 
+type ginConfType struct {
+	uploadFileMaxSizeLimit int64 // byte
+}
+
+var ginDefaultConf ginConfType
+
 func init() {
+	ginDefaultConf = ginConfType{
+		uploadFileMaxSizeLimit: 10 * 1024 * 1024,
+	}
 	GetRouter()
 }
 
@@ -43,6 +52,7 @@ func newRouter() *init_res.Router {
 	router.GET("/test", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "ok")
 	})
+	router.MaxMultipartMemory = ginDefaultConf.uploadFileMaxSizeLimit // 设置文件上传大小的限制 10MB
 
 	return &init_res.Router{
 		Engine: router,

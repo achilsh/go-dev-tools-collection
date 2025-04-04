@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,6 +26,15 @@ func AccessLogMiddleware() gin.HandlerFunc {
 		ctx.Set(CtxRequestID, requestID)
 
 		method := ctx.Request.Method
+		contentType := ctx.Request.Header.Get("Content-Type")
+		contentType = strings.ToLower(contentType)
+		regHandle, err := regexp.Compile("multipart|form-data")
+		if err == nil && regHandle != nil {
+			if regHandle.MatchString(contentType) {
+				ctx.Next() //执行后面的中间件和handler，完了再实行下面的。
+				return
+			}
+		}
 
 		var reqBuf []byte
 		if method == http.MethodPost || method == http.MethodPut || method == http.MethodDelete {
@@ -37,7 +48,7 @@ func AccessLogMiddleware() gin.HandlerFunc {
 			reqBuf, _ = json.Marshal(m)
 		}
 		SetRequestBody(ctx, reqBuf)
-		//
+
 		ctx.Next() //执行后面的中间件和handler，完了再实行下面的。
 	}
 }
