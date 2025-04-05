@@ -19,6 +19,7 @@ redis-wrapper/redis-wrapper-demo
 cobra-usage/
 gin-usage-wrapper/example/example
 cmd_parse_demo/cmd_parse_demo
+s3client_wrapper/s3client_wrapper
 base-lib/example/log
 gin-usage-wrapper/example/example
 demo-service/log/*
