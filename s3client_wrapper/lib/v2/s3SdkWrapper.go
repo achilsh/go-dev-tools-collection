@@ -18,6 +18,8 @@ import (
 //参考： https://docs.aws.amazon.com/zh_cn/sdk-for-go/v2/developer-guide/go_s3_code_examples.html
 //参考： https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/gov2
 
+// 源码参考：github.com/awsdocs/aws-doc-sdk-examples/gov2/s3
+
 type S3ClientConfig struct {
 	Bucket     string // bucket name
 	Region     string
@@ -84,7 +86,7 @@ func (sc *S3ClientBase) DownloadFile(remotePath string) ([]byte, error) {
 	})
 
 	if err != nil {
-		log.Printf("get object fail, err: %v, obj key: %", err, remotePath)
+		log.Printf("get object fail, err: %v, obj key: %v", err, remotePath)
 		return nil, err
 	}
 	if retGetObj == nil {
@@ -100,6 +102,69 @@ func (sc *S3ClientBase) DownloadFile(remotePath string) ([]byte, error) {
 	}
 
 	return retBuf, nil
+}
+
+// 预签名，获取一个 url; 使用该 url 来 上传 obj.
+// 使用 http put => PresignPutObject or post => PresignPostObject 方式上传 obj.
+func (sc *S3ClientBase) GetUploadUrl(remotePath string, expireMilliSecond int) (string, error) {
+	preSignCli := s3.NewPresignClient(sc.S3Client)
+	if preSignCli == nil {
+		log.Printf("create presign client fail, is nil")
+		return "", fmt.Errorf("create presign client is nil")
+	}
+
+	// retPSC, err := preSignCli.PresignPostObject(context.Background(), &s3.PutObjectInput{
+	// 	Bucket: aws.String(sc.CliCfg.Bucket),
+	// 	Key:    aws.String(remotePath),
+	// }, func(opts *s3.PresignPostOptions) {
+	// 	opts.Expires = time.Duration(expireMilliSecond) * time.Millisecond
+	// })
+
+	retPSC, err := preSignCli.PresignPutObject(context.Background(), &s3.PutObjectInput{
+		Bucket: aws.String(sc.CliCfg.Bucket),
+		Key:    aws.String(remotePath),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(expireMilliSecond) * time.Millisecond
+	})
+
+	if err != nil {
+		log.Printf("get presignputobj fail, err: %v", err)
+		return "", err
+	}
+
+	if retPSC == nil {
+		log.Printf("get presign put obj is nil")
+		return "", fmt.Errorf("get persing obj is nil")
+	}
+
+	return retPSC.URL, nil
+}
+
+// 预签名，获取 url 来下载 s3中的文件
+func (sc *S3ClientBase) GetDownloadUrl(remotePath string, expMilliSecond int) (string, error) {
+	preSignCli := s3.NewPresignClient(sc.S3Client)
+	if preSignCli == nil {
+		log.Printf("create presign client fail, is nil")
+		return "", fmt.Errorf("create presign client is nil")
+	}
+
+	retPSC, err := preSignCli.PresignGetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(sc.CliCfg.Bucket),
+		Key:    aws.String(remotePath),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(expMilliSecond) * time.Millisecond
+	})
+
+	if err != nil {
+		log.Printf("pre sign get obj fail, err: %v", err)
+		return "", err
+	}
+	if retPSC == nil {
+		log.Printf("pre sign get obj is nil")
+		return "", fmt.Errorf("pre sign get obj is nil")
+	}
+
+	return retPSC.URL, nil
 }
 
 type S3ClientV2 struct {
