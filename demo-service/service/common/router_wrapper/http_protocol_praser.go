@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	//"github.com/mgechev/revive/config"
 
 	"demo-service/service/middleware"
 	"demo-service/service/utils/error_def"
@@ -52,14 +51,6 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 				ctx.Abort()
 				return nil
 			}
-
-			var fileFieldNames = make(map[string]string)
-			// fh, err := ctx.FormFile("audio")
-			// if err != nil {
-			// 	logger.Errorf("form file audio fail, err: %v", err)
-			// } else {
-			// 	logger.Infof("file header: %v", fh.Filename)
-			// }
 			mform, err := ctx.MultipartForm()
 			if err != nil {
 				logger.Errorf("get multi part form fail, err: %v", err)
@@ -70,42 +61,47 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 				return nil
 			}
 
-			logger.Debugf("multipartform value: %+v", mform)
+			var fileNameContentsMap = make(map[string]map[string]*bytes.Buffer)
+			// logger.Debugf("multipartform value: %+v", mform)
 			if mform != nil {
+				//目前支持多个文件上传只使用 一个 表单字段名
 				for fileField, fileFieldValue := range mform.File {
-					if fileField != "" {
-						if len(fileFieldValue) > 0 {
-							if fileFieldValue[0] != nil {
-								fileFieldNames[fileField] = fileFieldValue[0].Filename
+					fileListMap, ok := fileNameContentsMap[fileField]
+					if !ok {
+						fileListMap = make(map[string]*bytes.Buffer)
+						fileNameContentsMap[fileField] = fileListMap
+					}
+
+					if len(fileField) > 0 && len(fileFieldValue) > 0 {
+						for _, fv := range fileFieldValue {
+							if fv != nil {
+								fH, err := fv.Open()
+								if err != nil {
+									continue
+								}
+								//
+								contentBuf := new(bytes.Buffer)
+								_, err = io.Copy(contentBuf, fH)
+								if err != nil {
+									logger.Warnf("read file fail, fileName: %v, err: %v", fv.Filename, err)
+									fH.Close()
+									continue
+								}
+								fH.Close()
+								//
+								fileListMap[fv.Filename] = contentBuf
+								// logger.Debugf("file list items, fileName: %+v, fileData: %v", fv.Filename, contentBuf.String())
 							}
+						}
+
+						if len(fileListMap) > 0 {
+							fileNameContentsMap[fileField] = fileListMap
 						}
 					}
 				}
 			}
 
-			logger.Debugf("fieldNames: %+v", fileFieldNames)
-			//
-			var fileFieldValue = make(map[string]*bytes.Buffer)
-			for fileFieldName := range fileFieldNames {
-				file, _, err := ctx.Request.FormFile(fileFieldName)
-				if err != nil {
-					continue
-				}
-
-				var buf *bytes.Buffer = new(bytes.Buffer)
-				_, err = io.Copy(buf, file)
-				if err != nil {
-					file.Close()
-					logger.Errorf("read from file form fail, err: %v")
-					continue
-				}
-				file.Close()
-				fileFieldValue[fileFieldName] = buf
-			}
-
-			//
 			val := reflect.New(param)
-
 			if ctx.Request.Method == http.MethodGet {
 				if err := ctx.ShouldBindQuery(val.Interface()); err != nil {
 					logger.Errorf("bind to query failed. err=%v", err)
@@ -116,32 +112,43 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 				v2 := val.Elem()
 				t2 := v2.Type()
 
-				var fileName string = ""
+				// var fileName string = ""
 				for i := 0; i < t2.NumField(); i++ {
+					// type of field of struct
 					field := t2.Field(i)
 					tag := field.Tag.Get("form")
 					if tag == "" {
 						tag = field.Name
 					}
+
+					// value of field of struct
 					fieldValue := v2.Field(i)
 					if !fieldValue.CanSet() {
 						continue
 					}
 
-					_, ok := fileFieldNames[tag]
+					// 其中的一个文件列表；该 tag 对应一个文件列表， field 是 map 表示的文件列表
+					fileListContent, ok := fileNameContentsMap[tag]
 					if ok {
-						logger.Infof("file field name: %v", tag)
-						fieldValue.SetBytes(fileFieldValue[tag].Bytes())
-						fileName = fileFieldNames[tag]
+						logger.Debugf("file field name: %v", tag)
+						if len(fileListContent) <= 0 {
+							continue
+						}
+
+						if field.Type.Kind() == reflect.Map {
+							if fieldValue.IsNil() { //如果是个空的 map
+								fieldValue.Set(reflect.MakeMap(fieldValue.Type()))
+							}
+
+							for formItemK, formItemV := range fileListContent {
+								fieldValue.SetMapIndex(reflect.ValueOf(formItemK), reflect.ValueOf(formItemV.Bytes()))
+							}
+						}
 						continue
 					}
 
 					formValue := ctx.Request.FormValue(tag)
 					if formValue == "" {
-						//内部参数，硬编码
-						if tag == "FileName" {
-							fieldValue.SetString(fileName)
-						}
 						continue
 					}
 
@@ -150,12 +157,26 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 						logger.Infof("parse form key: %v, value: %v", tag, formValue)
 						fieldValue.SetString(formValue)
 
-					case reflect.Int:
-						intVal, err := strconv.Atoi(formValue)
+					case reflect.Int, reflect.Uint,
+						reflect.Uint16, reflect.Int16,
+						reflect.Int32, reflect.Uint32,
+						reflect.Int64, reflect.Uint64,
+						reflect.Int8, reflect.Uint8:
+
+						intVal, err := strconv.ParseInt(formValue, 10, 64)
 						if err != nil {
-							return
+							logger.Errorf("parse int form field, err: %v", err)
+							continue
 						}
 						fieldValue.SetInt(int64(intVal))
+
+					case reflect.Float32, reflect.Float64:
+						f64, err := strconv.ParseFloat(formValue, 64)
+						if err != nil {
+							logger.Errorf("parse float form field, err: %v", err)
+							continue
+						}
+						fieldValue.SetFloat(f64)
 
 					default:
 						logger.Errorf("unhandled default case")
@@ -172,7 +193,7 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 			if len(lastFuncNames) > 0 {
 				callFuncName = lastFuncNames[len(lastFuncNames)-1]
 			}
-			logger.Infof("<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+			logger.Debugf("<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
 		}
 
 		vals := hValue.Call(realIN)

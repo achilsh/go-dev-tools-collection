@@ -11,10 +11,9 @@ type ResponseParam struct {
 type FormReqParam struct {
 	NoceStr     string `json:"noce_str" form:"noce_str"`
 	AccessToken string `json:"access_token" form:"access_token"`
-	FileContent []byte `json:"file" form:"file"`
 
-	// 文件的文件名，从表单字段解析, 内部参数，前端忽略
-	FileName string `json:"-"`
+	// key is fileName, value is file content; 多文件， files: 是文件表单名
+	FileContentMap map[string][]byte `json:"files" form:"files"`
 }
 
 type FormResponse struct {

@@ -5,7 +5,7 @@ import (
 )
 
 // form 表单的数据处理
-// RegisterPostForm 注册post form 表单的数据上传处理
+// RegisterPostForm 注册post form 表单的数据上传处理（单文件上传）
 func RegisterPostForm[In any, Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) (Out, error)) {
 	g.POST(url, WrapFormClient(call))
 }
