@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -73,28 +75,68 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 					}
 
 					if len(fileField) > 0 && len(fileFieldValue) > 0 {
-						for _, fv := range fileFieldValue {
+						wg := sync.WaitGroup{}
+						chData := make(chan any, len(fileFieldValue))
+
+						for ii := range fileFieldValue {
+							fv := fileFieldValue[ii]
 							if fv != nil {
-								fH, err := fv.Open()
-								if err != nil {
-									continue
+								wg.Add(1)
+
+								go func(fvIn *multipart.FileHeader) {
+									defer wg.Done()
+
+									fH, err := fvIn.Open()
+									if err != nil {
+										return
+									}
+									defer fH.Close()
+
+									contentBuf := new(bytes.Buffer)
+									_, err = io.Copy(contentBuf, fH)
+									if err != nil {
+										logger.Warnf("read file fail, fileName: %v, err: %v", fvIn.Filename, err)
+										return
+									}
+
+									chData <- struct {
+										Name    string
+										Content *bytes.Buffer
+									}{
+										fvIn.Filename,
+										contentBuf,
+									}
+
+								}(fv)
+							}
+						}
+
+						wg.Wait()
+						close(chData)
+
+						var stopForReceiveOp = false
+						for !stopForReceiveOp {
+							select {
+							case data, isOn := <-chData:
+								if !isOn {
+									logger.Infof("; receive close data channel.")
+									stopForReceiveOp = true
+									break
 								}
-								//
-								contentBuf := new(bytes.Buffer)
-								_, err = io.Copy(contentBuf, fH)
-								if err != nil {
-									logger.Warnf("read file fail, fileName: %v, err: %v", fv.Filename, err)
-									fH.Close()
-									continue
+
+								logger.Debugf("; recevie file content: %+v", data)
+								bizData, isType := data.(struct {
+									Name    string
+									Content *bytes.Buffer
+								})
+								if isType {
+									fileListMap[bizData.Name] = bizData.Content
 								}
-								fH.Close()
-								//
-								fileListMap[fv.Filename] = contentBuf
-								// logger.Debugf("file list items, fileName: %+v, fileData: %v", fv.Filename, contentBuf.String())
 							}
 						}
 
 						if len(fileListMap) > 0 {
+							logger.Infof("; set file tags: %v", fileField)
 							fileNameContentsMap[fileField] = fileListMap
 						}
 					}
@@ -193,7 +235,8 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 			if len(lastFuncNames) > 0 {
 				callFuncName = lastFuncNames[len(lastFuncNames)-1]
 			}
-			logger.Debugf("<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+
+			logger.Debugf("=======> InPutLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
 		}
 
 		vals := hValue.Call(realIN)
@@ -226,7 +269,7 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.Infof("<-------- %v, http response: %+v", callFuncName, responseData)
+				logger.Infof("<====== OutPutLOg:  %v, http response: %+v", callFuncName, responseData)
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
