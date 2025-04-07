@@ -21,6 +21,18 @@ import (
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 )
 
+func MarshalOpFormValue(dstMap map[string]any, src *multipart.Form) {
+	// 解析普通表单字段
+	for key, values := range src.Value {
+		if len(values) == 1 {
+			dstMap[key] = values[0]
+		} else {
+			dstMap[key] = values[0]
+		}
+	}
+	logger.Debugf("data: %+v", dstMap)
+}
+
 // form accesss client.
 func WrapFormClient(handler any) func(ctx *gin.Context) {
 	hType := reflect.TypeOf(handler)
@@ -66,6 +78,8 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 			var fileNameContentsMap = make(map[string]map[string]*bytes.Buffer)
 			// logger.Debugf("multipartform value: %+v", mform)
 			if mform != nil {
+				dstMap := make(map[string]any)
+				MarshalOpFormValue(dstMap, mform)
 				//目前支持多个文件上传只使用 一个 表单字段名
 				for fileField, fileFieldValue := range mform.File {
 					fileListMap, ok := fileNameContentsMap[fileField]
