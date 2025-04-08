@@ -3,6 +3,7 @@ package router_wrapper
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -34,7 +35,7 @@ func MarshalOpFormValue(dstMap map[string]any, src *multipart.Form) {
 }
 
 // form accesss client.
-func WrapFormClient(handler any) func(ctx *gin.Context) {
+func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, error)) func(ctx *gin.Context) {
 	hType := reflect.TypeOf(handler)
 	hValue := reflect.ValueOf(handler)
 	realFc := func(ctx *gin.Context) {}
@@ -73,6 +74,22 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, responseData)
 				ctx.Abort()
 				return nil
+			}
+
+			if mform != nil {
+				for _, handleFunc := range beforeRecvHandles {
+					if handleFunc == nil {
+						continue
+					}
+					if retInt, err := handleFunc(ctx); err != nil {
+						logger.Errorf("handle biz logic fail, err: %v", err)
+						responseData.ErrorCode = fmt.Sprintf("%v", retInt)
+						responseData.ErrorMessage = err.Error()
+						ctx.JSON(http.StatusOK, responseData)
+						ctx.Abort()
+						return nil
+					}
+				}
 			}
 
 			var fileNameContentsMap = make(map[string]map[string]*bytes.Buffer)
@@ -323,7 +340,7 @@ func WrapFormClient(handler any) func(ctx *gin.Context) {
 }
 
 // WrapperClient 包装 gin 解包和处理
-func WrapperClient(handler interface{}) func(ctx *gin.Context) {
+func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context) (int, error)) func(ctx *gin.Context) {
 	hType := reflect.TypeOf(handler)
 	hValue := reflect.ValueOf(handler)
 	realFc := func(ctx *gin.Context) {}
@@ -355,27 +372,27 @@ func WrapperClient(handler interface{}) func(ctx *gin.Context) {
 				}
 			} else {
 				body := middleware.GetRequestBody(ctx)
+				if len(body) > 0 {
+					for _, bHandleFunc := range beforeReadFunc {
+						if bHandleFunc == nil {
+							continue
+						}
+						if retInt, err := bHandleFunc(ctx); err != nil {
+							logger.Errorf("before handler fail, err: %v", err)
+							responseData.ErrorCode = fmt.Sprintf("%v", retInt)
+							responseData.ErrorMessage = err.Error()
+							ctx.JSON(http.StatusOK, responseData)
+							ctx.Abort()
+							return nil
+						}
+					}
+				}
 				if len(body) != 0 {
 					if err := json.Unmarshal(body, val.Interface()); err != nil {
 						logger.Errorf("json Unmarshal to struct failed. data=%v, err=%v", body, err)
-
 						ctx.AbortWithStatus(http.StatusInternalServerError)
 						return nil
 					}
-
-					var dataBodyMap map[string]any
-					json.Unmarshal(body, dataBodyMap)
-					errCode, payLoadPtr := middleware.ParseToken(dataBodyMap, ctx)
-					if errCode != "" {
-						logger.Errorf("accessToken Check interface fail")
-						responseData.ErrorCode = errCode
-						responseData.ErrorMessage = "accessToken verification failed."
-						ctx.JSON(http.StatusOK, responseData)
-						ctx.Abort()
-						return nil
-					}
-
-					middleware.SetPayLoadToCtx(payLoadPtr, ctx)
 				}
 			}
 			for _i := 0; _i < val.Elem().NumField(); _i++ {
