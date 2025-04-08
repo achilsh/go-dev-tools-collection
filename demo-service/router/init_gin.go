@@ -6,8 +6,8 @@ import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
-	"demo-service/service/middleware"
-	"demo-service/service/utils/init_res"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/init_res"
 )
 
 var globalRouter *init_res.Router = nil

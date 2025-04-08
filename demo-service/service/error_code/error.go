@@ -1,7 +1,7 @@
 package error_code
 
 import (
-	errors "demo-service/service/utils/error_def"
+	errors "github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/error_def"
 )
 
 const (

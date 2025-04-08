@@ -1,8 +1,8 @@
 package router
 
 import (
-	"demo-service/handler"
-	rw "demo-service/service/common/router_wrapper"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/handler"
+	rw "github.com/achilsh/go-dev-tools-collection/demo-service/service/common/router_wrapper"
 )
 
 const (

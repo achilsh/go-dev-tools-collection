@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 
-	"demo-service/service/common/language_def"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/common/language_def"
 )
 
 func LanguageManger() gin.HandlerFunc {

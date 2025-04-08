@@ -1,7 +1,7 @@
 package router_wrapper
 
 import (
-	"demo-service/service/middleware"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
 
 	"github.com/gin-gonic/gin"
 )

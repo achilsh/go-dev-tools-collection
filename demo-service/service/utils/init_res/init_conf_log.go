@@ -3,7 +3,7 @@ package init_res
 import (
 	"fmt"
 
-	"demo-service/service/utils/config"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/config"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 )

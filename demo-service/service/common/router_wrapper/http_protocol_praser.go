@@ -16,8 +16,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"demo-service/service/middleware"
-	"demo-service/service/utils/error_def"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/error_def"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 )

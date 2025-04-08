@@ -1,4 +1,4 @@
-module demo-service
+module github.com/achilsh/go-dev-tools-collection/demo-service
 
 require (
 	github.com/achilsh/http-graceful/graceful.v1 v0.0.0-20250321035942-61b7653a1c06

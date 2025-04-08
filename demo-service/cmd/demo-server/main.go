@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 
-	"demo-service/dal/redis"
-	"demo-service/router"
-	"demo-service/service/utils/config"
-	"demo-service/service/utils/init_res"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/dal/redis"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/router"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/config"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/init_res"
 )
 
 var aiConfigFile *string

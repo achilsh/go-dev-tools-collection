@@ -4,9 +4,9 @@ import (
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 	"github.com/gin-gonic/gin"
 
-	model "demo-service/model/http_model"
-	lang "demo-service/service/common/language_def"
-	"demo-service/service/utils/config"
+	model "github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model"
+	lang "github.com/achilsh/go-dev-tools-collection/demo-service/service/common/language_def"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/config"
 )
 
 const (

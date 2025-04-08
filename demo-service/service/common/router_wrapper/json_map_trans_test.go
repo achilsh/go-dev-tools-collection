@@ -6,7 +6,7 @@ import (
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 
-	"demo-service/service/utils/mock/mock_log"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/mock/mock_log"
 )
 
 type DemoJson struct {

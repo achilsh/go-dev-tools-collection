@@ -3,7 +3,7 @@ package redis
 import (
 	"fmt"
 
-	"demo-service/service/utils/config"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/config"
 )
 
 var (

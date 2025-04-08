@@ -9,8 +9,8 @@ import (
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 	"github.com/gin-gonic/gin"
 
-	"demo-service/model/http_model"
-	"demo-service/service/common/language_def"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/common/language_def"
 )
 
 // form 数据上传处理：

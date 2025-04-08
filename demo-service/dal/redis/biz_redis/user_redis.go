@@ -3,8 +3,8 @@ package biz_redis
 import (
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 
-	"demo-service/dal/redis"
-	"demo-service/model/user"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/dal/redis"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/model/user"
 )
 
 func GetUserTokenCache(key string) *user.TokenItem {

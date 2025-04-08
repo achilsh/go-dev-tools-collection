@@ -1,9 +1,10 @@
 package routinues
 
 import (
-	"demo-service/service/utils/mock/mock_log"
 	"testing"
 	"time"
+
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/mock/mock_log"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 )
