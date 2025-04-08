@@ -6,9 +6,7 @@ import (
 
 	model "demo-service/model/http_model"
 	lang "demo-service/service/common/language_def"
-	"demo-service/service/error_code"
 	"demo-service/service/utils/config"
-	"demo-service/service/utils/routinues"
 )
 
 const (
@@ -67,38 +65,8 @@ func GetWelcomeWordInstance(msgType int) WelcomeWordMessageHandler {
 // WelcomeWordHandle 欢迎词处理逻辑
 func WelcomeWordHandle(ctx *gin.Context, _ *model.RequestWelcomeWordParam) (*model.ResponseWelcomeWordParam, error) {
 	var (
-		wg  = routinues.NewRoutineGroupWrap()
 		ret = &model.ResponseWelcomeWordParam{}
-
-		errGetWord error = nil
 	)
-	lanVal := lang.GetLanguage(ctx)
-
-	wg.AsyncTimeoutRun(true, 500, func() {
-		// wg.AsyncRun(true, func() {
-		welcomeWord := GetWelcomeWordInstance(WelcomeWordTypeFromCnf).GetMessage(lanVal)
-		if len(welcomeWord) == 0 {
-			errGetWord = error_code.WelcomeWordError
-			logger.Warnf("not get valid welcome word for lang: %v", lanVal)
-			return
-		}
-		ret.WelcomeWords = welcomeWord
-	})
-
-	wg.AsyncTimeoutRun(true, 500, func() {
-		handle := &GuessQuestionFromDB{}
-		guessQ := handle.GetGuessQuestions(lanVal)
-		if len(guessQ) == 0 {
-			logger.Warnf("get guess question is empty")
-			return
-		}
-		ret.ToGuessQuestions = guessQ
-	})
-	//
-	wg.Wait()
-	if errGetWord != nil {
-		return nil, errGetWord
-	}
 
 	return ret, nil
 }
