@@ -3,6 +3,7 @@ goreplay
 .idea/
 http-client/http-client 
 http-server/http-server
+demo-service/cmd/demo-server/demo-server
 .vscode/
 cloudwego-usage/hertz_usage/hz-new-demo/.hz
 cloudwego-usage/hertz_usage/hz-new-demo/.hz
