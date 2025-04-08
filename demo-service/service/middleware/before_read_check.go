@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"mime/multipart"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
@@ -21,7 +20,8 @@ func MarshalOpFormValue(dstMap map[string]any, src *multipart.Form) {
 }
 func CheckBeforeReadBodyOnForm(ctx *gin.Context) (int, error) {
 	logger.Debugf("call check read body form before.")
-	return 4001, fmt.Errorf("mock error: %v", 4001)
+	// return 4001, fmt.Errorf("mock error: %v", 4001)
+	return 0, nil
 }
 
 func CheckBeforeReadBodyOnJson(ctx *gin.Context) (int, error) {

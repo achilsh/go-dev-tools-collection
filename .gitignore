@@ -24,3 +24,4 @@ base-lib/example/log
 gin-usage-wrapper/example/example
 demo-service/log/*
 demo-service/log
+demo-service/cmd/demo-server/demo-server
