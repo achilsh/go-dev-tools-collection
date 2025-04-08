@@ -95,8 +95,6 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			var fileNameContentsMap = make(map[string]map[string]*bytes.Buffer)
 			// logger.Debugf("multipartform value: %+v", mform)
 			if mform != nil {
-				dstMap := make(map[string]any)
-				MarshalOpFormValue(dstMap, mform)
 				//目前支持多个文件上传只使用 一个 表单字段名
 				for fileField, fileFieldValue := range mform.File {
 					fileListMap, ok := fileNameContentsMap[fileField]
