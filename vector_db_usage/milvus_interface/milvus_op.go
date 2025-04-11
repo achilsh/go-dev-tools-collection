@@ -2,8 +2,8 @@ package mivus_interface
 
 import (
 	"context"
-	"log"
 
+	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 	dbUsage "github.com/achilsh/go-dev-tools-collection/vector_db_usage"
 	"github.com/milvus-io/milvus/client/v2/entity"
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
@@ -64,11 +64,13 @@ func (m *MilvusVectOp) Connect(ctx context.Context) bool {
 
 	cli, err := client.New(ctx, &m.cfg.ClientConfig)
 	if err != nil {
-		log.Fatalf("create client to milvus fail, err: %v", err)
+		logger.Errorf("create client to milvus fail, err: %v", err)
+
 		return false
 	}
 	if cli == nil {
-		log.Fatalf("create client to milvus, ret client is nil")
+		logger.Errorf("create client to milvus, ret client is nil")
+
 		return false
 	}
 	m.cli = cli
@@ -91,7 +93,7 @@ func (m *MilvusVectOp) CreateDB(ctx context.Context, dbName string) bool {
 	}
 	err := m.cli.CreateDatabase(ctx, client.NewCreateDatabaseOption(dbName))
 	if err != nil {
-		log.Fatalf("create db fail, dbName: %v, err: %v", dbName, err)
+		logger.Errorf("create db fail, dbName: %v, err: %v", dbName, err)
 		return false
 	}
 
@@ -106,7 +108,7 @@ func (m *MilvusVectOp) ListDB(ctx context.Context) []string {
 
 	dbNameLists, err := m.cli.ListDatabase(ctx, client.NewListDatabaseOption())
 	if err != nil {
-		log.Printf("list db list on this connect fail: %v", err)
+		logger.Infof("list db list on this connect fail: %v", err)
 		return nil
 	}
 	return dbNameLists
@@ -119,7 +121,7 @@ func (m *MilvusVectOp) UsingDB(ctx context.Context, dbName string) bool {
 	}
 	err := m.cli.UseDatabase(ctx, client.NewUseDatabaseOption(dbName))
 	if err != nil {
-		log.Printf("use db: %v fail, err: %v", dbName, err)
+		logger.Infof("use db: %v fail, err: %v", dbName, err)
 		return false
 	}
 	return true
@@ -133,11 +135,11 @@ func (m *MilvusVectOp) GetDBDetail(ctx context.Context, dbName string) (dbUsage.
 
 	dbDetail, err := m.cli.DescribeDatabase(ctx, client.NewDescribeDatabaseOption(dbName))
 	if err != nil {
-		log.Printf("get db: %v detail fail: %v", dbName, err)
+		logger.Infof("get db: %v detail fail: %v", dbName, err)
 		return nil, false
 	}
 	if dbDetail == nil {
-		log.Printf("get db detail ret is nil")
+		logger.Infof("get db detail ret is nil")
 		return nil, false
 	}
 
@@ -154,25 +156,25 @@ func (m *MilvusVectOp) CreateCollection(ctx context.Context, collectName string,
 	//
 	indexOptions, err := idx.BuildCreateIndexOptions()
 	if err != nil {
-		log.Printf("get index option fail, err: %v", err)
+		logger.Infof("get index option fail, err: %v", err)
 		return false
 	}
 
 	indexOptionsMilvus, ok := indexOptions.([]client.CreateIndexOption)
 	if !ok {
-		log.Printf("build not list of client.CreateIndexOption")
+		logger.Infof("build not list of client.CreateIndexOption")
 		return false
 	}
 	//
 	schemaItemTmp, err := sch.BuildSchema()
 	if err != nil {
-		log.Printf("get schema item fail, err: %v", err)
+		logger.Infof("get schema item fail, err: %v", err)
 		return false
 	}
 	//
 	schemaItem, ok := schemaItemTmp.(*entity.Schema)
 	if !ok || nil == schemaItem {
-		log.Printf("is not entity schema or is empty")
+		logger.Infof("is not entity schema or is empty")
 		return false
 	}
 
@@ -184,7 +186,7 @@ func (m *MilvusVectOp) CreateCollection(ctx context.Context, collectName string,
 	}
 
 	if err != nil {
-		log.Printf("create collection fail, err: %v", err)
+		logger.Infof("create collection fail, err: %v", err)
 		return false
 	}
 	return true
@@ -196,7 +198,7 @@ func (m *MilvusVectOp) ListCollection(ctx context.Context) []string {
 	}
 	ret, err := m.cli.ListCollections(ctx, client.NewListCollectionOption())
 	if err != nil {
-		log.Printf("list collections fail, err: %v", err)
+		logger.Infof("list collections fail, err: %v", err)
 		return nil
 	}
 	return ret
@@ -209,13 +211,13 @@ func (m *MilvusVectOp) LoadCollection(ctx context.Context, collName string, asyn
 
 	lTask, err := m.cli.LoadCollection(ctx, client.NewLoadCollectionOption(collName))
 	if err != nil {
-		log.Printf("load collection: %v fail, err: %v", collName, err)
+		logger.Infof("load collection: %v fail, err: %v", collName, err)
 		return false
 	}
 
 	if !async {
 		if err := lTask.Await(ctx); err != nil {
-			log.Printf("wait load collection fail, err: %v", err)
+			logger.Infof("wait load collection fail, err: %v", err)
 			return false
 		}
 		return true
@@ -241,22 +243,22 @@ func (m *MilvusVectOp) InsertColumns(ctx context.Context, collectName string, in
 	}
 	opts, ok := insertOpter.BuildInsertOption()
 	if !ok {
-		log.Printf("build insert option fail")
+		logger.Infof("build insert option fail")
 		return false
 	}
 
 	insertOpt, ok := opts.(client.InsertOption)
 	if !ok || insertOpt == nil {
-		log.Printf("get build insert option is nil")
+		logger.Infof("get build insert option is nil")
 		return false
 	}
 
 	retInsert, err := m.cli.Insert(ctx, insertOpt)
 	if err != nil {
-		log.Printf("insert to vec db fail, err: %v, collectName: %v", err, collectName)
+		logger.Infof("insert to vec db fail, err: %v, collectName: %v", err, collectName)
 		return false
 	}
-	log.Printf("insert succ, insert nums: %v", retInsert.InsertCount)
+	logger.Infof("insert succ, insert nums: %v", retInsert.InsertCount)
 	return true
 }
 
@@ -267,19 +269,19 @@ func (m *MilvusVectOp) SearchVector(ctx context.Context, collectName string, sea
 
 	optRet, succ := searchOpt.BuildSearchVectOpt()
 	if !succ {
-		log.Printf("search vector fail")
+		logger.Infof("search vector fail")
 		return nil, false
 	}
 
 	opt, ok := (optRet).(client.SearchOption)
 	if !ok {
-		log.Printf("search option not get")
+		logger.Infof("search option not get")
 		return nil, false
 	}
 
 	searchRet, err := m.cli.Search(ctx, opt)
 	if err != nil {
-		log.Printf("search fail, err: %v", err)
+		logger.Infof("search fail, err: %v", err)
 		return nil, false
 	}
 	return searchRet, true
@@ -292,19 +294,19 @@ func (m *MilvusVectOp) QueryScalar(ctx context.Context, collectName string, quer
 
 	optRet, succ := queryOpt.BuildQueryScalarOpt()
 	if !succ {
-		log.Printf("query vector fail")
+		logger.Infof("query vector fail")
 		return nil, false
 	}
 
 	opt, ok := (optRet).(client.QueryOption)
 	if !ok {
-		log.Printf("query option not get")
+		logger.Infof("query option not get")
 		return nil, false
 	}
 
 	queryRet, err := m.cli.Query(ctx, opt)
 	if err != nil {
-		log.Printf("query fail, err: %v", err)
+		logger.Infof("query fail, err: %v", err)
 		return nil, false
 	}
 	return queryRet, true

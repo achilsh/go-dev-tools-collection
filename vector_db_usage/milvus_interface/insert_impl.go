@@ -1,8 +1,9 @@
 package mivus_interface
 
 import (
-	"log"
 	"reflect"
+
+	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
 )
@@ -141,7 +142,7 @@ func WithScalarColumnNums[T any](columnName string, data []T) InsertOptions {
 			vTypeInt = ScalarColumnStr
 		default:
 			vTypeInt = ScalarColumnBoolType
-			log.Printf("not support vType: %v", vType)
+			logger.Infof("no support vType: %v", vType)
 		}
 		listColumns, hasItems := item.columnScar[vTypeInt]
 
