@@ -206,6 +206,8 @@ func (mcList *MilvusCreateIndexOptionList) RegisterCreateIndexOpt(collectName st
 
 	item.createOps = append(item.createOps, WithMilvusBasic(collectName, fieldName, indexName))
 	item.createOps = append(item.createOps, createIndexopts...)
+	//
+	mcList.optionList = append(mcList.optionList, item)
 }
 
 // BuildCreateIndexOptions 返回多个索引的创建过程： []client.CreateIndexOption

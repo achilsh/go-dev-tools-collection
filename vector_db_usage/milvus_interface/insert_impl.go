@@ -137,6 +137,7 @@ func WithScalarColumnNums[T any](columnName string, data []T) InsertOptions {
 
 		case reflect.Uint64, reflect.Int64:
 			vTypeInt = ScalarColumnI64Type
+			logger.Debugf("is int64 type.")
 
 		case reflect.String:
 			vTypeInt = ScalarColumnStr
@@ -347,9 +348,10 @@ func (iops *InsertOps) Register(collectName string, ops ...InsertOptions) {
 			}
 		}
 	}
+	logger.Infof("collumn data options: %+v", columnDataOption)
 	iops.insertOption = columnDataOption
 }
 
 func (iops *InsertOps) BuildInsertOption() (any, bool) {
-	return iops.insertOption, false
+	return iops.insertOption, true
 }

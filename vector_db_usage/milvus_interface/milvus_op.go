@@ -249,13 +249,13 @@ func (m *MilvusVectOp) InsertColumns(ctx context.Context, collectName string, in
 
 	insertOpt, ok := opts.(client.InsertOption)
 	if !ok || insertOpt == nil {
-		logger.Infof("get build insert option is nil")
+		logger.Errorf("get build insert option is nil")
 		return false
 	}
 
 	retInsert, err := m.cli.Insert(ctx, insertOpt)
 	if err != nil {
-		logger.Infof("insert to vec db fail, err: %v, collectName: %v", err, collectName)
+		logger.Errorf("insert to vec db fail, err: %v, collectName: %v", err, collectName)
 		return false
 	}
 	logger.Infof("insert succ, insert nums: %v", retInsert.InsertCount)
