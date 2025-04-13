@@ -38,7 +38,7 @@ func (mio *MilvusInserter) BuildInsertOption() (any, bool) {
 		// }),
 		mivus_interface.WithScalarColumnNums("question", []string{
 			"深圳市是中国广东省一个市，也是中国的经济特区",
-			"深圳市是中国广东省一个市，也是中国的经济特区",
+			"香港是中国的特别行政区",
 			"我是谁，我是一个it 码农。",
 			"春天是一个播种的季节",
 			"一年小学生学古诗100首。",
