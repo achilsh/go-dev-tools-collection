@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 
+	_ "github.com/achilsh/go-dev-tools-collection/demo-service/docs"
+
 	"github.com/achilsh/go-dev-tools-collection/demo-service/dal/redis"
 	"github.com/achilsh/go-dev-tools-collection/demo-service/router"
 	"github.com/achilsh/go-dev-tools-collection/demo-service/service/utils/config"

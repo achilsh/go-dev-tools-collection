@@ -1,0 +1,77 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    RequestParam:
+        properties:
+            id:
+                description: RequestParam's id.
+                format: int32
+                type: integer
+                x-go-name: Id
+            name:
+                type: string
+                x-go-name: Name
+        required:
+            - id
+        type: object
+        x-go-package: github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model
+    ResponseParam:
+        properties:
+            result:
+                type: string
+                x-go-name: Result
+        type: object
+        x-go-package: github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model
+host: 127.0.0.1:5657
+info:
+    description: Documentation of our demo-server API.
+    title: demo-server.
+    version: 0.1.0
+paths:
+    /demo-server/v1/x2:
+        post:
+            operationId: v1x2DemoRequest
+            parameters:
+                - description: This text will appear as description of your request body.
+                  in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/RequestParam'
+            responses:
+                "200":
+                    $ref: '#/responses/v1x2Response'
+                default:
+                    $ref: '#/responses/errResponse'
+            summary: call v1 x2 requestions..
+            tags:
+                - xxx
+produces:
+    - application/json
+responses:
+    errResponse:
+        description: This text will appear as description of your error response body.
+        headers:
+            code:
+                description: Error code.
+                format: int64
+                type: integer
+            message:
+                description: Error message.
+                type: string
+    v1x2Response:
+        description: This text will appear as description of your response body.
+        headers:
+            code:
+                type: string
+            msg:
+                type: string
+        schema:
+            $ref: '#/definitions/ResponseParam'
+schemes:
+    - http
+    - https
+securityDefinitions:
+    basic:
+        type: basic
+swagger: "2.0"

@@ -1,6 +1,8 @@
 package http_model
 
 type RequestParam struct {
+	// RequestParam's id.
+	// Required: true
 	Id   int32  `json:"id" form:"id"`
 	Name string `json:"name" form:"name"`
 }
