@@ -1,0 +1,43 @@
+services:
+  ## dev 构建
+  demo-server-dev: 
+    build: ## 构建阶段
+      context: .
+      target: dev ### 对应 使用 Dockerfile 中的多阶段构建目标阶段 dev（对应 FROM ... AS dev）
+      args:
+        - APP_ENV=dev 
+    container_name: demo-server-dev
+    volumes: ## 让容器里的应用能够实时反映宿主机的代码变化
+      - .:/demo-server ## 实现开发环境中的代码实时同步。开发者在宿主机修改代码后，容器内会立即生效，无需重新构建镜像
+      - ./conf/demo-server-dev.yaml:/demo-server/conf/demo-server.yaml ##覆盖容器内默认配置; 宿主机 demo-server-dev.yaml 挂载为容器内的 demo-server.yaml
+    ports:
+      - "5657:5657"
+    networks: 
+      - demo-server-network
+    environment: ##设置容器环境变量
+      - APP_ENV=dev
+    restart: unless-stopped ##容器退出时自动重启，除非手动停止（适合开发环境)
+  
+  demo-server-prod:  ##服务名
+    build:
+      context: .
+      target:  prod ### 对应 使用 Dockerfile 中的多阶段构建目标阶段 prod（对应 FROM ... AS prod)
+      args:
+        - APP_ENV=prod  ##设置构建参数 APP_ENV 为 prod，用于生产环境构建
+    ports:
+      - "5658:5657"
+    container_name: demo-server-prod
+    environment:
+      - APP_ENV=prod ##设置容器运行时环境变量为 prod，应用会加载生产配置
+    networks:  ## 在同一个相同网络中的不同服务可通过容器名来通信，不同网络类型是不能 相同通信
+      - demo-server-network
+    volumes:
+      - ./conf:/demo-server/conf   ## 把整个配置目录挂载到容器中
+      # - ./conf/demo-server-prod.yaml:/demo-server/conf/demo-server.yaml  ##把Prod文件打包到镜像中
+      - ./log:/demo-server/log 
+    restart: always
+
+networks:
+  demo-server-network: ## 处于不同网络的服务是不能相互通信，保证多个服务要通信，必须要设置在同一个 network中。
+    driver: bridge
+    external: true  ### 可以让不同项目共享一个网络，需要事先 要创建  demo-server-network; 比如： docker network create demo-server-network

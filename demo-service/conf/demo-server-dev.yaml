@@ -1,8 +1,7 @@
 server:
   port: 5657
 
-
-env: modify_in_docker
+env: dev
 secretKey:
   apiSignKey: 12
   aesKeyToken: 123

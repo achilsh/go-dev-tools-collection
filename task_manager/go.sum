@@ -1,0 +1,10 @@
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250408155352-fcb88a36166b h1:vuZDe0qnImYOL2X7lN69HBfEsibBdcZFUNTMVIEWkK8=
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250408155352-fcb88a36166b/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
+github.com/achilsh/go-dev-tools-collection/singleton_wrapper v0.0.0-20250416163338-4b7d272a828c h1:imk44o2XtCV02iXZDExMcSzEq3UN7MD5n7W1vDyLHZo=
+github.com/achilsh/go-dev-tools-collection/singleton_wrapper v0.0.0-20250416163338-4b7d272a828c/go.mod h1:JlNETFMtfI1WgY3TQ4xU9apwIqaukeCa+vyXt3Ug2EY=
+github.com/go-yaml/yaml v2.1.0+incompatible h1:RYi2hDdss1u4YE7GwixGzWwVo47T8UQwnTLB6vQiq+o=
+github.com/go-yaml/yaml v2.1.0+incompatible/go.mod h1:w2MrLa16VYP0jy6N7M5kHaCkaLENm+P+Tv+MfurjSw0=
+github.com/jinzhu/copier v0.4.0 h1:w3ciUoD19shMCRargcpm0cm91ytaBhDvuRpz1ODO/U8=
+github.com/jinzhu/copier v0.4.0/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
+go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
+go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
