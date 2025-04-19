@@ -1,0 +1,55 @@
+services:
+  mysql-fulltext:
+    image: mysql:latest
+    container_name: mysql-fulltext-server
+    networks:
+      # - default       # 显式连接到 milvus 网络
+      - demo-server-network  # 同时连接另一网络
+    environment:
+      MYSQL_ROOT_PASSWORD: root_123456789
+      MYSQL_USER: user 
+      MYSQL_PASSWORD: user_123456789
+      TZ: Asia/Shanghai 
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql 
+      - ./config/my.cnf:/etc/mysql/conf.d/my.cnf
+
+networks:
+  # default:
+  #   name: milvus
+  demo-server-network: ## 处于不同项目的服务sevice是不能相互通信，保证不同项目间多个服务要通信，必须要事先创建一个网络，比如  demo-server-network ，设置在同一个 network中。
+    driver: bridge
+    external: true  ## 设置该值，表示该网络是一个外部通用网络，可以在多个 项目中 服务 之间通信。
+    # attachable: true  ### 这样宿主机可以通过映射的端口连接到该容器的服务上。
+
+### 命令查询 SHOW VARIABLES LIKE 'ngram_token_size'; 获取默认值。
+
+## login:
+# mysql -u root -proot_123456789 -Dxx_fulltext
+
+### 创建表时指定索引：
+## 比如： CREATE TABLE posts (
+#    id INT PRIMARY KEY AUTO_INCREMENT,
+#    title VARCHAR(255),
+#    body TEXT,
+#    FULLTEXT ( title , body ) WITH PARSER NGRAM
+# )  ENGINE=INNODB CHARACTER SET UTF8MB4; 
+
+
+
+## select 时， match(列名，列名)  其中的列名就是 建立 fulltext index 的列名。
+##  AGAINST('要检索的关键字' IN BOOLEAN MODE) 执行布尔全文检索，说明要包含 某个字或者 不包含某个字。
+## 
+## source  ./select.sql
+# SELECT * FROM posts WHERE MATCH(body) AGAINST('学习');
+# echo "SELECT * FROM posts WHERE MATCH(body) AGAINST('学')">select.sql
+# echo "SELECT * FROM posts WHERE MATCH( body) AGAINST('是人们')">select1.sql
+# echo "SELECT * FROM posts WHERE MATCH( body) AGAINST('我们是123')">select2.sql
+# echo  "SELECT * FROM posts WHERE MATCH(body) AGAINST('手机');" > select3.sql
+# echo "select * from  posts where match(body) against('手机 我们'  IN BOOLEAN MODE)" > select4.sql ## 表示包含 我们 或者 手机
+# echo "select * from  posts where match(body) against('手机 我们')" > select4.sql ## 表示包含 我们 或者 手机
+# echo "INSERT INTO posts(title,body) VALUES('test3333333333', '手机充电线坏了。');" >>insert2.sql
+
+## 参考： https://dev.mysql.com/doc/refman/8.4/en/fulltext-search.html

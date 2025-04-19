@@ -72,6 +72,6 @@ services:
 networks:
   # default:
   #   name: milvus
-  demo-server-network: ## 处于不同网络的服务是不能相互通信，保证多个服务要通信，必须要设置在同一个 network中。
+  demo-server-network: ## 处于不同网络的服务是不能相互通信，保证多个服务要通信，必须要先创建，后设置在同一个 network中。
     driver: bridge
-    external: true
+    external: true  ## 要事先创建一个 网络，比如：   docker network create demo-server-network 可以在多个项目上相互通信。

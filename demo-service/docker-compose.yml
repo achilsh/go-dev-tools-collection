@@ -38,6 +38,19 @@ services:
     restart: always
 
 networks:
-  demo-server-network: ## 处于不同网络的服务是不能相互通信，保证多个服务要通信，必须要设置在同一个 network中。
+  demo-server-network: ## 处于不同项目的服务是不能相互通信，保证多个服务要通信，必须要设置在同一个 network中。
+    name:  demo-server-network
     driver: bridge
     external: true  ### 可以让不同项目共享一个网络，需要事先 要创建  demo-server-network; 比如： docker network create demo-server-network
+
+
+
+### docker-compose 的一些常用命令集合（在docker-composer.yml 文件所在目录中运行）：
+# 1. 构建容器： docker-compose build  某个服务名  ； 或者 直接构建该项目中所有的服务： docker-compose build 
+# 2. 查看容器使用的构建镜像： docker-compose images 
+# 3. 创建和启动容器： docker-compose --build up  先构建所有镜像，然后启动容器； docker-compose --build up 服务名 表示先构建镜像，然后启动某个指定服务
+# 4. 停掉服务： docker-compose stop  停掉所有服务， docker-compose stop 服务名， 停掉某个服务。
+# 5. 重启服务： docker-compose restart 重启所有服务， docker-compose restart 服务名，重启某个一个服务。
+# 6. 停掉服务，并删除容器和网络： docker-compose down ; docker-compose down 服务名
+# 7. 进入容器（服务）： docker-compose exec -it 服务名 /bin/bash 
+# 8. 查看容器（服务）日志： docker-compose logs -f 服务名
