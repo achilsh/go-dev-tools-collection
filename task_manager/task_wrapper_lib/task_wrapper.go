@@ -34,7 +34,7 @@ func (atw *AsyncsTaskWrapper) SetResult(ret any, err error) {
 }
 func NewAsyncTAskWrapper(opts ...AsyncTaskOption) *AsyncsTaskWrapper {
 	task := &AsyncsTaskWrapper{
-		id:             fmt.Sprintf("%v", time.Now().UTC().UnixMilli()),
+		id:             fmt.Sprintf("%v", time.Now().UTC().UnixMicro()),
 		maxWaitTime:    5 * time.Second,
 		statusNotifyCh: make(chan struct{}, 1),
 		err:            nil,

@@ -6,7 +6,11 @@ require github.com/achilsh/go-dev-tools-collection/singleton_wrapper v0.0.0-2025
 
 require (
 	github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250408155352-fcb88a36166b // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

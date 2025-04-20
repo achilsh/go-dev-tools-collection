@@ -18,8 +18,8 @@ type TaskKeyer interface {
 	IsAppend() bool
 }
 
-// 通过调用 GetAsyncTaskMng() 获取 *AsyncTaskMng 单例
-var GetAsyncTaskMng = singletonimpl.SingletonObjCreateFuncFactory(func(item *AsyncTaskMng) {
+// 通过调用 GetAsyncTaskMngInstance() 获取 *AsyncTaskMng 任务管理器的 单例
+var GetAsyncTaskMngInstance = singletonimpl.SingletonObjCreateFuncFactory(func(item *AsyncTaskMng) {
 	item.taskMap = make(map[TaskKeyer][]*AsyncsTaskWrapper)
 })
 
@@ -28,11 +28,11 @@ type AsyncTaskMng struct {
 	taskMap map[TaskKeyer][]*AsyncsTaskWrapper
 }
 
-// 等待任务执行和执行完的结果通过。
+// 等待入参 task 任务执行结果
 // 1.添加任务，
-// 2.设置定时器等待结果通知；超时则删除任务；否则就接收结果（正确值和错误）
+// 2.设置定时器等待结果通知；超时则删除任务；否则就接收结果（结果值和错误）
 func (atm *AsyncTaskMng) SyncWait(key TaskKeyer, task *AsyncsTaskWrapper) (any, error) {
-	if err := atm.addTask(key, task); err != nil {
+	if err := atm.addTask(key, task); err != nil { // 添加时必须要保持原子性，因为删除的时依赖于添加的顺序。
 		logger.Errorf("add task fail on wait.")
 		return nil, err
 	}
@@ -48,36 +48,38 @@ func (atm *AsyncTaskMng) SyncWait(key TaskKeyer, task *AsyncsTaskWrapper) (any, 
 			}
 			return nil, fmt.Errorf("task run timeout, key: %v", key.Key())
 
-		case <-task.statusNotifyCh:
+		case <-task.statusNotifyCh: //在发送结果通知时，会删除 移除 任务。
 			return task.taskResult, nil
 		}
 	}
 }
 
-func (atm *AsyncTaskMng) NotifyDone(key TaskKeyer, task *AsyncsTaskWrapper) error {
-	result, err := atm.getTask(key)
+// 其中 参数 task 是通知的结果，用临时task mock结果，把任务结果 复制给 任务集中找到的任务。
+func (atm *AsyncTaskMng) NotifyDone(key TaskKeyer, taskTemp *AsyncsTaskWrapper) error {
+	resultTask, err := atm.getTask(key)
 	if err != nil {
 		return err
 	}
-	if result.isClose {
+	if resultTask.isClose {
 		return nil
 	}
 
-	result.mutex.Lock()
-	defer result.mutex.Unlock()
+	resultTask.mutex.Lock()
+	defer resultTask.mutex.Unlock()
 
-	if !result.isClose {
-		result.taskResult = task.taskResult
-		result.err = task.err
-		close(result.statusNotifyCh)
-		result.isClose = true
+	if !resultTask.isClose {
+		resultTask.taskResult = taskTemp.taskResult
+		resultTask.err = taskTemp.err
+		close(resultTask.statusNotifyCh)
+		resultTask.isClose = true
 	}
-	if err := atm.delTask(key, task); err != nil {
+	if err := atm.delTask(key, resultTask); err != nil {
 		logger.Errorf("del task fail err: %v, key: %v", err, key.Key())
 	}
 	return nil
 }
 
+// 获取 key 对应的任务，或者最早的任务（取出任务来通知结果）
 func (atm *AsyncTaskMng) getTask(key TaskKeyer) (*AsyncsTaskWrapper, error) {
 	atm.locker.RLock()
 	defer atm.locker.RUnlock()
@@ -101,11 +103,12 @@ func (atm *AsyncTaskMng) getTask(key TaskKeyer) (*AsyncsTaskWrapper, error) {
 	return tasks[0], nil
 }
 
+// 把任务从 任务管理器中移除
 func (atm *AsyncTaskMng) delTask(key TaskKeyer, task *AsyncsTaskWrapper) error {
 	atm.locker.Lock()
 	defer atm.locker.Unlock()
 	//
-	tasks, ok := atm.taskMap[key]
+	taskList, ok := atm.taskMap[key]
 	if !ok {
 		return nil
 	}
@@ -113,12 +116,12 @@ func (atm *AsyncTaskMng) delTask(key TaskKeyer, task *AsyncsTaskWrapper) error {
 	//
 	index := 0
 	if key.IsAppend() {
-		for _, item := range tasks {
+		for _, item := range taskList {
 			if task.id == item.id {
 				logger.Infof("task should to delete, task_Id: %v", item.id)
 				continue
 			}
-			tasks[index] = item
+			taskList[index] = item
 			index++
 		}
 		atm.taskMap[key] = atm.taskMap[key][:index]
