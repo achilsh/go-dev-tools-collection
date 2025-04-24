@@ -2,6 +2,7 @@ package example
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
@@ -64,9 +65,12 @@ func TestRetrieve(t *testing.T) {
 	}
 
 	logger.Infof("--------------------------")
+
+	filter := fmt.Sprintf("answer not in [\"码农\"]")
+
 	withFilterRetData := GetRetriever(
 		RETRIEVE_VECT_ON_MILVUS,
-	).Retrieve(context.Background(), "answer != '码农'", existDataVect)
+	).Retrieve(context.Background(), filter, existDataVect) //"answer != '码农'"
 	for _, v := range withFilterRetData {
 		logger.Infof("filter ===> find exist item: %v", v)
 	}
