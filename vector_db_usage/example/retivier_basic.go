@@ -17,7 +17,7 @@ var (
 )
 
 type SimilarRetriever interface {
-	Retrieve(ctx context.Context, targetVect []float32) []string
+	Retrieve(ctx context.Context, filter string, targetVect []float32) []string
 	Init() bool
 }
 

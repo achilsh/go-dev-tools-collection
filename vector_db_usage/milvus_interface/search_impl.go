@@ -13,6 +13,7 @@ type MilvusSearchOptItem struct {
 	vectors        []entity.Vector
 	partitionNames []string
 	offSet         int //TODO: offset diff with topK
+	filterCond     string
 }
 type MilvusOptions func(*MilvusSearchOptItem)
 
@@ -39,6 +40,11 @@ func WithSearchRetTopK(tpk int) MilvusOptions {
 func WithSearchTargetVector(vect ...entity.Vector) MilvusOptions {
 	return func(item *MilvusSearchOptItem) {
 		item.vectors = append(item.vectors, vect...)
+	}
+}
+func WithSearchFilterCond(cond string) MilvusOptions {
+	return func(item *MilvusSearchOptItem) {
+		item.filterCond = cond
 	}
 }
 
@@ -80,6 +86,10 @@ func (mso *MilvusSearchOption) Register(opts ...MilvusOptions) {
 	}
 	if mso.searchOp.cLevel >= 0 {
 		searchOp.WithConsistencyLevel(mso.searchOp.cLevel)
+	}
+
+	if len(mso.searchOp.filterCond) > 0 {
+		searchOp.WithFilter(mso.searchOp.filterCond)
 	}
 
 	mso.option = searchOp

@@ -23,8 +23,10 @@ const (
 	QuestionVectIndexName = "question_vect_index"
 	QuestionVectFieldName = "question_vect"
 	QuestioScalarName     = "question"
-	IdFieldName           = "id"
-	IdeIndexName          = "id_index"
+
+	AnswerScalarName = "answer"
+	IdFieldName      = "id"
+	IdeIndexName     = "id_index"
 )
 
 var (
@@ -73,6 +75,15 @@ func (mrv *MilvusRetrieveVect) Insert(ctx context.Context) {
 		"春天是一个播种的季节",
 		"一年小学生学古诗100首。",
 		"中国有八大菜系，湘菜，川菜，鲁菜等.",
+	}
+
+	answersliceStr := []string{
+		"答案：深圳市是中国广东省一个市，也是中国的经济特区",
+		"答案: 香港是中国的特别行政区",
+		"码农",
+		"答案: 春天是一个播种的季节",
+		"答案: 一年小学生学古诗100首。",
+		"答案: 中国有八大菜系，湘菜，川菜，鲁菜等.",
 	}
 
 	vectDataList := [][]float32{
@@ -283,7 +294,7 @@ func (mrv *MilvusRetrieveVect) Insert(ctx context.Context) {
 	}
 
 	if ok := mrv.milvusObj.InsertColumns(ctx, infoTable, NewMilvusInsertOption(lang_val,
-		WithScalarColumns("id", idScalarList), WithScalarColumns("question", questionSliceStr),
+		WithScalarColumns("id", idScalarList), WithScalarColumns("question", questionSliceStr), WithScalarColumns("answer", answersliceStr),
 		WithVectVolumns("question_vect", VectDimOnQuestion, mivus_interface.VectColumnF32, vectDataList))); !ok {
 		logger.Errorf("insert fail")
 	} else {
@@ -292,7 +303,7 @@ func (mrv *MilvusRetrieveVect) Insert(ctx context.Context) {
 }
 
 // 查询 collecion中的数据
-func (mrv *MilvusRetrieveVect) Retrieve(ctx context.Context, targetVect []float32) []string {
+func (mrv *MilvusRetrieveVect) Retrieve(ctx context.Context, filter string, targetVect []float32) []string {
 	//使用特定的collection
 	lang_val := "en"
 	infoTable := models.QuestionVectorCollection{}.TableName(lang_val)
@@ -312,7 +323,7 @@ func (mrv *MilvusRetrieveVect) Retrieve(ctx context.Context, targetVect []float3
 
 	// 返回的是 []ResultSet
 	searchRetList, ok := mrv.milvusObj.SearchVector(ctx, infoTable, NewMilvusQestionsSearch(
-		infoTable, targetVect, mrv.questionRetNums, mrv.SearchRetQuestionFieldNames))
+		infoTable, targetVect, mrv.questionRetNums, mrv.SearchRetQuestionFieldNames, filter))
 	if !ok {
 		logger.Errorf("search vector fail.")
 		return nil
@@ -424,6 +435,12 @@ func (mrv *MilvusRetrieveVect) InitAllLanguageCollection() {
 				MaxLen:      512,
 				Description: "this is question detail",
 			},
+			AnswerStrField: models.FieldProperty{
+				FieldName:   AnswerScalarName,
+				DataType:    int32(entity.FieldTypeVarChar),
+				MaxLen:      512,
+				Description: "this is answer detail",
+			},
 			IsDynamicSchema: true,
 		}
 	}
@@ -471,7 +488,7 @@ func (mrv *MilvusRetrieveVect) CreateCollection(toCreateTabNames []string) error
 
 func (mrv *MilvusRetrieveVect) Init() bool {
 	addrHost := "localhost:19530"
-	dbName := "test_demo_milvus_v123"
+	dbName := "test_2025_4_24_111"
 
 	mrv.milvusObj = mivus_interface.NewVectMilvusOpInst(
 		mivus_interface.WithAddress(addrHost),

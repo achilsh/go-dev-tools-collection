@@ -12,15 +12,23 @@ type MilvusQuestionSearch struct {
 	targetVect  []float32 //要检索的向量
 	retLimit    int       //topK
 	outFields   []string
+	filterCond  string
 }
 
-func NewMilvusQestionsSearch(collectName string, targetVect []float32, topK int, outFields []string) *MilvusQuestionSearch {
+func NewMilvusQestionsSearch(
+	collectName string,
+	targetVect []float32,
+	topK int,
+	outFields []string,
+	filterCond string,
+) *MilvusQuestionSearch {
 	return &MilvusQuestionSearch{
 		collectName: collectName,
 		targetVect:  targetVect,
 		retLimit:    topK,
 		outFields:   outFields,
 		searchOpt:   mivus_interface.NewMilvusSearchOptions(),
+		filterCond:  filterCond,
 	}
 }
 
@@ -30,6 +38,7 @@ func (mqs *MilvusQuestionSearch) BuildSearchVectOpt() (any, bool) {
 		//支持同时检索多个向量
 		mivus_interface.WithSearchTargetVector(entity.FloatVector(mqs.targetVect)),
 		mivus_interface.WithSearchOutFields(mqs.outFields),
+		mivus_interface.WithSearchFilterCond(mqs.filterCond),
 	)
 
 	return mqs.searchOpt.BuildSearchVectOpt()

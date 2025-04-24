@@ -12,6 +12,8 @@ type QuestionVectorCollection struct {
 	IdField           FieldProperty
 	QuestionVectField FieldProperty //向量
 	QuestionStrField  FieldProperty //标量
+	//加一个anwer field
+	AnswerStrField FieldProperty
 	//
 	IsDynamicSchema bool
 }
