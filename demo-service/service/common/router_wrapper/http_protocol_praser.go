@@ -51,6 +51,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 		ctx := args[0].Interface().(*gin.Context)
 		var realIN []reflect.Value
 		realIN = append(realIN, args[0])
+		hasForm := false
 
 		if hType.NumIn() == 2 {
 			param := hType.In(1)
@@ -153,7 +154,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 									break
 								}
 
-								logger.Debugf("; recevie file content: %+v", data)
+								// logger.Debugf("; recevie file content: %+v", data)
 								bizData, isType := data.(struct {
 									Name    string
 									Content *bytes.Buffer
@@ -167,6 +168,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 						if len(fileListMap) > 0 {
 							logger.Infof("; set file tags: %v", fileField)
 							fileNameContentsMap[fileField] = fileListMap
+							hasForm = true
 						}
 					}
 				}
@@ -265,7 +267,11 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 				callFuncName = lastFuncNames[len(lastFuncNames)-1]
 			}
 
-			logger.Debugf("=======> InPutLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+			if hasForm {
+				logger.Debugf("=======> InPutLog: %v", callFuncName)
+			} else {
+				logger.Debugf("=======> InPutLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+			}
 		}
 
 		vals := hValue.Call(realIN)
