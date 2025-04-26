@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/smithy-go"
 )
@@ -30,6 +31,7 @@ type S3ClientConfig struct {
 	FilePrefix string
 	//
 	CliTimeoutSecondCfg int32
+	ObjectPrivilege int
 }
 type S3ClientBase struct {
 	S3Client *s3.Client
@@ -48,10 +50,15 @@ func (sc *S3ClientBase) Upload(data io.ReadSeeker, remotePath string) error {
 		defer cancelFn()
 	}
 
+	privilege, ok := privilegeInS3Inner[sc.CliCfg.ObjectPrivilege]
+	if !ok {
+		privilege = types.ObjectCannedACLPrivate
+	}
 	_, err := sc.S3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(sc.CliCfg.Bucket),
 		Key:    aws.String(remotePath),
 		Body:   data,
+		ACL: privilege,
 	})
 	if err != nil {
 		var apiErr smithy.APIError
@@ -167,6 +174,28 @@ func (sc *S3ClientBase) GetDownloadUrl(remotePath string, expMilliSecond int) (s
 	return retPSC.URL, nil
 }
 
+
+const (
+	DownLoadPrivilegePrivate = 1
+	DownLoadPrivilegeRead = 2 
+	DownLoadPrivilegeRW = 3
+	DownLoadPrivilegeAuthRead = 4
+	DownLoadPrivilegeExecRead = 5 
+	DownLoadPrivilegeOwnerRead = 6 
+	DownLoadPrivilegeOwnerFullCtrl = 7
+)
+
+
+      
+var privilegeInS3Inner = map[int]types.ObjectCannedACL {
+	DownLoadPrivilegePrivate: types.ObjectCannedACLPrivate,
+	DownLoadPrivilegeRead: types.ObjectCannedACLPublicRead,
+	DownLoadPrivilegeRW: types.ObjectCannedACLPublicReadWrite,
+	DownLoadPrivilegeAuthRead:types.ObjectCannedACLAuthenticatedRead ,
+	DownLoadPrivilegeExecRead:types.ObjectCannedACLAwsExecRead , 
+	DownLoadPrivilegeOwnerRead:types.ObjectCannedACLBucketOwnerRead , 
+	DownLoadPrivilegeOwnerFullCtrl: types.ObjectCannedACLBucketOwnerFullControl,
+}
 type S3ClientV2 struct {
 	S3ClientBase
 }

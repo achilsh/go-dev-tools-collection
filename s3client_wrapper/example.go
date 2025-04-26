@@ -5,9 +5,17 @@ import (
 	"strings"
 
 	s3SdkV1 "github.com/achilsh/go-dev-tools-collection/s3client_wrapper/lib/v1"
+	s3SdkV2 "github.com/achilsh/go-dev-tools-collection/s3client_wrapper/lib/v2"
 )
 
 func main() {
+
+	s3v2Client := s3SdkV2.NewS3ClientV2(&s3SdkV2.S3ClientConfig{
+		ObjectPrivilege: s3SdkV2.DownLoadPrivilegeRead,
+	})
+	s3v2Client.Upload(nil, "")
+
+
 	s3v1Client := s3SdkV1.NewS3ClientS3(
 		&s3SdkV1.S3ClientConfig{
 			Bucket:              "config.GetConfig().demoS3.Bucket",
