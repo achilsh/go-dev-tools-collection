@@ -2,9 +2,12 @@ package handler
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"time"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
 	"github.com/gin-gonic/gin"
@@ -61,9 +64,47 @@ func DemoIn(ctx *gin.Context) (int, error) {
 
 }
 
+type StreamData struct {
+	A int `json:"aa"`
+	B string `json:"bb"`
+}
 func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.ResponseParam, error) {
 	ret := &http_model.ResponseParam{
 		Result: fmt.Sprintf("id: %v, name: %v", in.Id, in.Name),
+	}
+
+	// 下面增加的是流式处理， 测试用例：  curl -N -X POST http://localhost:5657/demo-server/v1/x2   -H "Content-Type: application/json"   -d '{"name":"你好"}'
+	f, ok := ctx.Writer.(http.Flusher)
+	if !ok {
+		logger.Errorf("not support flusher.")
+	} else {
+		logger.Info("support flusher.")
+	}
+
+	ctx.Header("Content-Type", "text/event-stream")
+	ctx.Header("Cache-Control", "no-cache")
+	ctx.Header("Connection", "keep-alive")
+	//
+OUTEXIT:
+	for {
+		select {
+		case <-ctx.Done():
+			break OUTEXIT
+		default:
+			for i := 0; i < 5; i++ {
+				var abc = StreamData {
+					A: i,
+					B: fmt.Sprintf("call: %v", i),
+				}
+				c, _ := json.Marshal(&abc)
+				fmt.Fprintf(ctx.Writer, "xxxx---xxx...: %v", string(c))
+				i++ 
+				f.Flush() 
+				logger.Info("flush data to client.")
+				time.Sleep(1*time.Second)
+			}
+			break OUTEXIT
+		}
 	}
 	return ret, nil
 }
