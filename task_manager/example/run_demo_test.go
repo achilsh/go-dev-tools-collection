@@ -101,8 +101,9 @@ func (Tp *TasksProcessor) logic(data any) {
 	}
 	//
 	log.Printf("receive BizKey to process, begin to process and send result to caller, data: %+v", keyData)
-
-	tmpTaskResult := taskwrapperlib.NewAsyncTAskWrapper(taskwrapperlib.WithTaskResult("------------"))
+	err := fmt.Errorf("this is mock fail err.")
+	tmpTaskResult := taskwrapperlib.NewAsyncTAskWrapper(taskwrapperlib.WithErr(err))
+	// tmpTaskResult := taskwrapperlib.NewAsyncTAskWrapper(taskwrapperlib.WithTaskResult("------------"))
 	if err := taskwrapperlib.GetAsyncTaskMngInstance().NotifyDone(keyData, tmpTaskResult); err != nil {
 		log.Printf("send task result notify fail, err: %v", err)
 		return
@@ -155,14 +156,17 @@ func TestTaskProducerAndProcess(t *testing.T) {
 	for _, tcase := range testCases {
 		t.Run("test tasks", func(tt *testing.T) {
 
-			newTask := taskwrapperlib.NewAsyncTAskWrapper(taskwrapperlib.WithID(tcase.id), taskwrapperlib.WithWaitMaxTime(tcase.tm))
+			newTask := taskwrapperlib.NewAsyncTAskWrapper(
+				taskwrapperlib.WithID(tcase.id),
+				taskwrapperlib.WithWaitMaxTime(tcase.tm),
+			)
 			go func() {
 				tpHandle.Send(tcase.key)
 			}()
 
 			retsult, err := taskwrapperlib.GetAsyncTaskMngInstance().SyncWait(tcase.key, newTask)
 			t.Logf("recevie task process result: %v, err: %v", retsult, err)
-			assert.Equal(tt, err, nil)
+			assert.NotEqual(tt, err, nil)
 		})
 	}
 	t.Logf("task case run over.")

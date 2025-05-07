@@ -49,7 +49,7 @@ func (atm *AsyncTaskMng) SyncWait(key TaskKeyer, task *AsyncsTaskWrapper) (any, 
 			return nil, fmt.Errorf("task run timeout, key: %v", key.Key())
 
 		case <-task.statusNotifyCh: //在发送结果通知时，会删除 移除 任务。
-			return task.taskResult, nil
+			return task.taskResult, task.err
 		}
 	}
 }
