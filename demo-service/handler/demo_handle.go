@@ -65,9 +65,10 @@ func DemoIn(ctx *gin.Context) (int, error) {
 }
 
 type StreamData struct {
-	A int `json:"aa"`
+	A int    `json:"aa"`
 	B string `json:"bb"`
 }
+
 func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.ResponseParam, error) {
 	ret := &http_model.ResponseParam{
 		Result: fmt.Sprintf("id: %v, name: %v", in.Id, in.Name),
@@ -84,6 +85,7 @@ func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.Respo
 	ctx.Header("Content-Type", "text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
+	ctx.Header("Access-Control-Allow-Origin", "*") // 允许跨域访问
 	//
 OUTEXIT:
 	for {
@@ -92,16 +94,16 @@ OUTEXIT:
 			break OUTEXIT
 		default:
 			for i := 0; i < 5; i++ {
-				var abc = StreamData {
+				var abc = StreamData{
 					A: i,
 					B: fmt.Sprintf("call: %v", i),
 				}
 				c, _ := json.Marshal(&abc)
 				fmt.Fprintf(ctx.Writer, "xxxx---xxx...: %v", string(c))
-				i++ 
-				f.Flush() 
+				i++
+				f.Flush()
 				logger.Info("flush data to client.")
-				time.Sleep(1*time.Second)
+				time.Sleep(1 * time.Second)
 			}
 			break OUTEXIT
 		}
