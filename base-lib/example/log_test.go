@@ -49,5 +49,6 @@ func TestLogInit(t *testing.T) {
 	}
 	logger.Debug("this is debug log.")
 	logger.Infof("this is info log")
+	logger.Accessf("sdfadfad:====> %v",12)
 	
 }

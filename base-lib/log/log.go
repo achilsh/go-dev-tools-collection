@@ -108,7 +108,7 @@ func Init(logConfigFile string, logSaveDir ...string) error {
 
 	var accessLogger *zap.SugaredLogger
 	if accessCore != nil {
-		accessLogger = zap.New(accessCore, zap.AddCaller(), zap.AddCallerSkip(2), zap.WithCaller(true)).Sugar() //zap.AddCallerSkip(2), zap.WithCaller(true)
+		accessLogger = zap.New(accessCore, zap.AddCaller(), zap.AddCallerSkip(1), zap.WithCaller(true)).Sugar() //zap.AddCallerSkip(2), zap.WithCaller(true)
 		logMap[zapcore.AccessLevel] = accessLogger.Access
 		logMapF[zapcore.AccessLevel] = accessLogger.Accessf
 	}

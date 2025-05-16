@@ -81,11 +81,12 @@ func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.Respo
 	} else {
 		logger.Info("support flusher.")
 	}
+	logger.Accessf("this is access log......., time: %+v", time.Now())
 
 	ctx.Header("Content-Type", "text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
-	ctx.Header("Access-Control-Allow-Origin", "*") // 允许跨域访问
+	// ctx.Header("Access-Control-Allow-Origin", "*") // 允许跨域访问
 	//
 OUTEXIT:
 	for {
@@ -93,7 +94,7 @@ OUTEXIT:
 		case <-ctx.Done():
 			break OUTEXIT
 		default:
-			for i := 0; i < 5; i++ {
+			for i := 0; i < 100000; i++ {
 				var abc = StreamData{
 					A: i,
 					B: fmt.Sprintf("call: %v", i),
@@ -103,7 +104,8 @@ OUTEXIT:
 				i++
 				f.Flush()
 				logger.Info("flush data to client.")
-				time.Sleep(1 * time.Second)
+				logger.Accessf("this is access log......., time: %+v", time.Now())
+				time.Sleep(10 *time.Millisecond)
 			}
 			break OUTEXIT
 		}
