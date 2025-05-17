@@ -1,6 +1,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"strings"
 
 	logconf "github.com/achilsh/go-dev-tools-collection/base-lib/log/config"
+	logctx "github.com/achilsh/go-dev-tools-collection/base-lib/log/log_context"
 	"github.com/achilsh/go-dev-tools-collection/base-lib/log/lumberjack"
 	"github.com/achilsh/go-dev-tools-collection/base-lib/log/zap"
 	"github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
@@ -27,11 +29,15 @@ type noWithParameterFunc func(v ...interface{})
 type withParameterFunc func(template string, args ...interface{})
 
 var Info, Debug, Error, Warn, Panic, Fatal func(v ...interface{})
+var InfoCtx, DebugCtx, ErrorCtx, WarnCtx, PanicCtx, FatalCtx func(ctx context.Context, v ...interface{})
 var Infof, Debugf, Errorf, Warnf, Panicf, Fatalf func(template string, args ...interface{})
-var Infow, Debugw func(msg string, keysAndValues ...interface{})
+var InfofCtx, DebugfCtx, ErrorfCtx, WarnfCtx, PanicfCtx, FatalfCtx func(ctx context.Context, template string, args ...interface{})
+// var Infow, Debugw func(msg string, keysAndValues ...interface{})
+// var InfowCtx, DebugwCtx func(ctx context.Context, msg string, keysAndValues ...interface{})
 
 var logMap = map[zapcore.Level]noWithParameterFunc{}
 var logMapF = map[zapcore.Level]withParameterFunc{}
+
 
 // Access
 func Access(v ...interface{}) {
@@ -41,6 +47,25 @@ func Access(v ...interface{}) {
 		}
 	}
 }
+
+func AccessCtx(ctx context.Context,  args ...any) {
+	if fn, ok := logMapF[zapcore.AccessLevel];ok {
+		if fn != nil {
+			ctxInfo := logctx.GetCtxInfo(ctx)
+			fn(ctxInfo+"%v", args...)
+		}
+	}
+}
+
+func AccessfCtx(ctx context.Context, template string, args ... any) {
+	if fn, ok := logMapF[zapcore.AccessLevel];ok {
+		if fn != nil {
+			ctxInfo := logctx.GetCtxInfo(ctx)
+			fn(ctxInfo + template, args...)
+		}
+	}
+}
+
 func Accessf(template string, args ...interface{}) {
 	if fn, ok := logMapF[zapcore.AccessLevel]; ok {
 		if fn != nil {
@@ -213,10 +238,10 @@ func convLogConf(c interface{}) logconf.LogConf {
 func initGlobalFuncs(l *zap.SugaredLogger) {
 	Info = l.Info
 	Infof = l.Infof
-	Infow = l.Infow
+	// Infow = l.Infow
 	Debug = l.Debug
 	Debugf = l.Debugf
-	Debugw = l.Debugw
+	// Debugw = l.Debugw
 	Error = l.Error
 	Errorf = l.Errorf
 	Warn = l.Warn
@@ -225,6 +250,23 @@ func initGlobalFuncs(l *zap.SugaredLogger) {
 	Panicf = l.Panicf
 	Fatal = l.Fatal
 	Fatalf = l.Fatalf
+	// 
+	InfoCtx =  l.InfoCtx
+	DebugCtx = l.DebugCtx
+	ErrorCtx = l.ErrorCtx
+	WarnCtx =  l.WarnCtx
+	PanicCtx = l.PanicCtx
+	FatalCtx=  l.FatalCtx
+	//
+	InfofCtx  = l.InfofCtx
+	DebugfCtx = l.DebugfCtx
+	ErrorfCtx = l.ErrorfCtx
+	WarnfCtx  = l.WarnfCtx
+	PanicfCtx = l.PanicfCtx
+	FatalfCtx = l.FatalfCtx
+
+	// InfowCtx  = l.InfowCtx
+	// DebugwCtx = l.DebugwCtx
 }
 
 func getLogWriter(rotate logconf.RotateStruct) zapcore.WriteSyncer {

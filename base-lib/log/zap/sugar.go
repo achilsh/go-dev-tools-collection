@@ -21,8 +21,10 @@
 package zap
 
 import (
+	"context"
 	"fmt"
 
+	logctx "github.com/achilsh/go-dev-tools-collection/base-lib/log/log_context"
 	//"go.uber.org/zap/zapcore"
 	zapcore "github.com/achilsh/go-dev-tools-collection/base-lib/log/zap/zapcore"
 
@@ -135,6 +137,35 @@ func (s *SugaredLogger) Info(args ...interface{}) {
 	s.log(InfoLevel, "", args, nil)
 }
 
+func (s *SugaredLogger) InfoCtx(ctx context.Context, args ...interface{})  {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(InfoLevel, ctxDescription+"%v", args, nil)
+}
+
+func (s *SugaredLogger) DebugCtx(ctx context.Context, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(DebugLevel, ctxDescription+"%v", args, nil)
+}
+func (s *SugaredLogger) ErrorCtx(ctx context.Context, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(ErrorLevel, ctxDescription+"%v", args, nil)
+}
+
+func (s *SugaredLogger) WarnCtx(ctx context.Context, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(WarnLevel, ctxDescription+"%v", args, nil)
+}
+
+func (s *SugaredLogger)PanicCtx(ctx context.Context, args ...interface{}){
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(PanicLevel, ctxDescription+"%v", args, nil)
+}
+func (s *SugaredLogger)FatalCtx(ctx context.Context, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(FatalLevel, ctxDescription+"%v", args, nil)
+}
+
+
 // Warn logs the provided arguments at [WarnLevel].
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Warn(args ...interface{}) {
@@ -172,6 +203,31 @@ func (s *SugaredLogger) Accessf(template string, args ...interface{}) {
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Fatal(args ...interface{}) {
 	s.log(FatalLevel, "", args, nil)
+}
+
+func (s *SugaredLogger) InfofCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(InfoLevel, ctxDescription + template, args, nil)
+}
+func (s *SugaredLogger) DebugfCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(DebugLevel, ctxDescription+template, args, nil)
+}
+func (s *SugaredLogger) ErrorfCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(ErrorLevel, ctxDescription+template, args, nil)
+}
+func (s *SugaredLogger) WarnfCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(WarnLevel, ctxDescription+template, args, nil)
+}
+func (s *SugaredLogger) PanicfCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(PanicLevel, ctxDescription+template, args, nil)
+}
+func (s *SugaredLogger) FatalfCtx(ctx context.Context, template string, args ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(FatalLevel, ctxDescription+template, args, nil)
 }
 
 // Debugf formats the message according to the format specifier
@@ -226,12 +282,23 @@ func (s *SugaredLogger) Fatalf(template string, args ...interface{}) {
 func (s *SugaredLogger) Debugw(msg string, keysAndValues ...interface{}) {
 	s.log(DebugLevel, msg, nil, keysAndValues)
 }
+func (s *SugaredLogger) DebugwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(DebugLevel, ctxDescription+msg, nil, keysAndValues)
+}
+
 
 // Infow logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) Infow(msg string, keysAndValues ...interface{}) {
 	s.log(InfoLevel, msg, nil, keysAndValues)
 }
+
+func (s *SugaredLogger) InfowCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
+	ctxDescription := logctx.GetCtxInfo(ctx)
+	s.log(InfoLevel, ctxDescription+msg, nil, keysAndValues)
+}
+
 
 // Warnw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
