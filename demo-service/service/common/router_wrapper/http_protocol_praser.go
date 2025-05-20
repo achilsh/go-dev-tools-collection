@@ -60,7 +60,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			}
 
 			if ctx.Request == nil {
-				logger.Errorf("gin receive request is nil.")
+				logger.ErrorfCtx(ctx, "gin receive request is nil.")
 				responseData.ErrorCode = "4001"
 				responseData.ErrorMessage = "request is nil"
 				ctx.JSON(http.StatusOK, responseData)
@@ -69,7 +69,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			}
 			mform, err := ctx.MultipartForm()
 			if err != nil {
-				logger.Errorf("get multi part form fail, err: %v", err)
+				logger.ErrorfCtx(ctx, "get multi part form fail, err: %v", err)
 				responseData.ErrorCode = "4001"
 				responseData.ErrorMessage = "request is nil"
 				ctx.JSON(http.StatusOK, responseData)
@@ -83,7 +83,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 						continue
 					}
 					if retInt, err := handleFunc(ctx); err != nil {
-						logger.Errorf("handle biz logic fail, err: %v", err)
+						logger.ErrorfCtx(ctx, "handle biz logic fail, err: %v", err)
 						responseData.ErrorCode = fmt.Sprintf("%v", retInt)
 						responseData.ErrorMessage = err.Error()
 						ctx.JSON(http.StatusOK, responseData)
@@ -125,7 +125,12 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 									contentBuf := new(bytes.Buffer)
 									_, err = io.Copy(contentBuf, fH)
 									if err != nil {
-										logger.Warnf("read file fail, fileName: %v, err: %v", fvIn.Filename, err)
+										logger.WarnfCtx(
+											ctx,
+											"read file fail, fileName: %v, err: %v",
+											fvIn.Filename,
+											err,
+										)
 										return
 									}
 
@@ -149,7 +154,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 							select {
 							case data, isOn := <-chData:
 								if !isOn {
-									logger.Infof("; receive close data channel.")
+									logger.InfofCtx(ctx, "; receive close data channel.")
 									stopForReceiveOp = true
 									break
 								}
@@ -166,7 +171,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 						}
 
 						if len(fileListMap) > 0 {
-							logger.Infof("; set file tags: %v", fileField)
+							logger.InfofCtx(ctx, "; set file tags: %v", fileField)
 							fileNameContentsMap[fileField] = fileListMap
 							hasForm = true
 						}
@@ -177,7 +182,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			val := reflect.New(param)
 			if ctx.Request.Method == http.MethodGet {
 				if err := ctx.ShouldBindQuery(val.Interface()); err != nil {
-					logger.Errorf("bind to query failed. err=%v", err)
+					logger.ErrorfCtx(ctx, "bind to query failed. err=%v", err)
 					ctx.AbortWithStatus(http.StatusInternalServerError)
 					return nil
 				}
@@ -203,7 +208,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 					// 其中的一个文件列表；该 tag 对应一个文件列表， field 是 map 表示的文件列表
 					fileListContent, ok := fileNameContentsMap[tag]
 					if ok {
-						logger.Debugf("file field name: %v", tag)
+						logger.DebugfCtx(ctx, "file field name: %v", tag)
 						if len(fileListContent) <= 0 {
 							continue
 						}
@@ -227,7 +232,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 
 					switch field.Type.Kind() {
 					case reflect.String:
-						logger.Infof("parse form key: %v, value: %v", tag, formValue)
+						logger.InfofCtx(ctx, "parse form key: %v, value: %v", tag, formValue)
 						fieldValue.SetString(formValue)
 
 					case reflect.Int, reflect.Uint,
@@ -238,7 +243,7 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 
 						intVal, err := strconv.ParseInt(formValue, 10, 64)
 						if err != nil {
-							logger.Errorf("parse int form field, err: %v", err)
+							logger.ErrorfCtx(ctx, "parse int form field, err: %v", err)
 							continue
 						}
 						fieldValue.SetInt(int64(intVal))
@@ -246,13 +251,13 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 					case reflect.Float32, reflect.Float64:
 						f64, err := strconv.ParseFloat(formValue, 64)
 						if err != nil {
-							logger.Errorf("parse float form field, err: %v", err)
+							logger.ErrorfCtx(ctx, "parse float form field, err: %v", err)
 							continue
 						}
 						fieldValue.SetFloat(f64)
 
 					default:
-						logger.Errorf("unhandled default case")
+						logger.ErrorfCtx(ctx, "unhandled default case")
 					}
 				}
 			}
@@ -268,9 +273,9 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			}
 
 			if hasForm {
-				logger.Debugf("=======> InPutLog: %v", callFuncName)
+				logger.AccessfCtx(ctx, "=======> InPutLog: %v", callFuncName)
 			} else {
-				logger.Debugf("=======> InPutLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+				logger.AccessfCtx(ctx, "=======> InPutLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
 			}
 		}
 
@@ -283,14 +288,18 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			statusCode := http.StatusOK
 
 			if vals[valOutNum-1].Interface() != nil { //返回非nil的错误
-				logger.Errorf("resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
+				logger.ErrorfCtx(
+					ctx,
+					"resp failed. err=%v",
+					error_def.StructToJsonString(vals[valOutNum-1].Interface()),
+				)
 				//应答失败
 				errImpl, ok := vals[valOutNum-1].Interface().(error_def.CliErrorEr)
 				if ok {
 					responseData.ErrorCode = errImpl.GetCode()
 					responseData.ErrorMessage = errImpl.GetCodeMsg()
 				} else {
-					logger.Errorf("no known error: %+v", vals[valOutNum-1].Interface().(error))
+					logger.ErrorfCtx(ctx, "no known error: %+v", vals[valOutNum-1].Interface().(error))
 					responseData.ErrorCode = "5000"
 					responseData.ErrorMessage = "unknown error in server."
 				}
@@ -304,19 +313,19 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.Infof("<====== OutPutLOg:  %v, http response: %+v", callFuncName, responseData)
+				logger.AccessfCtx(ctx, "<====== OutPutLOg:  %v, http response: %+v", callFuncName, responseData)
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
 			if vals[valOutNum-1].Interface() != nil { //返回非nil的错误
-				logger.Errorf("resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
+				logger.ErrorfCtx(ctx, "resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
 				//应答失败
 				errImpl, ok := vals[valOutNum-1].Interface().(error_def.CliErrorEr)
 				if ok {
 					responseData.ErrorCode = errImpl.GetCode()
 					responseData.ErrorMessage = errImpl.GetCodeMsg()
 				} else {
-					logger.Errorf("no known error: %+v", vals[valOutNum-1].Interface().(error))
+					logger.ErrorfCtx(ctx, "no known error: %+v", vals[valOutNum-1].Interface().(error))
 					responseData.ErrorCode = "5000"
 					responseData.ErrorMessage = "unknown error in server."
 				}
@@ -329,11 +338,11 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 			}
 
 			if !ctx.IsAborted() {
-				logger.Infof("OutLog: %v, http response: %+v", callFuncName, responseData)
+				logger.AccessfCtx(ctx, "OutLog: %v, http response: %+v", callFuncName, responseData)
 				ctx.JSON(http.StatusOK, responseData)
 			}
 		} else {
-			logger.Errorf("return out parameter nums is more than 2.")
+			logger.ErrorfCtx(ctx, "return out parameter nums is more than 2.")
 		}
 		ctx.Next()
 		return nil
@@ -370,7 +379,7 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 			val := reflect.New(param)
 			if ctx.Request.Method == http.MethodGet {
 				if err := ctx.ShouldBindQuery(val.Interface()); err != nil {
-					logger.Errorf("bind to query failed. err=%v", err)
+					logger.ErrorfCtx(ctx, "bind to query failed. err=%v", err)
 					ctx.AbortWithStatus(http.StatusInternalServerError)
 					return nil
 				}
@@ -382,7 +391,7 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 							continue
 						}
 						if retInt, err := bHandleFunc(ctx); err != nil {
-							logger.Errorf("before handler fail, err: %v", err)
+							logger.ErrorfCtx(ctx, "before handler fail, err: %v", err)
 							responseData.ErrorCode = fmt.Sprintf("%v", retInt)
 							responseData.ErrorMessage = err.Error()
 							ctx.JSON(http.StatusOK, responseData)
@@ -393,7 +402,7 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 				}
 				if len(body) != 0 {
 					if err := json.Unmarshal(body, val.Interface()); err != nil {
-						logger.Errorf("json Unmarshal to struct failed. data=%v, err=%v", body, err)
+						logger.ErrorfCtx(ctx, "json Unmarshal to struct failed. data=%v, err=%v", body, err)
 						ctx.AbortWithStatus(http.StatusInternalServerError)
 						return nil
 					}
@@ -414,7 +423,7 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 			if len(lastFuncNames) > 0 {
 				callFuncName = lastFuncNames[len(lastFuncNames)-1]
 			}
-			logger.Infof("<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+			logger.AccessfCtx(ctx, "<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
 		}
 
 		vals := hValue.Call(realIN)
@@ -426,14 +435,18 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 			statusCode := http.StatusOK
 
 			if vals[valOutNum-1].Interface() != nil { //返回非nil的错误
-				logger.Errorf("resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
+				logger.ErrorfCtx(
+					ctx,
+					"resp failed. err=%v",
+					error_def.StructToJsonString(vals[valOutNum-1].Interface()),
+				)
 				//应答失败
 				errImpl, ok := vals[valOutNum-1].Interface().(error_def.CliErrorEr)
 				if ok {
 					responseData.ErrorCode = errImpl.GetCode()
 					responseData.ErrorMessage = errImpl.GetCodeMsg()
 				} else {
-					logger.Errorf("no known error: %+v", vals[valOutNum-1].Interface().(error))
+					logger.ErrorfCtx(ctx, "no known error: %+v", vals[valOutNum-1].Interface().(error))
 					responseData.ErrorCode = "5000"
 					responseData.ErrorMessage = "unknown error in server."
 				}
@@ -447,19 +460,19 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.Infof("<-------- %v, http response: %+v", callFuncName, responseData)
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, responseData)
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
 			if vals[valOutNum-1].Interface() != nil { //返回非nil的错误
-				logger.Errorf("resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
+				logger.ErrorfCtx(ctx, "resp failed. err=%v", error_def.StructToJsonString(vals[valOutNum-1].Interface()))
 				//应答失败
 				errImpl, ok := vals[valOutNum-1].Interface().(error_def.CliErrorEr)
 				if ok {
 					responseData.ErrorCode = errImpl.GetCode()
 					responseData.ErrorMessage = errImpl.GetCodeMsg()
 				} else {
-					logger.Errorf("no known error: %+v", vals[valOutNum-1].Interface().(error))
+					logger.ErrorfCtx(ctx, "no known error: %+v", vals[valOutNum-1].Interface().(error))
 					responseData.ErrorCode = "5000"
 					responseData.ErrorMessage = "unknown error in server."
 				}
@@ -472,11 +485,11 @@ func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context)
 			}
 
 			if !ctx.IsAborted() {
-				logger.Infof("OutLog: %v, http response: %+v", callFuncName, responseData)
+				logger.AccessfCtx(ctx, "OutLog: %v, http response: %+v", callFuncName, responseData)
 				ctx.JSON(http.StatusOK, responseData)
 			}
 		} else {
-			logger.Errorf("return out parameter nums is more than 2.")
+			logger.ErrorfCtx(ctx, "return out parameter nums is more than 2.")
 		}
 		ctx.Next()
 		return nil

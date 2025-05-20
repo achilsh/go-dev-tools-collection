@@ -1,5 +1,5 @@
-github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250321070037-7c6e60920f1f h1:KENMW/oMQ+vLo4ZpsKoFFTAw113A7W2sd8hipWwBorc=
-github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250321070037-7c6e60920f1f/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250519145612-42ed9f35f300 h1:sonyf8eb4ipPe9C5ohwqUBU6lBNCWYxh4eSe8xHTcfs=
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250519145612-42ed9f35f300/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
 github.com/achilsh/http-graceful/graceful.v1 v0.0.0-20250321035942-61b7653a1c06 h1:41rWBeB6gMqswap+DSjiVQCxLWiOJNgNyBwapcDRfzU=
 github.com/achilsh/http-graceful/graceful.v1 v0.0.0-20250321035942-61b7653a1c06/go.mod h1:H4pdv68qQ9ckUDtVoIjem37IXF/XC8/YeYKCgbJw508=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

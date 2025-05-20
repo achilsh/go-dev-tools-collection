@@ -34,6 +34,6 @@ logger:
   accessRotate:
     filename: logs/access.log 
     maxage: 30
-    maxsize: 1 
-    maxbackups: 2
+    maxsize: 10 
+    maxbackups: 5
     compress: true
