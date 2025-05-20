@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
+	logctx "github.com/achilsh/go-dev-tools-collection/base-lib/log/log_context"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,11 +22,13 @@ func MarshalOpFormValue(dstMap map[string]any, src *multipart.Form) {
 func CheckBeforeReadBodyOnForm(ctx *gin.Context) (int, error) {
 	logger.Debugf("call check read body form before.")
 	// return 4001, fmt.Errorf("mock error: %v", 4001)
+	ctx.Set("ctx_user_id", "9457a806-c92a-4769-8ee4-a325dabc9c81")
 	return 0, nil
 }
 
 func CheckBeforeReadBodyOnJson(ctx *gin.Context) (int, error) {
 	logger.Debugf("call check read body json before.")
 	// return 4002, fmt.Errorf("mock error: %v", 4002)
+	ctx.Set(logctx.CtxUserID, "9457a806-c92a-4769-8ee4-a325dabc9c81")
 	return 0, nil
 }

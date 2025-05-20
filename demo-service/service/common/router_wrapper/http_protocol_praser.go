@@ -35,7 +35,10 @@ func MarshalOpFormValue(dstMap map[string]any, src *multipart.Form) {
 }
 
 // form accesss client.
-func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, error)) func(ctx *gin.Context) {
+func WrapFormClient(
+	handler any,
+	beforeRecvHandles ...func(*gin.Context) (int, error),
+) func(ctx *gin.Context) {
 	hType := reflect.TypeOf(handler)
 	hValue := reflect.ValueOf(handler)
 	realFc := func(ctx *gin.Context) {}
@@ -353,7 +356,10 @@ func WrapFormClient(handler any, beforeRecvHandles ...func(*gin.Context) (int, e
 }
 
 // WrapperClient 包装 gin 解包和处理
-func WrapperClient(handler interface{}, beforeReadFunc ...func(ctx *gin.Context) (int, error)) func(ctx *gin.Context) {
+func WrapperClient(
+	handler interface{},
+	beforeReadFunc ...func(ctx *gin.Context) (int, error),
+) func(ctx *gin.Context) {
 	hType := reflect.TypeOf(handler)
 	hValue := reflect.ValueOf(handler)
 	realFc := func(ctx *gin.Context) {}

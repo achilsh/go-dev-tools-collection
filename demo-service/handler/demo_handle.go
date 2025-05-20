@@ -94,7 +94,7 @@ OUTEXIT:
 		case <-ctx.Done():
 			break OUTEXIT
 		default:
-			for i := 0; i < 100000; i++ {
+			for i := 0; i < 10; i++ {
 				var abc = StreamData{
 					A: i,
 					B: fmt.Sprintf("call: %v", i),
@@ -105,7 +105,10 @@ OUTEXIT:
 				f.Flush()
 				logger.Info("flush data to client.")
 				logger.Accessf("this is access log......., time: %+v", time.Now())
-				time.Sleep(10 *time.Millisecond)
+				time.Sleep(10 * time.Millisecond)
+				logger.InfofCtx(ctx, "----------------: %v", 1)
+				logger.DebugfCtx(ctx, "--------- debug ----------: %v", 2)
+				logger.ErrorfCtx(ctx, "--------- error ----------: %v", 3)
 			}
 			break OUTEXIT
 		}
@@ -115,6 +118,7 @@ OUTEXIT:
 
 func DemoNoOut(ctx *gin.Context, in *http_model.RequestParam) error {
 	logger.Infof("in data: %+v", *in)
+	logger.InfofCtx(ctx, "with context: is data: %+v", *in)
 	return nil
 }
 
