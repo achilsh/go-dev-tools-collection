@@ -8,8 +8,6 @@ require (
 	github.com/achilsh/go-dev-tools-collection/redis-wrapper v0.0.0-20250520063000-01e81b9f19e6
 )
 
-replace github.com/achilsh/go-dev-tools-collection/demo-service => ../demo-service
-
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
