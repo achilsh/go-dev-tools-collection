@@ -19,4 +19,5 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/sony/sonyflake v1.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/time v0.11.0 // indirect
 )
