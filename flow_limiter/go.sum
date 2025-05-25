@@ -1,7 +1,7 @@
 github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250520063000-01e81b9f19e6 h1:6EiKu/PVA0w+7KIPzW9JDagbq16/larLPXLQY9395GI=
 github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250520063000-01e81b9f19e6/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
-github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250520063000-01e81b9f19e6 h1:84bSTr8t2spucC5Mo5cLRORZOPrttiSVUk+f/6bz+FY=
-github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250520063000-01e81b9f19e6/go.mod h1:lmOpSnSAEPEhFbeTrfOG1gQk5abVh/CpQJaxZwPVM6Y=
+github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250525145310-2282eb1624b9 h1:DzDhb7xEsuzWrz/nIOTuGHKMnJoEcBzPfKmPyJOvoB0=
+github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250525145310-2282eb1624b9/go.mod h1:lmOpSnSAEPEhFbeTrfOG1gQk5abVh/CpQJaxZwPVM6Y=
 github.com/achilsh/go-dev-tools-collection/redis-wrapper v0.0.0-20250520063000-01e81b9f19e6 h1:EDqwBWJal1sExvvmbrutapUp8lxo9wCtmhVTRYmrBJw=
 github.com/achilsh/go-dev-tools-collection/redis-wrapper v0.0.0-20250520063000-01e81b9f19e6/go.mod h1:5Socnv46WREbIGC1Vsrk94+xTflxUuhr2l+49iFJeNQ=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

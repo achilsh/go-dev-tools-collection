@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250520063000-01e81b9f19e6
-	github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250520063000-01e81b9f19e6
+	github.com/achilsh/go-dev-tools-collection/demo-service v0.0.0-20250525145310-2282eb1624b9
 	github.com/achilsh/go-dev-tools-collection/redis-wrapper v0.0.0-20250520063000-01e81b9f19e6
 )
 
