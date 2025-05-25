@@ -23,5 +23,4 @@ var mockErrorw = func(msg string, keysAndValues ...interface{}) {
 func LoggerMock() {
 	logger.Infof, logger.Debugf, logger.Errorf, logger.Warnf, logger.Panicf, logger.Fatalf = mockErrorf, mockErrorf, mockErrorf, mockErrorf, mockErrorf, mockErrorf
 	logger.Info, logger.Debug, logger.Error, logger.Warn, logger.Panic, logger.Fatal = mockError, mockError, mockError, mockError, mockError, mockError
-	logger.Infow, logger.Debugw = mockErrorw, mockErrorw
 }
