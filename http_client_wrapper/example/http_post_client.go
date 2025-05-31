@@ -35,46 +35,55 @@ type DemoPostR1Body struct {
 	Address string `json:"address"`
 }
 
+
+type DemoZRequest struct {
+	AA int `json:"aa"`
+	Age int `json:"age"`
+}
+type DemoZResponse struct {
+	Address string `json:"address"`
+}
+
 var (
 	httpClientHandler = httpCli.HttpClientCallTpl[DemoPostReqBody, DemoPostResponseBody]
 	httpCliR1Handler  = httpCli.HttpClientCallTpl[DemoPostReqBody, DemoPostRespTplBody[*DemoPostR1Body]]
+	httpCliZ1ABCHandler = httpCli.HttpClientCallTpl[DemoZRequest, DemoZResponse]
 )
 
 func main() {
 	mock_log.LoggerMock()
 
-	in := DemoPostReqBody{
-		Id:   100,
-		Name: "test_demo_call",
+	in := DemoZRequest{
+		AA:   100,
 		Age:  100,
 	}
 
 	var (
-		basUrl    = "http://xxx.com"
-		urlSuffix = "/api/v1/demo"
+		basUrl    = "http://127.0.0.1:5657"
+		urlSuffix = "/demo-server/v1/z1/abc/xxx"
 	)
 
-	response, err := httpClientHandler(
-		context.Background(),
-		&in,
-		httpCli.WithBaseUrl(basUrl),
-		httpCli.WithDebug(true),
-		httpCli.WithTimeOut(1*time.Second),
-		httpCli.WithUrl(urlSuffix),
-	)
-	if err != nil {
-		logger.Errorf("http client call fail, err: %v", err)
-		return
-	}
-	logger.Debugf("response data: %+v", response)
+	// response, err := httpCliZ1ABCHandler(
+	// 	context.Background(),
+	// 	&in,
+	// 	httpCli.WithBaseUrl(basUrl),
+	// 	httpCli.WithDebug(false),
+	// 	httpCli.WithTimeOut(1*time.Second),
+	// 	httpCli.WithUrl(urlSuffix),
+	// )
+	// if err != nil {
+	// 	logger.Errorf("http client call fail, err: %v", err)
+	// 	return
+	// }
+	// logger.Debugf("response data: %+v", response)
 
-	r1, err := httpCliR1Handler(context.Background(), &in, httpCli.WithBaseUrl(basUrl),
-		httpCli.WithDebug(true),
-		httpCli.WithTimeOut(1*time.Second),
+	r1, err := httpCliZ1ABCHandler(context.Background(), &in, httpCli.WithBaseUrl(basUrl),
+		httpCli.WithDebug(false),
+		httpCli.WithTimeOut(100*time.Second),
 		httpCli.WithUrl(urlSuffix))
 	if err != nil {
 		logger.Errorf("http client tpl fail, err: %v", err)
 		return
 	}
-	_ = r1
+	logger.Infof("||||: %+v",*r1)
 }

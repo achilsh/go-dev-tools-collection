@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	logger "github.com/achilsh/go-dev-tools-collection/base-lib/log"
@@ -131,6 +132,10 @@ func HttpClientCallTpl[I any, O any](ctx context.Context, reqBody *I, opts ...Op
 	if err != nil {
 		logger.Errorf("post url: [%s] fail, err: %v", defaultOpt.Url, err)
 		return nil, err
+	}
+	if response.RawResponse.StatusCode != http.StatusOK {
+		logger.Errorf("err code: %v, msg: %v", response.RawResponse.StatusCode, response.RawResponse.Status)
+		return nil, fmt.Errorf("error code: %v", response.RawResponse.StatusCode)
 	}
 	repItemPtr, ok := response.Result().(*O)
 	if !ok {
