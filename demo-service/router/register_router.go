@@ -15,6 +15,7 @@ func RegisterRouter() {
 		rw.RegisterPostNoInProcess(srvRouteV1, "x1", handler.DemoIn)
 
 		rw.RegisterPostProcess(srvRouteV1, "x2", handler.DemoInOut)
+		rw.RegisterPostProcess(srvRouteV1, "z1/abc", handler.DemoABC)
 
 		rw.RegisterPostNoOutProcess(srvRouteV1, "x3", handler.DemoNoOut)
 		//

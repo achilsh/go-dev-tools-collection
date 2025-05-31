@@ -69,6 +69,23 @@ type StreamData struct {
 	B string `json:"bb"`
 }
 
+type DemoZRequest struct {
+	AA int `json:"aa"`
+	Age int `json:"age"`
+}
+type DemoZResponse struct {
+	Address string `json:"address"`
+}
+func DemoABC(ctx *gin.Context, in *DemoZRequest)(*DemoZResponse, error) {
+	
+	ret := &DemoZResponse{
+		Address: "sfadfadf------",
+	}
+
+	logger.Infof("xxxx--->: %+v", ret)
+	return ret, nil
+}
+
 func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.ResponseParam, error) {
 	ret := &http_model.ResponseParam{
 		Result: fmt.Sprintf("id: %v, name: %v", in.Id, in.Name),
