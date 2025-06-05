@@ -250,7 +250,7 @@ func WrapperGenericClientNoOUT[C context.Context, IN any](
 // 封装 form with generic interface
 func WrapperGenericFormClient[C context.Context, IN, OUT any](
 	fn func(C, *IN) (*OUT, error),
-	beforeReciveHandles ...func(*gin.Context) (int, error),
+	beforeReceiveHandles ...func(*gin.Context) (int, error),
 ) func(ctx *gin.Context) {
 
 	return func(c *gin.Context) {
@@ -283,7 +283,7 @@ func WrapperGenericFormClient[C context.Context, IN, OUT any](
 		}
 
 		if mform != nil {
-			for _, handleFunc := range beforeReciveHandles {
+			for _, handleFunc := range beforeReceiveHandles {
 				if handleFunc == nil {
 					continue
 				}

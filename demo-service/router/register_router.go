@@ -3,13 +3,28 @@ package router
 import (
 	"github.com/achilsh/go-dev-tools-collection/demo-service/handler"
 	rw "github.com/achilsh/go-dev-tools-collection/demo-service/service/common/router_wrapper"
+	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 const (
 	UrlPathSuffixWelcomeWord = "demo-call"
 )
 
+func RegisterBeforeReadHandle() {
+	rw.SetBeforeReadBodyOnFormHandlerGetter(
+		func() []func(ctx *gin.Context) (int, error) {
+			return []func(ctx *gin.Context) (int, error) {middleware.CheckBeforeReadBodyOnForm}
+		})
+	rw.SetBeforeReadBodyPostHandlerGetter(
+			func() []func(ctx *gin.Context) (int, error) {
+			return []func(ctx *gin.Context) (int, error) {middleware.CheckBeforeReadBodyOnJson}
+		})
+}
 func RegisterRouter() {
+
+	RegisterBeforeReadHandle()
+	
 	srvRouteV1 := GetRouter().Group("/demo-server/v1")
 	{
 		rw.RegisterPostNoInProcess(srvRouteV1, "x1", handler.DemoIn)

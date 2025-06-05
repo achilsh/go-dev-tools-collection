@@ -1,8 +1,6 @@
 package router_wrapper
 
 import (
-	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +9,8 @@ func RegisterPostGenericForm[In any, Out any, G gin.IRouter](
 	url string,
 	call func(ctx *gin.Context, inParam *In) (*Out, error),
 ) {
-	g.POST(url, WrapperGenericFormClient(call, middleware.CheckBeforeReadBodyOnForm))
+	handles := defaultOnFormBeforeReadBodyGetter()
+	g.POST(url, WrapperGenericFormClient(call, handles...))
 }
 
 func RegisterPostGenericProcess[In any, Out any, G gin.IRouter](
@@ -19,7 +18,8 @@ func RegisterPostGenericProcess[In any, Out any, G gin.IRouter](
 	url string,
 	call func(ctx *gin.Context, inParam *In) (*Out, error),
 ) {
-	g.POST(url, WrapperGenericClient(call, middleware.CheckBeforeReadBodyOnJson))
+	handles := defaultOnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperGenericClient(call, handles...))
 }
 
 func RegisterPostGenericNoInProcess[Out any, G gin.IRouter](
@@ -27,7 +27,8 @@ func RegisterPostGenericNoInProcess[Out any, G gin.IRouter](
 	url string,
 	call func(ctx *gin.Context) (*Out, error),
 ) {
-	g.POST(url, WrapperGenericClientNoIN(call, middleware.CheckBeforeReadBodyOnJson))
+	handles := defaultOnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperGenericClientNoIN(call, handles...))
 }
 
 func RegisterPostGenericNoOutProcess[In any, G gin.IRouter](
@@ -35,7 +36,8 @@ func RegisterPostGenericNoOutProcess[In any, G gin.IRouter](
 	url string,
 	call func(ctx *gin.Context, inParam *In) error,
 ) {
-	g.POST(url, WrapperGenericClientNoOUT(call, middleware.CheckBeforeReadBodyOnJson))
+	handles := defaultOnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperGenericClientNoOUT(call, handles...))
 }
 
 func RegisterGetGenericProcess[In any, Out any, G gin.IRouter](
