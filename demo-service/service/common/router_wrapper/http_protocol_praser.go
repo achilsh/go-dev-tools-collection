@@ -337,7 +337,6 @@ func WrapFormClient(
 				responseData.ErrorCode = "200"
 				responseData.ErrorMessage = "success"
 				responseData.CostTimeMs = time.Now().UnixNano()/1e6 - beginTime
-				responseData.Data = vals[0].Interface()
 			}
 
 			if !ctx.IsAborted() {
@@ -487,7 +486,6 @@ func WrapperClient(
 				responseData.ErrorCode = "200"
 				responseData.ErrorMessage = "success"
 				responseData.CostTimeMs = time.Now().UnixNano()/1e6 - beginTime
-				responseData.Data = vals[0].Interface()
 			}
 
 			if !ctx.IsAborted() {
