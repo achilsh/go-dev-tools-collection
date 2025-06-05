@@ -6,6 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func RegisterPostGenericForm[In any, Out any, G gin.IRouter](
+	g G,
+	url string,
+	call func(ctx *gin.Context, inParam *In) (*Out, error),
+) {
+	g.POST(url, WrapperGenericFormClient(call, middleware.CheckBeforeReadBodyOnForm))
+}
+
 func RegisterPostGenericProcess[In any, Out any, G gin.IRouter](
 	g G,
 	url string,

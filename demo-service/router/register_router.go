@@ -34,6 +34,8 @@ func RegisterRouter() {
 	}
 	{
 		rw.RegisterPostForm(srvRouteV1, "f1", handler.DemoFormInOut)
+		//
+		rw.RegisterPostGenericForm(srvRouteV1, "f1/generic", handler.DemoFormInOut)
 	}
 
 	//

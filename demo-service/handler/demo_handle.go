@@ -46,7 +46,6 @@ func DemoFormInOut(ctx *gin.Context, in *http_model.FormReqParam) (*http_model.F
 			} else {
 				responseContent += fmt.Sprintf("fileName: %v, contentLen: %v", fileName, len(fileContent))
 			}
-
 		}
 	}
 	return &http_model.FormResponse{

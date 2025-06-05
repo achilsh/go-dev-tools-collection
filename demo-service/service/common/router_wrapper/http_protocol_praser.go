@@ -428,7 +428,7 @@ func WrapperClient(
 			if len(lastFuncNames) > 0 {
 				callFuncName = lastFuncNames[len(lastFuncNames)-1]
 			}
-			logger.AccessfCtx(ctx, "<====InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
+			logger.AccessfCtx(ctx, "===>InLog: %v, http body: %+v", callFuncName, realIN[1].Interface())
 		}
 
 		vals := hValue.Call(realIN)
@@ -465,7 +465,7 @@ func WrapperClient(
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, responseData)
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, *responseData)
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
