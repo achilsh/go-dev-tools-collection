@@ -46,7 +46,6 @@ func DemoFormInOut(ctx *gin.Context, in *http_model.FormReqParam) (*http_model.F
 			} else {
 				responseContent += fmt.Sprintf("fileName: %v, contentLen: %v", fileName, len(fileContent))
 			}
-
 		}
 	}
 	return &http_model.FormResponse{
@@ -61,7 +60,15 @@ func DemoIn(ctx *gin.Context) (int, error) {
 	l := language_def.GetLanguage(ctx)
 	logger.Infof("language: %v", l)
 	return 1000, nil
+}
 
+func DemoInPtr(ctx *gin.Context) (*int, error) {
+	l := language_def.GetLanguage(ctx)
+	logger.Infof("language: %v", l)
+	x := 1000
+
+	_ = x
+	return nil, fmt.Errorf("this is error: %v", x)
 }
 
 type StreamData struct {
@@ -70,20 +77,22 @@ type StreamData struct {
 }
 
 type DemoZRequest struct {
-	AA int `json:"aa"`
+	AA  int `json:"aa"`
 	Age int `json:"age"`
 }
 type DemoZResponse struct {
 	Address string `json:"address"`
 }
-func DemoABC(ctx *gin.Context, in *DemoZRequest)(*DemoZResponse, error) {
-	
+
+func DemoABC(ctx *gin.Context, in *DemoZRequest) (*DemoZResponse, error) {
+
 	ret := &DemoZResponse{
 		Address: "sfadfadf------",
 	}
 
 	logger.Infof("xxxx--->: %+v", ret)
-	return ret, nil
+	// return ret, nil
+	return nil, fmt.Errorf("define error, 2000")
 }
 
 func DemoInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.ResponseParam, error) {
@@ -136,7 +145,7 @@ OUTEXIT:
 func DemoNoOut(ctx *gin.Context, in *http_model.RequestParam) error {
 	logger.Infof("in data: %+v", *in)
 	logger.InfofCtx(ctx, "with context: is data: %+v", *in)
-	return nil
+	return fmt.Errorf("no out error: 3000")
 }
 
 func DemoGetInOut(ctx *gin.Context, in *http_model.RequestParam) (*http_model.ResponseParam, error) {
@@ -150,6 +159,12 @@ func DemoGetNoIn(ctx *gin.Context) (int, error) {
 	l := language_def.GetLanguage(ctx)
 	logger.Infof("language: %v", l)
 	return 1000, nil
+}
+func DemoGetNoInPtr(ctx *gin.Context) (*int, error) {
+	l := language_def.GetLanguage(ctx)
+	logger.Infof("language: %v", l)
+	x := 1000
+	return &x, nil
 }
 
 func DemoGetNoOut(ctx *gin.Context, in *http_model.RequestParam) error {
