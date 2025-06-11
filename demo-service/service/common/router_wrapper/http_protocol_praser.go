@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 
 	"github.com/achilsh/go-dev-tools-collection/demo-service/service/middleware"
@@ -316,7 +317,8 @@ func WrapFormClient(
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.AccessfCtx(ctx, "<====== OutPutLOg:  %v, http response: %+v", callFuncName, responseData)
+				respJson, _ := sonic.Marshal(responseData)
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
@@ -465,7 +467,8 @@ func WrapperClient(
 			if !ctx.IsAborted() {
 				ctx.Set("ctx_status", "success")
 
-				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, *responseData)
+				respJson, _ := sonic.Marshal(responseData)
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
@@ -489,7 +492,8 @@ func WrapperClient(
 			}
 
 			if !ctx.IsAborted() {
-				logger.AccessfCtx(ctx, "OutLog: %v, http response: %+v", callFuncName, responseData)
+				respJson, _ := sonic.Marshal(responseData)
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
 				ctx.JSON(http.StatusOK, responseData)
 			}
 		} else {
