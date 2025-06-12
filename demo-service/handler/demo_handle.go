@@ -14,6 +14,7 @@ import (
 
 	"github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model"
 	"github.com/achilsh/go-dev-tools-collection/demo-service/service/common/language_def"
+	rw "github.com/achilsh/go-dev-tools-collection/demo-service/service/common/router_wrapper"
 )
 
 // form 数据上传处理：
@@ -85,6 +86,7 @@ type DemoZResponse struct {
 }
 
 func DemoABC(ctx *gin.Context, in *DemoZRequest) (*DemoZResponse, error) {
+	rw.FlagNoOutputLog(ctx)
 
 	ret := &DemoZResponse{
 		Address: "sfadfadf------",

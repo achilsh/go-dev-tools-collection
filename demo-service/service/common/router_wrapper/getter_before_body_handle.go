@@ -4,14 +4,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BeforeReadBodyHandlersGetter  = func() []func(ctx *gin.Context) (int, error)
+type BeforeReadBodyHandlersGetter = func() []func(ctx *gin.Context) (int, error)
+
 var defaultOnFormBeforeReadBodyGetter = func() []func(ctx *gin.Context) (int, error) {
 	return []func(ctx *gin.Context) (int, error){
-		  // middleware.CheckBeforeReadBodyOnForm,
+		// middleware.CheckBeforeReadBodyOnForm,
 	}
 }
 var defaultOnPostBeforeReadBodyGetter = func() []func(ctx *gin.Context) (int, error) {
-	return []func(ctx *gin.Context)(int, error) {
+	return []func(ctx *gin.Context) (int, error){
 		// middleware.CheckBeforeReadBodyOnJson,
 	}
 }
@@ -21,4 +22,19 @@ func SetBeforeReadBodyOnFormHandlerGetter(getter BeforeReadBodyHandlersGetter) {
 }
 func SetBeforeReadBodyPostHandlerGetter(getter BeforeReadBodyHandlersGetter) {
 	defaultOnPostBeforeReadBodyGetter = getter
+}
+
+func FlagNoOutputLog(ctx *gin.Context) {
+	if ctx == nil {
+		return
+	}
+	ctx.Set("omit_log", 1)
+}
+
+func IsNoOutputLog(ctx *gin.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	_, exist := ctx.Get("omit_log")
+	return exist
 }

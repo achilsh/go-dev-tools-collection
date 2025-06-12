@@ -318,7 +318,9 @@ func WrapFormClient(
 				ctx.Set("ctx_status", "success")
 
 				respJson, _ := sonic.Marshal(responseData)
-				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				if !IsNoOutputLog(ctx) {
+					logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				}
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
@@ -468,7 +470,9 @@ func WrapperClient(
 				ctx.Set("ctx_status", "success")
 
 				respJson, _ := sonic.Marshal(responseData)
-				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				if !IsNoOutputLog(ctx) {
+					logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				}
 				ctx.JSON(statusCode, responseData)
 			}
 		} else if valOutNum == 1 { // 只返回一个参数，没有返回具体业务的数据
@@ -493,7 +497,9 @@ func WrapperClient(
 
 			if !ctx.IsAborted() {
 				respJson, _ := sonic.Marshal(responseData)
-				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				if !IsNoOutputLog(ctx) {
+					logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+				}
 				ctx.JSON(http.StatusOK, responseData)
 			}
 		} else {

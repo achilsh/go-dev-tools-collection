@@ -105,7 +105,10 @@ func WrapperGenericClient[C context.Context, IN, OUT any](
 			c.Set("ctx_status", "success")
 
 			respJson, _ := sonic.Marshal(responseData)
-			logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			if !IsNoOutputLog(c) {
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			}
+
 			c.JSON(statusCode, responseData)
 		}
 		c.Next()
@@ -155,7 +158,9 @@ func WrapperGenericClientNoIN[C context.Context, OUT any](
 			c.Set("ctx_status", "success")
 
 			respJson, _ := sonic.Marshal(responseData)
-			logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			if !IsNoOutputLog(c) {
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			}
 			c.JSON(statusCode, responseData)
 		}
 		c.Next()
@@ -243,7 +248,9 @@ func WrapperGenericClientNoOUT[C context.Context, IN any](
 			c.Set("ctx_status", "success")
 
 			respJson, _ := sonic.Marshal(responseData)
-			logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			if !IsNoOutputLog(c) {
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			}
 			c.JSON(statusCode, responseData)
 		}
 		c.Next()
@@ -514,7 +521,9 @@ func WrapperGenericFormClient[C context.Context, IN, OUT any](
 			c.Set("ctx_status", "success")
 
 			respJson, _ := sonic.Marshal(responseData)
-			logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			if !IsNoOutputLog(c) {
+				logger.AccessfCtx(ctx, "<-------- %v, http response: %+v", callFuncName, string(respJson))
+			}
 			c.JSON(statusCode, responseData)
 		}
 		c.Next()
