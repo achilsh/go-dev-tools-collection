@@ -68,7 +68,7 @@ func demoCallWorkflow(input string) {
 		wc.BOutput = "B output + " + wc.BInput
 		wc.CInput = wc.BOutput
 
-		return nil
+		return fmt.Errorf("mock b error: %v", wc.BOutput)
 	})
 
 	wf.AddNode("C", []string{"B"}, func(wcb workflowusage.WorkflowCtxBasic) error {
