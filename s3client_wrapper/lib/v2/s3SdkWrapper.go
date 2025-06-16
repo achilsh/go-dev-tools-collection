@@ -56,7 +56,7 @@ func (sc *S3ClientBase) Upload(data io.ReadSeeker, remotePath string) error {
 	if !ok {
 		privilege = types.ObjectCannedACLPrivate
 	}
-	var tags *string = nil
+
 	tagsStr := ""
 	for tagk, tagv := range sc.CliCfg.Tags {
 		if tagsStr != "" {
@@ -64,15 +64,13 @@ func (sc *S3ClientBase) Upload(data io.ReadSeeker, remotePath string) error {
 		}
 		tagsStr += fmt.Sprintf("%v=%v", url.QueryEscape(tagk), url.QueryEscape(tagv))
 	}
-	if tagsStr != "" {
-		tags = &tagsStr
-	}
+
 	_, err := sc.S3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:  aws.String(sc.CliCfg.Bucket),
 		Key:     aws.String(remotePath),
 		Body:    data,
 		ACL:     privilege,
-		Tagging: tags,
+		Tagging: aws.String(tagsStr),
 	})
 	if err != nil {
 		var apiErr smithy.APIError
