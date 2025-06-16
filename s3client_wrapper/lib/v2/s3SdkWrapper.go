@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -31,7 +32,8 @@ type S3ClientConfig struct {
 	FilePrefix string
 	//
 	CliTimeoutSecondCfg int32
-	ObjectPrivilege int
+	ObjectPrivilege     int
+	Tags                map[string]string
 }
 type S3ClientBase struct {
 	S3Client *s3.Client
@@ -54,11 +56,23 @@ func (sc *S3ClientBase) Upload(data io.ReadSeeker, remotePath string) error {
 	if !ok {
 		privilege = types.ObjectCannedACLPrivate
 	}
+	var tags *string = nil
+	tagsStr := ""
+	for tagk, tagv := range sc.CliCfg.Tags {
+		if tagsStr != "" {
+			tagsStr += "&"
+		}
+		tagsStr += fmt.Sprintf("%v=%v", url.QueryEscape(tagk), url.QueryEscape(tagv))
+	}
+	if tagsStr != "" {
+		tags = &tagsStr
+	}
 	_, err := sc.S3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(sc.CliCfg.Bucket),
-		Key:    aws.String(remotePath),
-		Body:   data,
-		ACL: privilege,
+		Bucket:  aws.String(sc.CliCfg.Bucket),
+		Key:     aws.String(remotePath),
+		Body:    data,
+		ACL:     privilege,
+		Tagging: tags,
 	})
 	if err != nil {
 		var apiErr smithy.APIError
@@ -174,28 +188,26 @@ func (sc *S3ClientBase) GetDownloadUrl(remotePath string, expMilliSecond int) (s
 	return retPSC.URL, nil
 }
 
-
 const (
-	DownLoadPrivilegePrivate = 1
-	DownLoadPrivilegeRead = 2 
-	DownLoadPrivilegeRW = 3
-	DownLoadPrivilegeAuthRead = 4
-	DownLoadPrivilegeExecRead = 5 
-	DownLoadPrivilegeOwnerRead = 6 
+	DownLoadPrivilegePrivate       = 1
+	DownLoadPrivilegeRead          = 2
+	DownLoadPrivilegeRW            = 3
+	DownLoadPrivilegeAuthRead      = 4
+	DownLoadPrivilegeExecRead      = 5
+	DownLoadPrivilegeOwnerRead     = 6
 	DownLoadPrivilegeOwnerFullCtrl = 7
 )
 
-
-      
-var privilegeInS3Inner = map[int]types.ObjectCannedACL {
-	DownLoadPrivilegePrivate: types.ObjectCannedACLPrivate,
-	DownLoadPrivilegeRead: types.ObjectCannedACLPublicRead,
-	DownLoadPrivilegeRW: types.ObjectCannedACLPublicReadWrite,
-	DownLoadPrivilegeAuthRead:types.ObjectCannedACLAuthenticatedRead ,
-	DownLoadPrivilegeExecRead:types.ObjectCannedACLAwsExecRead , 
-	DownLoadPrivilegeOwnerRead:types.ObjectCannedACLBucketOwnerRead , 
+var privilegeInS3Inner = map[int]types.ObjectCannedACL{
+	DownLoadPrivilegePrivate:       types.ObjectCannedACLPrivate,
+	DownLoadPrivilegeRead:          types.ObjectCannedACLPublicRead,
+	DownLoadPrivilegeRW:            types.ObjectCannedACLPublicReadWrite,
+	DownLoadPrivilegeAuthRead:      types.ObjectCannedACLAuthenticatedRead,
+	DownLoadPrivilegeExecRead:      types.ObjectCannedACLAwsExecRead,
+	DownLoadPrivilegeOwnerRead:     types.ObjectCannedACLBucketOwnerRead,
 	DownLoadPrivilegeOwnerFullCtrl: types.ObjectCannedACLBucketOwnerFullControl,
 }
+
 type S3ClientV2 struct {
 	S3ClientBase
 }

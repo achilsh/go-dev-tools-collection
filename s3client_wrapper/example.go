@@ -12,9 +12,14 @@ func main() {
 
 	s3v2Client := s3SdkV2.NewS3ClientV2(&s3SdkV2.S3ClientConfig{
 		ObjectPrivilege: s3SdkV2.DownLoadPrivilegeRead,
+		Tags: map[string]string{
+			"env":     "prod",
+			"project": "聊天系统",        // 中文
+			"owner":   "alice & bob", // 空格和&
+			"note":    "tag=example", // 包含等号
+		},
 	})
 	s3v2Client.Upload(nil, "")
-
 
 	s3v1Client := s3SdkV1.NewS3ClientS3(
 		&s3SdkV1.S3ClientConfig{
@@ -30,11 +35,17 @@ func main() {
 	demoData := "this is 000000"
 	demoIo := strings.NewReader(demoData)
 
-	s3v1Client.Upload(demoIo, s3SdkV1.BuildS3ObjectFile("cloud/track/", s3v1Client.BuildBaseObjFileName("demo-test_1.txt")))
+	s3v1Client.Upload(
+		demoIo,
+		s3SdkV1.BuildS3ObjectFile("cloud/track/", s3v1Client.BuildBaseObjFileName("demo-test_1.txt")),
+	)
 
 	bufData := []byte("this is buf data")
 	bytesData := bytes.NewReader(bufData)
-	s3v1Client.Upload(bytesData, s3SdkV1.BuildS3ObjectFile("cloud/track/", s3v1Client.BuildBaseObjFileName("demo-test_2.txt")))
+	s3v1Client.Upload(
+		bytesData,
+		s3SdkV1.BuildS3ObjectFile("cloud/track/", s3v1Client.BuildBaseObjFileName("demo-test_2.txt")),
+	)
 
 	dataBuf, _ := s3v1Client.DownloadFile("to_download_url")
 	_ = dataBuf
