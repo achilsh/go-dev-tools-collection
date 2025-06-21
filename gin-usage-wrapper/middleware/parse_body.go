@@ -6,42 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
-
-const (
-	CtxRequestID = "X-Request-Id"
-)
-
-const (
-	CtxReqBody = "req_body"
-)
-
-func GenerateRequestID() string {
-	id := uuid.New()
-	s := id.String()
-	return s
-}
-
-func GetRequestBody(ctx *gin.Context) []byte {
-	val, exit := ctx.Get(CtxReqBody)
-	if !exit {
-		return nil
-	}
-	return val.([]byte)
-}
-
-func SetRequestBody(ctx *gin.Context, body []byte) {
-	ctx.Set(CtxReqBody, body)
-}
-
-func GetRequestID(ctx *gin.Context) string {
-	id, exist := ctx.Get(CtxRequestID)
-	if !exist {
-		return ""
-	}
-	return id.(string)
-}
 
 func ParseBody() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
