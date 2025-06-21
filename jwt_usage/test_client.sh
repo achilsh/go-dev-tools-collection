@@ -1,0 +1,4 @@
+#! /usr/bin/env  bash 
+
+#curl http://127.0.0.1:8080/api/
+ curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IkNocmlzdG9waGVyIiwiYWFhIjo5OTkwMSwiZXhwIjoxNzUwNTE4NDY3LCJpc3MiOiIxMTExMSIsInN1YiI6IjIyMjIyMjIifQ.HA3Nl2OuquFwWr3-U7f7T1zxzhKCR67Xxfls9FqZ8Mc" http://127.0.0.1:8080/api/private/
