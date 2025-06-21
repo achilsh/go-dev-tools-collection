@@ -1,0 +1,52 @@
+package router_wrapper
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+// 如果要修改 OnFormBeforeReadBodyGetter， 在调用下面函数之前，先调用：
+//
+//	SetBeforeReadBodyOnFormHandlerGetter()
+//	SetBeforeReadBodyPostHandlerGetter()
+//
+// 来修改。
+
+// form 表单的数据处理
+// RegisterPostForm 注册post form 表单的数据上传处理（单文件上传）
+func RegisterPostForm[In any, Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) (Out, error)) {
+	handles := OnFormBeforeReadBodyGetter()
+	g.POST(url, WrapFormClient(call, handles...))
+}
+
+// RegisterPostProcess post 请求， 有具体的业务请求体和业务回包体
+func RegisterPostProcess[In any, Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) (Out, error)) {
+	handles := OnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperClient(call, handles...))
+}
+
+// RegisterPostNoInProcess post 请求， 没有具体的业务请求体，但有业务回包体
+func RegisterPostNoInProcess[Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context) (Out, error)) {
+	handles := OnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperClient(call, handles...))
+}
+
+// RegisterPostNoOutProcess post 请求， 有具体的业务请求体， 但是没有业务 回包体
+func RegisterPostNoOutProcess[In any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) error) {
+	handles := OnPostBeforeReadBodyGetter()
+	g.POST(url, WrapperClient(call, handles...))
+}
+
+// RegisterGetProcess get 请求，有具体的业务请求体和业务回包体
+func RegisterGetProcess[In any, Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) (Out, error)) {
+	g.GET(url, WrapperClient(call))
+}
+
+// RegisterGetNoInProcess get 请求，没有具体的业务请求体，但是有业务回包体
+func RegisterGetNoInProcess[Out any, G gin.IRouter](g G, url string, call func(ctx *gin.Context) (Out, error)) {
+	g.GET(url, WrapperClient(call))
+}
+
+// RegisterGetNoOutProcess get 请求， 有具体业务请求体，但是没有业务回包体
+func RegisterGetNoOutProcess[In any, G gin.IRouter](g G, url string, call func(ctx *gin.Context, inParam In) error) {
+	g.GET(url, WrapperClient(call))
+}
