@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/achilsh/go-dev-tools-collection/gin-usage-wrapper/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,7 +48,7 @@ func AccessLogMiddleware() gin.HandlerFunc {
 			}
 			reqBuf, _ = json.Marshal(m)
 		}
-		SetRequestBody(ctx, reqBuf)
+		middleware.SetRequestBody(ctx, reqBuf)
 
 		ctx.Next() //执行后面的中间件和handler，完了再实行下面的。
 	}

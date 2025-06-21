@@ -14,7 +14,7 @@ import (
 
 	"github.com/achilsh/go-dev-tools-collection/demo-service/model/http_model"
 	"github.com/achilsh/go-dev-tools-collection/demo-service/service/common/language_def"
-	rw "github.com/achilsh/go-dev-tools-collection/demo-service/service/common/router_wrapper"
+	rw "github.com/achilsh/go-dev-tools-collection/gin-usage-wrapper/router_wrapper"
 )
 
 // form 数据上传处理：

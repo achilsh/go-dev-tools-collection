@@ -1,5 +1,7 @@
-github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250519145612-42ed9f35f300 h1:sonyf8eb4ipPe9C5ohwqUBU6lBNCWYxh4eSe8xHTcfs=
-github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250519145612-42ed9f35f300/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250616024830-40c7136477a6 h1:giUiGtiMTdISnXjeo89/pBGB2EgbRtoV/b9eN/wd9I8=
+github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250616024830-40c7136477a6/go.mod h1:rRiO+goaspSMPkJhVXnxi0sS4iRPKTiD7DEi2w5z0GA=
+github.com/achilsh/go-dev-tools-collection/gin-usage-wrapper v0.0.0-20250621091540-02ae1ad0383b h1:5BHeO5Ycox9OiP1EPtludlzCE95AhDhl/cqe2FX7QPs=
+github.com/achilsh/go-dev-tools-collection/gin-usage-wrapper v0.0.0-20250621091540-02ae1ad0383b/go.mod h1:aS1eFRdpF//QouleEc2nfVQshyD9Um+a3urD5Np9dLM=
 github.com/achilsh/http-graceful/graceful.v1 v0.0.0-20250321035942-61b7653a1c06 h1:41rWBeB6gMqswap+DSjiVQCxLWiOJNgNyBwapcDRfzU=
 github.com/achilsh/http-graceful/graceful.v1 v0.0.0-20250321035942-61b7653a1c06/go.mod h1:H4pdv68qQ9ckUDtVoIjem37IXF/XC8/YeYKCgbJw508=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

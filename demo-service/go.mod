@@ -8,18 +8,18 @@ require (
 )
 
 require (
-	github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250519145612-42ed9f35f300
+	github.com/achilsh/go-dev-tools-collection/base-lib v0.0.0-20250616024830-40c7136477a6
+	github.com/achilsh/go-dev-tools-collection/gin-usage-wrapper v0.0.0-20250621091540-02ae1ad0383b
+	github.com/bytedance/sonic v1.13.1
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/sony/sonyflake v1.2.0
 )
 
 require (
-	github.com/bytedance/sonic v1.13.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/gin-contrib/sse v1.0.0 // indirect
