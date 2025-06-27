@@ -13,6 +13,8 @@ var (
 	GitCommit = ""
 	//BuildTime 构建时间
 	BuildTime = ""
+
+	TagNo = ""
 )
 
 func ShowVersion() {
@@ -20,4 +22,5 @@ func ShowVersion() {
 	logger.Infof("Go Version: %s", GoVersion)
 	logger.Infof("Git Commit: %s", GitCommit)
 	logger.Infof("Build Time: %s", BuildTime)
+	logger.Infof("Tag No: %s", TagNo)
 }
