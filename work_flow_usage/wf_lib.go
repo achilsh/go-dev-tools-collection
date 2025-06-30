@@ -6,6 +6,40 @@ import (
 	"sync/atomic"
 )
 
+// chain 的错误信息，
+type BaseErrorFlowCtx struct {
+	mu              sync.Mutex
+	dependentErrMap map[string]map[string]error
+}
+
+func NewBaseErrorFlowCtx() *BaseErrorFlowCtx {
+	return &BaseErrorFlowCtx{
+		dependentErrMap: make(map[string]map[string]error),
+	}
+}
+func (b *BaseErrorFlowCtx) SetDependentErrors(node string, errs map[string]error) {
+	if node == "" || len(errs) <= 0 {
+		return
+	}
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.dependentErrMap == nil {
+		b.dependentErrMap = make(map[string]map[string]error)
+	}
+	b.dependentErrMap[node] = errs
+}
+
+func (b *BaseErrorFlowCtx) GetDependentErrors(node string) map[string]error {
+	if node == "" {
+		return nil
+	}
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.dependentErrMap[node]
+}
+
 // A
 // ├── B (依赖 A)
 // │   └── C (依赖 B)
@@ -14,7 +48,9 @@ import (
 // 在 C 执行时，会调用：ctx.GetDependentErrors("C")，你就可以拿到 B 的错误（如果 B 失败了），进而间接感知 A 是否成功。
 
 type WorkflowCtxBasic interface {
+	//设置node 下游节点的错误信息
 	SetDependentErrors(node string, depErrs map[string]error)
+	//获取 node 依赖下游节点的运行错误信息（不是点node自身的错误，是他依赖的），返回下游节点对应的错误信息
 	GetDependentErrors(node string) map[string]error
 }
 
