@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"runtime"
+	"strings"
+	"time"
 )
 
 // 通过反射 解释如何获取一个接口的类型
@@ -206,4 +210,71 @@ func reflectFuncOf() {
 	fmt.Println("ret err: ", retCall[1].Interface())
 
 	// 动态代理函数
+	dynamicCallFunc()
+}
+
+func dynamicCallFunc() {
+	wrapperedFunc := wrapperFunc(toWrapperFunc)
+	{
+		wrapperFuncRet := wrapperedFunc.Call([]reflect.Value{reflect.ValueOf(10), reflect.ValueOf(100)})
+		fmt.Println(wrapperFuncRet[0], wrapperFuncRet[1])
+	}
+
+	// 调用另外数据
+	{
+		wrapperFuncRet1 := wrapperedFunc.Call([]reflect.Value{reflect.ValueOf(200), reflect.ValueOf(300)})
+		fmt.Println(wrapperFuncRet1[0], wrapperFuncRet1[1])
+	}
+}
+
+func wrapperFunc(inFunc any) reflect.Value {
+	targetFunc := reflect.ValueOf(inFunc)
+	targetFuncType := targetFunc.Type()
+
+	// 复制原始函数的输入参数类型
+	inTypes := make([]reflect.Type, targetFuncType.NumIn())
+	for i := 0; i < len(inTypes); i++ {
+		inTypes[i] = targetFuncType.In(i)
+	}
+
+	outTypes := make([]reflect.Type, targetFuncType.NumOut())
+	for i := 0; i < len(outTypes); i++ {
+		outTypes[i] = targetFuncType.Out(i)
+	}
+
+	callFuncName := ""
+	lastFuncNames := strings.Split(runtime.FuncForPC(reflect.ValueOf(inFunc).Pointer()).Name(), ".")
+	if len(lastFuncNames) > 0 {
+		callFuncName = lastFuncNames[len(lastFuncNames)-1]
+	}
+
+	funcType := reflect.FuncOf(inTypes, outTypes, false)
+	defineFunc := reflect.MakeFunc(funcType, func(args []reflect.Value) []reflect.Value {
+		inputBuf := bytes.NewBuffer([]byte("input parameters: "))
+		outBuf := bytes.NewBuffer([]byte(", out parameters: "))
+
+		// 获取输入参数并格式化到buf,用于打印
+		for i := 0; i < len(args); i++ {
+			inputBuf.Write([]byte(fmt.Sprintf("%v ", args[i].Interface())))
+		}
+
+		startTm := time.Now()
+		defer func() {
+			fmt.Println("func: ", callFuncName, ", cost: ", time.Since(startTm), ",", inputBuf.String(), ", ", outBuf.String())
+		}()
+
+		result := targetFunc.Call(args)
+		time.Sleep(1 * time.Second)
+
+		//  获取输出参数并格式化到buf中，用于打印
+		for i := 0; i < len(result); i++ {
+			outBuf.Write([]byte(fmt.Sprintf("%v ", result[i].Interface())))
+		}
+		return result
+	})
+
+	return defineFunc
+}
+func toWrapperFunc(a, b int) (int, error) {
+	return a + b, nil
 }
