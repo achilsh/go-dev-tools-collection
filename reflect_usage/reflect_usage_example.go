@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"reflect"
 	"runtime"
 	"strings"
@@ -282,4 +284,362 @@ func wrapperFunc(inFunc any) reflect.Value {
 }
 func toWrapperFunc(a, b int) (int, error) {
 	return a + b, nil
+}
+
+//  使用 reflect.FuncOf() 动态生成客户端函数。
+
+type UserImpl struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+type UserService interface {
+	GetUser(id int) (UserImpl, error)
+	CreateUser(u UserImpl) error
+}
+
+type RPCClient struct {
+	url string
+}
+
+func NewRPCClient(url string) *RPCClient {
+	return &RPCClient{
+		url: url,
+	}
+}
+
+// getMethodNameFromFunc 从函数指针获取方法名
+func getMethodNameFromFunc(funcVal interface{}) string {
+	// 简化实现，实际项目中可通过更复杂的反射获取方法名
+	// 此处假设函数指针的字符串表示包含方法名
+	funcStr := fmt.Sprintf("%T", funcVal)
+	parts := strings.Split(funcStr, ".")
+	return parts[len(parts)-1]
+}
+
+// getMethodTypes 获取方法的输入输出类型
+func getMethodTypes(methodType reflect.Type) ([]reflect.Type, []reflect.Type) {
+	inTypes := make([]reflect.Type, methodType.NumIn())
+	for j := 0; j < methodType.NumIn(); j++ {
+		inTypes[j] = methodType.In(j)
+	}
+
+	outTypes := make([]reflect.Type, methodType.NumOut())
+	for j := 0; j < methodType.NumOut(); j++ {
+		outTypes[j] = methodType.Out(j)
+	}
+
+	return inTypes, outTypes
+}
+
+// processRPCResult 处理RPC调用结果
+func processRPCResult(err error, result []interface{}, outTypes []reflect.Type) []reflect.Value {
+	if err != nil {
+		errType := reflect.TypeOf((*error)(nil)).Elem()
+		results := make([]reflect.Value, len(outTypes))
+		for i, t := range outTypes {
+			if t == errType {
+				results[i] = reflect.ValueOf(err)
+			} else {
+				results[i] = reflect.Zero(t)
+			}
+		}
+		return results
+	}
+
+	results := make([]reflect.Value, len(outTypes))
+	for i, t := range outTypes {
+		if i < len(result) {
+			results[i] = reflect.ValueOf(result[i])
+		} else {
+			results[i] = reflect.Zero(t)
+		}
+	}
+	return results
+}
+
+// createServiceStruct 创建含函数字段的结构体
+func createServiceStruct(interfaceType reflect.Type) (reflect.Type, reflect.Value) {
+	methodCount := interfaceType.NumMethod()
+	serviceMethods := make([]reflect.StructField, methodCount)
+
+	for i := 0; i < methodCount; i++ {
+		method := interfaceType.Method(i)
+		methodType := method.Type
+		inTypes, outTypes := getMethodTypes(methodType)
+
+		serviceMethods[i] = reflect.StructField{
+			Name: method.Name,
+			Type: reflect.FuncOf(inTypes, outTypes, false),
+		}
+	}
+
+	structType := reflect.StructOf(serviceMethods)
+	structValue := reflect.New(structType).Elem()
+	return structType, structValue
+}
+
+// generateMethodFuncs 生成方法调用函数并赋值
+func generateMethodFuncs(c *RPCClient, interfaceType reflect.Type, serviceStruct reflect.Value) error {
+	for i := 0; i < interfaceType.NumMethod(); i++ {
+		method := interfaceType.Method(i)
+		methodType := method.Type
+		inTypes, outTypes := getMethodTypes(methodType)
+
+		funcType := reflect.FuncOf(inTypes, outTypes, false)
+		if funcType == nil {
+			return fmt.Errorf("无法生成函数类型 for method: %s", method.Name)
+		}
+
+		methodFunc := reflect.MakeFunc(funcType, func(args []reflect.Value) []reflect.Value {
+			result, err := c.InvokeRPC(method.Name, args)
+			return processRPCResult(err, result, outTypes)
+		})
+
+		serviceStruct.FieldByName(method.Name).Set(methodFunc)
+	}
+	return nil
+}
+
+// createInterfaceImplementation 通过闭包实现接口
+func createInterfaceImplementation(interfaceType reflect.Type, serviceStruct reflect.Value) reflect.Value {
+	interfaceImpl := reflect.New(interfaceType).Elem()
+
+	// 缓存方法映射，避免重复查找
+	methodMap := make(map[string]reflect.Value)
+	for i := 0; i < interfaceType.NumMethod(); i++ {
+		methodName := interfaceType.Method(i).Name
+		methodMap[methodName] = serviceStruct.FieldByName(methodName)
+	}
+
+	// 为每个接口方法生成函数类型
+	methodFuncs := make([]reflect.Value, interfaceType.NumMethod())
+	for i := 0; i < interfaceType.NumMethod(); i++ {
+		method := interfaceType.Method(i)
+		methodType := method.Type
+		inTypes, outTypes := getMethodTypes(methodType)
+		funcType := reflect.FuncOf(inTypes, outTypes, false)
+
+		methodFuncs[i] = reflect.MakeFunc(funcType, func(args []reflect.Value) []reflect.Value {
+			// 从方法名获取函数字段
+			methodName := method.Name
+			methodField, ok := methodMap[methodName]
+			if !ok {
+				panic(fmt.Sprintf("方法 %s 未找到", methodName))
+			}
+			// 调用函数字段
+			return methodField.Interface().(func([]reflect.Value) []reflect.Value)(args)
+		})
+	}
+	interfaceImpl.Set(reflect.ValueOf(methodFuncs[0].Interface()).Convert(interfaceType))
+	return interfaceImpl
+
+	// interfaceImpl.Set(reflect.MakeFunc(interfaceType, func(args []reflect.Value) []reflect.Value {
+	// 	// 获取方法名（第一个参数是函数指针，通过类型断言获取方法名）
+	// 	methodPtr := args[0].Interface()
+	// 	methodName := getMethodNameFromFunc(methodPtr)
+
+	// 	// 从缓存中获取函数字段
+	// 	methodField, ok := methodMap[methodName]
+	// 	if !ok {
+	// 		panic(fmt.Sprintf("方法 %s 未找到", methodName))
+	// 	}
+
+	// 	// 调用函数字段（去除self参数，传递实际参数）
+	// 	return methodField.Interface().(func([]reflect.Value) []reflect.Value)(args[1:])
+	// }))
+
+	// return interfaceImpl
+}
+
+// 动态生成客户端实例代码， 入参是客户端访问服务端的抽象接口
+func (c *RPCClient) CreateService(serviceType reflect.Type) any {
+	// 检查是否为接口类型
+	if serviceType.Kind() != reflect.Interface {
+		return errors.New("服务类型必须是接口")
+	}
+
+	// 动态创建结构体类型，用于承载接口方法的实现
+	_, serviceStruct := createServiceStruct(serviceType)
+
+	// 为每个接口方法生成调用函数
+	if err := generateMethodFuncs(c, serviceType, serviceStruct); err != nil {
+		return err
+	}
+
+	// 通过闭包实现接口方法，创建接口实例
+	interfaceImpl := createInterfaceImplementation(serviceType, serviceStruct)
+
+	return interfaceImpl.Interface()
+
+	// if serverInterfaceType.Kind() != reflect.Interface {
+	// 	return errors.New("input serverType is not interface.")
+	// }
+
+	// // interfaceValue := reflect.New(serverInterfaceType).Elem()
+
+	// // 动态创建结构体类型，用于承载接口方法的实现
+	// serviceMethods := make([]reflect.StructField, serverInterfaceType.NumMethod())
+	// for i := 0; i < serverInterfaceType.NumMethod(); i++ {
+	// 	method := serverInterfaceType.Method(i)
+	// 	methodType := method.Type // 获取方法的反射类型
+
+	// 	inTypes := make([]reflect.Type, methodType.NumIn())
+	// 	outTypes := make([]reflect.Type, methodType.NumOut())
+
+	// 	for j := 0; j < methodType.NumIn(); j++ {
+	// 		inTypes[j] = methodType.In(j) // 填充具体类型
+	// 	}
+	// 	for j := 0; j < methodType.NumOut(); j++ {
+	// 		outTypes[j] = methodType.Out(j) // 填充具体类型
+	// 	}
+
+	// 	serviceMethods[i] = reflect.StructField{
+	// 		Name: method.Name,
+	// 		Type: reflect.FuncOf(inTypes, outTypes, false),
+	// 	}
+	// }
+
+	// // 创建结构体类型
+	// serviceStructType := reflect.StructOf(serviceMethods)
+	// serviceStruct := reflect.New(serviceStructType).Elem()
+
+	// for i := 0; i < serverInterfaceType.NumMethod(); i++ {
+	// 	method := serverInterfaceType.Method(i)
+	// 	methodType := method.Type
+
+	// 	inTypes := make([]reflect.Type, methodType.NumIn())
+	// 	for j := 0; j < len(inTypes); j++ {
+	// 		inTypes[j] = methodType.In(j)
+	// 	}
+
+	// 	outTypes := make([]reflect.Type, methodType.NumOut())
+	// 	// fmt.Println("outTypes len: ", len(outTypes))
+	// 	// fmt.Println("methodType len: ", methodType.NumOut())
+
+	// 	for j := 0; j < methodType.NumOut(); j++ {
+	// 		// fmt.Println("j: ", j)
+	// 		outTypes[j] = methodType.Out(j)
+	// 	}
+	// 	// fmt.Println("------")
+
+	// 	funcType := reflect.FuncOf(inTypes, outTypes, false)
+	// 	methodFunc := reflect.MakeFunc(funcType, func(args []reflect.Value) []reflect.Value {
+
+	// 		result, err := c.InvokeRPC(method.Name, args)
+
+	// 		if err != nil {
+	// 			errType := reflect.TypeOf((*error)(nil)).Elem()
+	// 			results := make([]reflect.Value, len(outTypes))
+
+	// 			for i, t := range outTypes {
+	// 				if t == errType {
+	// 					results[i] = reflect.ValueOf(err)
+	// 				} else {
+	// 					results[i] = reflect.Zero(t)
+	// 				}
+	// 			}
+	// 			return results
+	// 		}
+
+	// 		// ok
+	// 		results := make([]reflect.Value, len(outTypes))
+	// 		for i, t := range outTypes {
+	// 			if i < len(result) {
+	// 				results[i] = reflect.ValueOf(result[i])
+	// 			} else {
+	// 				results[i] = reflect.Zero(t)
+	// 			}
+	// 		}
+	// 		return results
+	// 	})
+
+	// 	serviceStruct.FieldByName(method.Name).Set(methodFunc)
+	// }
+
+	// //
+	// interfaceImpl := reflect.New(serverInterfaceType).Elem()
+
+	// // 缓存方法映射，避免重复查找
+	// methodMap := make(map[string]reflect.Value)
+	// for i := 0; i < serverInterfaceType.NumMethod(); i++ {
+	// 	methodName := serverInterfaceType.Method(i).Name
+	// 	methodMap[methodName] = serviceStruct.FieldByName(methodName)
+	// }
+
+	// interfaceImpl.Set(reflect.MakeFunc(serverInterfaceType, func(args []reflect.Value) []reflect.Value {
+	// 	// 获取方法名（第一个参数是函数指针，通过类型断言获取方法名）
+	// 	methodPtr := args[0].Interface()
+	// 	methodName := getMethodNameFromFunc(methodPtr)
+
+	// 	// 从缓存中获取函数字段
+	// 	methodField, ok := methodMap[methodName]
+	// 	if !ok {
+	// 		panic(fmt.Sprintf("方法 %s 未找到", methodName))
+	// 	}
+
+	// 	// 调用函数字段（去除self参数，传递实际参数）
+	// 	return methodField.Interface().(func([]reflect.Value) []reflect.Value)(args[1:])
+	// }))
+
+	// return interfaceImpl.Interface()
+	// 将结构体转换为接口实例
+	// interfaceValue.Set(reflect.ValueOf(serviceStruct.Interface()))
+
+	// return interfaceValue.Interface()
+}
+
+// 输入参数是 方法名，业务数据。
+// 返回参数： 数据列表，错误码
+func (c *RPCClient) InvokeRPC(methodName string, args []reflect.Value) ([]any, error) {
+	url := fmt.Sprintf("%v/%v", c.url, methodName)
+
+	body, err := json.Marshal(args)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// 解析响应
+	var response struct {
+		Success bool   `json:"success"`
+		Data    []any  `json:"data"`
+		Error   string `json:"error"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, err
+	}
+
+	if !response.Success {
+		return nil, errors.New(response.Error)
+	}
+
+	return response.Data, nil
+}
+
+func clientCallServer() {
+	client := NewRPCClient("http://127.0.0.1:8080/rpc")
+
+	userService := client.CreateService(reflect.TypeOf((*UserService)(nil)).Elem())
+
+	userServiceImpl := (userService).(UserService)
+	err := userServiceImpl.CreateUser(UserImpl{
+		ID:   1000,
+		Name: "achilsh client call service",
+	})
+	if err != nil {
+		fmt.Println("call create user fail, err: ", err)
+		return
+	}
+
+	userInfo, err := userServiceImpl.GetUser(1000)
+	if err != nil {
+		fmt.Println("call get user fail, err: ", err)
+		return
+	}
+	fmt.Println("get user info: ", userInfo)
 }
