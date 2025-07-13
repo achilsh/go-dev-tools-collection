@@ -213,8 +213,13 @@ func reflectFuncOf() {
 	dynamicCallFunc()
 }
 
+var wrapperedFunc reflect.Value
+
+func init() {
+	wrapperedFunc = wrapperFunc(toWrapperFunc)
+}
 func dynamicCallFunc() {
-	wrapperedFunc := wrapperFunc(toWrapperFunc)
+
 	{
 		wrapperFuncRet := wrapperedFunc.Call([]reflect.Value{reflect.ValueOf(10), reflect.ValueOf(100)})
 		fmt.Println(wrapperFuncRet[0], wrapperFuncRet[1])
