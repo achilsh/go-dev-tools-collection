@@ -1,6 +1,12 @@
 package main
 
 func main() {
+	structOfDemo()
+	return
+
+	createChanType()
+	return
+
 	MapOfDemo()
 	return
 
