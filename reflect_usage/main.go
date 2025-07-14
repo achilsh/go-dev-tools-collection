@@ -1,6 +1,12 @@
 package main
 
 func main() {
+	reflectNew()
+	return
+
+	sliceOfDemo()
+	return
+
 	structOfDemo()
 	return
 

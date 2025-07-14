@@ -59,6 +59,7 @@ func generateStructFromColumns(tabName string, cols []Column) (reflect.Type, err
 
 // 把map中的数据 转到 struct 类型的中，返回 struct 示例对象
 func mapToStruct(data map[string]any, structType reflect.Type) (any, error) {
+
 	//  创建 struct 对象 示例
 	structVal := reflect.New(structType).Elem()
 
