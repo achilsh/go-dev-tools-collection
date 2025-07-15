@@ -23,7 +23,7 @@ type CoderReviewer struct {
 }
 
 func NewCodeReviewer() (*CoderReviewer, error) {
-	llm, err := openai.New()
+	llm, err := openai.New(openai.WithModel("gpt-4o-mini-2024-07-18"))
 	if err != nil {
 		return nil, err
 	}
