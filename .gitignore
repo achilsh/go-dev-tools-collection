@@ -28,3 +28,4 @@ demo-service/log
 demo-service/cmd/demo-server/demo-server
 .trunk/
 flow_limiter/main
+langchango_usage/langchango_usage
