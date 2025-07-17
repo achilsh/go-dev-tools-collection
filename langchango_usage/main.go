@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	gcr.RunReviewerCode()
+	// gcr.RunReviewerCode()
+	gcr.RunReviewercodeStructOutput()
 }
