@@ -122,13 +122,25 @@ func ReviewGitChanges(reviewer *CoderReviewer, level int) error {
 	return nil
 }
 
+var runcodeReview bool
+
+var file *string
+var dir *string
+var git *int
+
+func InitCodeReview() {
+	flag.BoolVar(&runcodeReview, "code-review", false, "need to code review by llm")
+
+	file = flag.String("file", "", "Go file to review")
+	dir = flag.String("dir", "", "Directory to review (all .go files)")
+	git = flag.Int("git", -1, "Review files changed in git commit level for working directory")
+
+}
 func RunReviewerCode() {
-	var (
-		file = flag.String("file", "", "Go file to review")
-		dir  = flag.String("dir", "", "Directory to review (all .go files)")
-		git  = flag.Int("git", -1, "Review files changed in git commit level for working directory")
-	)
-	flag.Parse()
+	if !runcodeReview {
+		fmt.Println("not run code review.")
+		return
+	}
 
 	reviewer, err := NewCodeReviewer()
 	if err != nil {
@@ -153,6 +165,6 @@ func RunReviewerCode() {
 		fmt.Println("  code-reviewer -file=main.go")
 		fmt.Println("  code-reviewer -dir=./pkg")
 		fmt.Println("  code-reviewer -git=0")
-		os.Exit(1)
+		return
 	}
 }

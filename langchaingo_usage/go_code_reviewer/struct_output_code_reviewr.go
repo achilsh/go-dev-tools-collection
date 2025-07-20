@@ -149,13 +149,31 @@ func ReviewGitChangesStructOutput(reviewer *CodeReviewerStructOutput, level int)
 	}
 	return nil
 }
-func RunReviewercodeStructOutput() {
-	var (
-		file = flag.String("file", "", "Go file to review")
-		dir  = flag.String("dir", "", "Directory to review (all .go files)")
-		git  = flag.Int("git", -1, "Review files changed in git commit level for working directory")
+
+var runcodeReveiewStructOutput bool
+var file1 *string
+var dir1 *string
+var git1 *int
+
+func InitCodereviewStructOutput() {
+	flag.BoolVar(
+		&runcodeReveiewStructOutput,
+		"code-review-struct-output",
+		false,
+		"need to code review struct output by llm",
 	)
-	flag.Parse()
+
+	file1 = flag.String("file1", "", "Go file to review")
+	dir1 = flag.String("dir1", "", "Directory to review (all .go files)")
+	git1 = flag.Int("git1", -1, "Review files changed in git commit level for working directory")
+
+}
+func RunReviewercodeStructOutput() {
+
+	if !runcodeReveiewStructOutput {
+		fmt.Println("is not run code review struct output.")
+		return
+	}
 
 	reviewer, err := NewCodeReviewerStructOutput()
 	if err != nil {
@@ -163,26 +181,26 @@ func RunReviewercodeStructOutput() {
 	}
 
 	switch {
-	case *file != "":
-		if ret, err := reviewer.ReviewFile(*file); err != nil {
+	case *file1 != "":
+		if ret, err := reviewer.ReviewFile(*file1); err != nil {
 			log.Fatal(err)
 		} else {
 			retStr, _ := json.MarshalIndent(ret, "", "\t")
 			fmt.Printf("%+v\n", string(retStr))
 		}
-	case *dir != "":
-		if err := ReviewDirectoryStructOutput(reviewer, *dir); err != nil {
+	case *dir1 != "":
+		if err := ReviewDirectoryStructOutput(reviewer, *dir1); err != nil {
 			log.Fatal(err)
 		}
-	case *git >= 0:
-		if err := ReviewGitChangesStructOutput(reviewer, *git); err != nil {
+	case *git1 >= 0:
+		if err := ReviewGitChangesStructOutput(reviewer, *git1); err != nil {
 			log.Fatal(err)
 		}
 	default:
 		fmt.Println("Usage:")
-		fmt.Println("  code-reviewer -file=main.go")
-		fmt.Println("  code-reviewer -dir=./pkg")
-		fmt.Println("  code-reviewer -git=0")
-		os.Exit(1)
+		fmt.Println("  code-reviewer -file1=main.go")
+		fmt.Println("  code-reviewer -dir1=./pkg")
+		fmt.Println("  code-reviewer -git1=0")
+		return
 	}
 }
