@@ -243,7 +243,7 @@ func (fa *FunctionAgent) Plan(
 	return nil, nil, nil
 }
 func (fa *FunctionAgent) GetTools() []agentlibs.Tool {
-	return nil
+	return fa.Tools
 }
 
 func NewFunctionAgent(tools []agentlibs.Tool) *FunctionAgent {
