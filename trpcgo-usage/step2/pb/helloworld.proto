@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package trpc.examples.restful.helloworld;
+
+option go_package = "step2/restful/pb";
+
+import "trpc/api/annotations.proto";
+
+// Greeter service
+service Greeter {
+  rpc SayHello(HelloRequest) returns (HelloReply) {
+    option (trpc.api.http) = { // 实现 同一套 PB 定义的服务既支持 RPC 调用也支持 REST 调用
+      // http method is GET and path is /v1/greeter/hello/{name}
+      // {name} is a path parameter , it will be mapped to HelloRequest.name
+      get: "/v1/greeter/hello/{name}"
+    };
+  }
+
+  
+  rpc DoPostMessage(PostMessageRequest) returns(PostMessageResponse) {
+    option(trpc.api.http) = {
+        post: "/v2/update/info" 
+        body: "*"
+    };
+  }
+
+  // GET 请求：/v1/get/info?age=1&address=shenzhen
+  // 查询参数 age 和 address 自动映射到 GetMessageRequest 的同名字段
+  rpc DoGetMessage(GetMessageRequest) returns (GetMessageResponse) {
+    option (trpc.api.http) = {
+      get: "/v1/get/info"  // 路径为 /v1/greeter/hello，查询参数在 URL 中传递
+    };
+  }
+}
+
+message GetMessageRequest {
+  int32 age = 1;      // 映射到查询参数 ?age=1
+  string address = 2; // 映射到查询参数 ?address=shenzhen
+}
+
+message GetMessageResponse {
+    int32 code = 1;
+    string message = 2;
+}
+
+message PostMessageRequest {
+    string name =1;
+    int32 age = 2;
+}
+message PostMessageResponse {
+    string data = 1;
+    int32 code = 2;
+}
+
+// Hello Request
+message HelloRequest {
+  string name = 1;
+}
+
+// Hello Reply
+message HelloReply {
+  string message = 1;
+}

@@ -11,13 +11,13 @@ server:  # Server configuration.
   filter:  # List of interceptors for all service handler functions.
     - simpledebuglog
     - recovery  # Intercept panics from business processing goroutines created by the framework.
-  service:  # Services provided by the business, can have multiple.
+  service:  # Services provided by the business, can have multiple. 表示被调服务配置文件中配置的服务名-和 client 设置的name 保持一致。
     - name: helloworld.HelloWorldService  # Route name for the service.
       ip: 127.0.0.1  # Service listening IP address, can use placeholder ${ip}. Use either ip or nic, ip takes priority.
       # nic: eth0
       port: 8000  # Service listening port, can use placeholder ${port}.
       network: tcp  # Network listening type: tcp or udp.
-      protocol: trpc  # Application layer protocol: trpc or http.
+      protocol: trpc  # 服务使用的协议；Application layer protocol: trpc or http.
       timeout: 1000  # Maximum processing time for requests in milliseconds.
     
 
@@ -26,8 +26,9 @@ client:  # Backend configuration for client calls.
   namespace: Development  # Environment for all backends.
   filter:  # List of interceptors for all backend function calls.
     - simpledebuglog
-  service:  # Configuration for individual backends.
-    - name: helloworld.HelloWorldService  # Service name for the backend.
+  service:  # Configuration for individual backends. callee 格式是被调用方的 pb文件中的 pbpackage.service 
+    - callee: helloworld.HelloWorldService  ## 必须同时配置 callee 和 name，callee 是 pb 的 service name，用于匹配 client proxy 和配置；
+      name: helloworld.HelloWorldService  # Service name for the backend.  # 名字服务的 service name，用于寻址； 指被调方注册在名字服务上面的服务名，也就是被调服务配置文件里面的 server.service.name 的字段值；名字服务的 service name，用于寻址。
       namespace: Development  # Environment for the backend.
       network: tcp  # Network type for the backend: tcp or udp (configuration takes priority).
       protocol: trpc  # Application layer protocol: trpc or http.
