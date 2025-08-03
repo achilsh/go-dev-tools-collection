@@ -12,7 +12,7 @@ import (
 func main() {
 	// init trpc server
 	server := trpc.NewServer()
-	// Register the greeter service with the server
+	// Register the greeter service with the server（RESTful HTTP服务）
 	pb.RegisterGreeterService(server, new(greeterService))
 	// Run the server
 	if err := server.Serve(); err != nil {

@@ -13,7 +13,7 @@ import (
 )
 
 func callHelloWorldServiceHello() {
-	// 定义一个 client proxy
+	// 定义一个 client proxy.
 	proxy := pb.NewHelloWorldServiceClientProxy(
 		client.WithTarget("ip://127.0.0.1:8000"),
 		client.WithProtocol("trpc"),

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package step3.user;
+
+option go_package = "step3/pb/inner/user";
+
+service UserService {
+  // 内部TRPC服务接口：获取用户信息
+  rpc GetUserInfo(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string user_id = 1;
+  string username = 2;
+  int32 age = 3;
+  string email = 4;
+}

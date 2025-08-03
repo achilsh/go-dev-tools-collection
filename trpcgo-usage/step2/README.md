@@ -15,3 +15,9 @@
 ```
 trpc create -d pb  -p helloworld.proto --mock=false  --nogomod --rpconly --gotag --alias -f -o helloworld/
 ```
+
+* 在cmd/server 目录下创建服务器的入口代码 cmd/server/main.go 中增加 各个接口的处理
+
+* 增加配文件， config/server/trpc_go.yaml, 注意protocol 字段是 restful 
+* 编译 go build cmd/server/ ; 运行 server -conf ./config/server/trpc_go.yaml 
+* 使用浏览器测试接口： http://127.0.0.1:9092/v1/greeter/hello/xsdfad

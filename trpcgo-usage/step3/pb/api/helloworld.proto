@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package step3.helloworld;
+
+option go_package = "step3/pb/api/helloworld";
+
+
+import "trpc/api/annotations.proto";
+
+// 
+import "inner/user.proto";
+
+service Helloworld {
+  // RESTful HTTP接口：通过用户ID获取问候信息
+  // 会内部调用UserService获取用户信息
+  //映射 url: /v1/greeter/hello?user_id=1231
+  rpc SayHello(HelloRequest) returns (HelloResponse) {
+    option (trpc.api.http) = {
+      get: "/v1/greeter/hello" 
+    };
+  }
+  
+  // RESTful HTTP接口：创建用户（内部调用UserService的扩展接口）
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (trpc.api.http) = {
+      post: "/v1/greeter/user"
+      body: "*"
+    };
+  }
+}
+
+message HelloRequest {
+  string user_id = 1; // 映射到查询参数 ?user_id=xxx
+}
+
+message HelloResponse {
+  string message = 1; // 问候信息
+  step3.user.GetUserResponse user_info = 2; // 包含用户详细信息
+}
+
+message CreateUserRequest {
+  string username = 1;
+  int32 age = 2;
+  string email = 3;
+}
+
+message CreateUserResponse {
+  string user_id = 1;
+  string message = 2;
+}
