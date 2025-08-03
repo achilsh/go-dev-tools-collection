@@ -1,0 +1,8 @@
+2025-08-03 12:12:52.196	INFO	client/client_linux.go:35	client helloworld.HelloWorldService is empowered with tnet! 🤩 
+2025-08-03 12:12:52.196	INFO	client/client_linux.go:35	client  is empowered with tnet! 🤩 
+2025-08-03 12:12:52.197	INFO	server/service_linux.go:21	service helloworld.HelloWorldService with network tcp and protocol trpc is empowered with tnet! 🤩 you can set 'transport: go-net' in your trpc_go.yaml's service configuration to switch to the golang net framework
+2025-08-03 12:12:52.197	INFO	tnet/server_transport.go:66	service:helloworld.HelloWorldService is using tnet transport, current number of pollers: 1
+2025-08-03 12:12:52.197	INFO	server/service.go:168	process:22798, trpc service:helloworld.HelloWorldService launch success, tcp:127.0.0.1:8000, serving ...
+2025-08-03 12:14:02.133	INFO	server/service.go:527	process:22798, trpc service:helloworld.HelloWorldService, closing ...
+2025-08-03 12:14:02.133	INFO	server/service.go:554	process:22798, trpc service:helloworld.HelloWorldService, closed
+2025-08-03 12:14:02.133	INFO	admin/admin.go:192	process:22798, admin server, closed
