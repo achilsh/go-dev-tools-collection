@@ -14,7 +14,8 @@ func main() {
 	s := trpc.NewServer() //里面可选参数有些什么？
 
 	// 根据服务名 helloworld.HelloWorldService 返回一个服务器，把具体实现的服务注册到服务器中。
-	pb.RegisterHelloWorldServiceService(s.Service("helloworld.HelloWorldService"), &helloWorldServiceImpl{})
+	// 将 trpc 服务和具体业务实现绑定在了一起，启动服务就对接上了业务逻辑; s.Service("helloworld.HelloWorldService")
+	pb.RegisterHelloWorldServiceService(s, &helloWorldServiceImpl{})
 
 	// 启动注册到该服务器中的服务
 	if err := s.Serve(); err != nil {

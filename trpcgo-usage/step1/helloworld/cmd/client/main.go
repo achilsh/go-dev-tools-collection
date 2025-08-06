@@ -8,15 +8,14 @@ import (
 
 	_ "trpc.group/trpc-go/trpc-filter/debuglog"
 	trpc "trpc.group/trpc-go/trpc-go"
-	"trpc.group/trpc-go/trpc-go/client"
 	"trpc.group/trpc-go/trpc-go/log"
 )
 
 func callHelloWorldServiceHello() {
 	// 定义一个 client proxy.
 	proxy := pb.NewHelloWorldServiceClientProxy(
-		client.WithTarget("ip://127.0.0.1:8000"),
-		client.WithProtocol("trpc"),
+	// client.WithTarget("ip://127.0.0.1:8000"),
+	// client.WithProtocol("trpc"),
 	)
 	ctx := trpc.BackgroundContext()
 	// Example usage of unary client.

@@ -88,7 +88,7 @@ trpc create -d pb -o rpc --rpconly
 * callee 指定被调用服务的元数据（扩展字段）；trpc 工具生成的 client proxy接口内部： 会根据pb定义的 package.service名字 在client 客户端配置文件中 找 callee 项，里面对应有name,protocal,time; 这样client 就知道如何去链接对方。
 * 所以 callee 的核心作用是建立 “Protobuf 服务定义” 与 “客户端配置” 之间的映射关系。通过与 pb 中 service name 完全一致的 callee 值，框架能准确地为每个 client proxy 绑定对应的配置，保证客户端调用时使用正确的参数（如寻址目标、协议、超时等），避免不同服务的配置混淆。
 
-* name 是指被调方注册在名字服务上的服务名，也就是被调服务配置文件里面的 server.service.name 的字段值，name 配置项：指定目标服务的唯一标识，用于定位具体的服务实例；使用场景：当客户端需要调用某个服务时，通过 name 匹配对应的服务配置，确定调用目标
+* name 是指被调方注册在名字服务上的服务名，也就是被调服务配置文件里面的 server.service.name 的字段值，name 配置项：指定目标服务的唯一标识，用于定位具体的服务实例，用于客户端寻址访问服务端；使用场景：当客户端需要调用某个服务时，通过 name 匹配对应的服务配置，确定调用目标，寻址。
 
 ```
 // 初始化客户端代理（内部会根据 pb service name 查找配置）

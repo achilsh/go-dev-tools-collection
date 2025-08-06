@@ -20,7 +20,7 @@ import (
 // HelloWorldServiceService defines service.
 type HelloWorldServiceService interface {
 	// Hello Hello says hello.
-	Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error)
+	Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error) // @alias=/demo/Hello
 }
 
 func HelloWorldServiceService_Hello_Handler(svr interface{}, ctx context.Context, f server.FilterFunc) (interface{}, error) {
@@ -46,6 +46,10 @@ var HelloWorldServiceServer_ServiceDesc = server.ServiceDesc{
 	ServiceName: "helloworld.HelloWorldService",
 	HandlerType: ((*HelloWorldServiceService)(nil)),
 	Methods: []server.Method{
+		{
+			Name: "/demo/Hello",
+			Func: HelloWorldServiceService_Hello_Handler,
+		},
 		{
 			Name: "/helloworld.HelloWorldService/Hello",
 			Func: HelloWorldServiceService_Hello_Handler,
@@ -78,7 +82,7 @@ func (s *UnimplementedHelloWorldService) Hello(ctx context.Context, req *HelloRe
 // HelloWorldServiceClientProxy defines service client proxy
 type HelloWorldServiceClientProxy interface {
 	// Hello Hello says hello.
-	Hello(ctx context.Context, req *HelloRequest, opts ...client.Option) (rsp *HelloResponse, err error)
+	Hello(ctx context.Context, req *HelloRequest, opts ...client.Option) (rsp *HelloResponse, err error) // @alias=/demo/Hello
 }
 
 type HelloWorldServiceClientProxyImpl struct {
@@ -93,7 +97,7 @@ var NewHelloWorldServiceClientProxy = func(opts ...client.Option) HelloWorldServ
 func (c *HelloWorldServiceClientProxyImpl) Hello(ctx context.Context, req *HelloRequest, opts ...client.Option) (*HelloResponse, error) {
 	ctx, msg := codec.WithCloneMessage(ctx)
 	defer codec.PutBackMessage(msg)
-	msg.WithClientRPCName("/helloworld.HelloWorldService/Hello")
+	msg.WithClientRPCName("/demo/Hello")
 	msg.WithCalleeServiceName(HelloWorldServiceServer_ServiceDesc.ServiceName)
 	msg.WithCalleeApp("")
 	msg.WithCalleeServer("")

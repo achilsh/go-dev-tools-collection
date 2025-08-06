@@ -3,8 +3,8 @@ global:  # Global configuration.
   env_name: test  # Environment name for non-production environments.
 
 server:  # Server configuration.
-  app: yourAppName  # Application name for the business.
-  server: HelloWorldService  # Process server name.
+  app: yyyyy_1  # Application name for the business.
+  server: xxxxx_1 # Process server name.
   bin_path: /usr/local/trpc/bin/  # Path to binary executable files and framework configuration files.
   conf_path: /usr/local/trpc/conf/  # Path to business configuration files.
   data_path: /usr/local/trpc/data/  # Path to business data files.

@@ -13,7 +13,7 @@ server:                                            # server configuration.
       ip: 127.0.0.1                                # the service listening ip address, can use the placeholder ${ip}, choose one of ip and nic, priority ip.
       port: 9093                                   # the service listening port, can use the placeholder ${port}.
       network: tcp                                 # the service listening network type,  tcp or udp.
-      protocol: restful                            # application layer protocol. NOTE restful service this is restful.
+      protocol: restful # 提供http服务              # application layer protocol. NOTE restful service this is restful.
       timeout: 1000                                # maximum request processing time in milliseconds.
       idletime: 300000                             # connection idle time in milliseconds.
 

@@ -16,5 +16,5 @@ message HelloResponse {
 // HelloWorldService handles hello request and echo message.
 service HelloWorldService {
   // Hello says hello.
-  rpc Hello(HelloRequest) returns(HelloResponse);
+  rpc Hello(HelloRequest) returns(HelloResponse); // @alias=/demo/Hello
 }
