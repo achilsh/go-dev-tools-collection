@@ -28,6 +28,10 @@ trpc create  -d pb/  -p api/helloworld.proto  --mock=false  --nogomod --rpconly 
 * 在浏览器输入： <http://127.0.0.1:9093/v1/greeter/hello?user_id=1>
 * 查看结果
 
+## 插件化使用
+
+### 自定义插件使用
+
 ## TOOD
 
 * http server 内部调用 下游服务的client 配置。

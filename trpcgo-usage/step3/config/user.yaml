@@ -21,11 +21,12 @@ server:  # Server configuration.
       timeout: 1000  # Maximum processing time for requests in milliseconds.
     
 
-client:  # Backend configuration for client calls.
+client:  # Backend configuration for client calls. 
   timeout: 1000  # Maximum processing time for all backends.
   namespace: Development  # Environment for all backends.
   filter:  # List of interceptors for all backend function calls.
     - simpledebuglog
+    - client_cost
   service:  # Configuration for individual backends. callee 格式是被调用方的 pb文件中的 pbpackage.service 
     - callee: user.UserService   ## 必须同时配置 callee 和 name，callee 是 pb 的 service name，用于匹配 client proxy 和配置；
       name: user.UserService   # Service name for the backend.  # 名字服务的 service name，用于寻址； 指被调方注册在名字服务上面的服务名，也就是被调服务配置文件里面的 server.service.name 的字段值；名字服务的 service name，用于寻址。
