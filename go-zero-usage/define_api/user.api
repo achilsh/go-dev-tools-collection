@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info (
+	title:   "用户服务API"
+	desc:    "用于用户注册、登录等操作"
+	author:  "your name"
+	email:   "your email"
+	version: "1.0"
+)
+
+type (
+	RegisterRequest {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	RegisterResponse {
+		Id    int64  `json:"id"`
+		Token string `json:"token"`
+	}
+)
+
+// 定义 HTTP 服务
+service user-api {
+     // 定义 http.HandleFunc 转换的 go 文件名称及方法； 
+    //  表示当前接口（post /api/user/register）会由名为 registerHandler 的处理器函数来处理
+    //  参考 routers.go 生成的代码。
+	@handler registerHandler
+     // 定义接口
+    // 请求方法为 post
+    // 路由为 /user/login
+    // 请求体为 LoginReq
+    // 响应体为 LoginResp，响应体必须有 returns 关键字修饰
+	post /api/user/register (RegisterRequest) returns (RegisterResponse)
+}
+

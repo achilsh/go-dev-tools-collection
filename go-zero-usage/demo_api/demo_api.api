@@ -1,0 +1,23 @@
+syntax = "v1"
+
+type Request {
+	// path 标签修饰的 name 必须与请求路由中的片段保持一致。
+	// 比如 name 和下面的 service {}中定义的 /from/:name 保持一致，
+	// 这样在 客户端请求的url 中， /from/XX 中的XX就会装在 Name 变量中
+	Name string `path:"name,options=you|me"`
+}
+
+type Response {
+	Message string `json:"message"`
+}
+
+//  定义http server; client 如何调用， eg: http://xxx:8888/from/you 或者 me.
+// name 对应 Request 的 path: name tag.
+service demo_api-api {
+	// 定义 handle 
+	@handler Demo_apiHandler 
+
+	get /from/:name (Request) returns (Response)
+	// get 是 http method, 后面接的路径， 对应的请求参数和回包数据定义
+}
+
