@@ -9,4 +9,6 @@
 
 * 客户端请求路由需要加上 /v1/** 具体的路由信息
 
-## 解释 server 的作用
+## 重新运行命令，文件覆盖情况
+
+* 如果更新了 api文件，重新运行  goctl api go  -api user.api -dir ./  命令， 会覆盖  types/types.go 文件，router.go 文件；

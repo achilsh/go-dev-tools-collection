@@ -2,6 +2,7 @@ package g1
 
 import (
 	"context"
+	"fmt"
 
 	"add_server_on_service_http/internal/svc"
 	"add_server_on_service_http/internal/types"
@@ -25,6 +26,13 @@ func NewListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListLogic {
 
 func (l *ListLogic) List() (resp []types.ListItem, err error) {
 	// todo: add your logic here and delete this line
+	r1 := make([]types.ListItem, 0)
+	for i := 0; i < 10; i++ {
+		r1 = append(r1, types.ListItem{
+			Value1: fmt.Sprintf("item: %v", i),
+		})
+	}
+	resp = r1
 
 	return
 }
