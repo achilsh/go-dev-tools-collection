@@ -205,3 +205,5 @@ type Config struct {
     ServerName string `json:",env=SERVER_NAME"`
 }
 ```
+
+* 可以在servicecontext.go 里面传递依赖给 logic 层，比如 mysql, redis 转递给 logic 层。
