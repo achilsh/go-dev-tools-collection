@@ -26,6 +26,8 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
+	// 增加自定义配置信息
+	fmt.Printf("db config: %+v\n", c.MysqlCfg)
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }

@@ -4,3 +4,10 @@ Port: 8888
 Auth:
   AccessSecret: "912312k31313"
   AccessExpire: 10
+Mysql:
+   IP: 128.1.1.1
+   Port: 13360
+   DB: demo_test_db 
+
+   
+   

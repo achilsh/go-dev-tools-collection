@@ -156,3 +156,30 @@ service user (
 其中：@handler 语句是对单个路由的 handler 信息控制，主要用于生成 golang http.HandleFunc 的实现转换方法。
 
 * 请求参数，返回值 struct 的tag定义，头部header 字段定义参考： <https://go-zero.dev/docs/tutorials/api/parameter>
+
+## api 同目录引用，跨目录引用
+
+* 同目录引用：参考：
+
+```
+import "person.api"
+import "struct_def.api"
+然后直接使用struct 类型即可。 
+```
+
+*跨目录引用，父子目录：
+
+```
+import "./company/company_api.api"
+直接使用子目录文件定义的类型
+```
+
+* 跨目录引用，同级父目录的不同子目录：
+
+```
+import "../student/student_api.api"
+```
+
+## 配置的使用
+
+* 修改  etc/foo.yaml 配置文件

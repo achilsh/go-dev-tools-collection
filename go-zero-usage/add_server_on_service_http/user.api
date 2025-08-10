@@ -16,6 +16,8 @@ type UpdateReq {
 	Arg1       string      `json:"arg1"`
 	PersonData PersonReq   `json:"person"`
 	CompanyV   CompanyItem `json:"company"`
+	// 增加头http header 头部字段
+	HeaderItem string      `header:"secretVal"`
 }
 
 type ListItem {
