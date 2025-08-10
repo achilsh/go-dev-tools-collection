@@ -207,3 +207,40 @@ type Config struct {
 ```
 
 * 可以在servicecontext.go 里面传递依赖给 logic 层，比如 mysql, redis 转递给 logic 层。
+
+## go-zero 增加全局中间件方式
+
+* 1.定义全局中间处理： 比如:
+
+```
+type ServiceContext struct {
+ Config          config.Config
+ AuthInterceptor rest.Middleware
+ //add other middleware..
+}
+
+// 可以在 servicecontext.go 里面传递依赖给 logic，比如 mysql, redis 传递给logic 层等
+func NewServiceContext(c config.Config) *ServiceContext {
+ return &ServiceContext{
+  Config:          c,
+  AuthInterceptor: middleware.NewAuthInterceptorMiddleware().Handle,
+  // init other middleware
+ }
+}
+```
+
+*2. 使用Use方法应用自定义全局中间件：
+
+```
+
+server.Use(middleware)
+
+// 自定义的中间件
+func middleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Add("X-Middleware", "static-middleware")
+        next(w, r)
+    }
+}
+
+```
