@@ -9,6 +9,7 @@ info (
 )
 
 import "person.api"
+import "struct_def.api"
 
 type UpdateReq {
 	Arg1       string    `json:"arg1"`

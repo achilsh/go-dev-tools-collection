@@ -3,8 +3,28 @@
 
 package types
 
+type DefEempty struct {
+}
+
 type FormExampleReq struct {
 	Name string `form:"name"`
+}
+
+type IncludeBaseDef struct {
+	Exist bool    `json:"exist"`
+	Nums  uint8   `json:"nums"`
+	N1    uint16  `json:"n1"`
+	Nu32  uint32  `json:"nui32"`
+	Nu64  uint64  `json:"nui64"`
+	Ni8   int8    `json:"ni8"`
+	Ni16  int16   `json:"ni16"`
+	Ni32  int32   `json:"ni32"`
+	Ni64  int64   `json:"ni64"`
+	NF32  float32 `json:"nf32"`
+	NF64  float64 `json:"nf64"`
+	Ni    int     `json:"ni"`
+	Nui   uint    `json:"nui"`
+	NB    byte    `json:"nb"`
 }
 
 type ListItem struct {

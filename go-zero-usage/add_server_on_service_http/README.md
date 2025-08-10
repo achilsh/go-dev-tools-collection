@@ -18,7 +18,9 @@
 * api 文件主要包括的内容：api 领域特性语言包含 “语法版本”，“info 块”，“结构体声明”，“服务描述” 等几大块语法组成，其中结构体和 Golang 结构体 语法几乎一样，只是移除了 struct 关键字。
 
 * api 文件中的注释： 单行注释 //， 多行注释 /*
+
     this is demo test.
+
 **/
 
 * api 文件 版本声明语法：
@@ -38,4 +40,38 @@ info(
 )
 ```
 
-* import 语句，在 api 中引入其他 api 文件的语法块，其支持相对/绝对路径。
+* import 语句，在 api 中引入其他 api 文件的语法块，其支持相对/绝对路径。比如 user.api 使用了 persion.api 文件，参考：
+
+```
+import "person.api"
+```
+
+其他示例：
+
+```
+// 单行 import
+import "foo"
+import "/path/to/file"
+
+// import 组
+import ()
+import (
+    "bar"
+    "relative/to/file"
+)
+```
+
+* 数据类型支持：
+目前支持： 沿用了 Golang 的数据类型。比如，基础类型：
+
+```
+
+ "bool"    | "uint8"     | "uint16"     | "uint32" | "uint64"  |
+ "int8"    | "int16"     | "int32"      | "int64"  | "float32" |
+ "float64" | "complex64" | "complex128" | "string" | "int"     |
+ "uint"    | "uintptr"   | "byte"       | "rune"   | "any"     | 
+ map[基础类型]  基础类型 或者type struct 自定义类型
+ []基础类型， 或者 [] type struct 自定义类型
+ [n] 基础类型， 或者 type struct 自定义类型
+
+```
