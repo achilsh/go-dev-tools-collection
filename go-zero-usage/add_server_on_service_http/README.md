@@ -154,3 +154,5 @@ service user (
 ```
 
 其中：@handler 语句是对单个路由的 handler 信息控制，主要用于生成 golang http.HandleFunc 的实现转换方法。
+
+* 请求参数，返回值 struct 的tag定义，头部header 字段定义参考： <https://go-zero.dev/docs/tutorials/api/parameter>

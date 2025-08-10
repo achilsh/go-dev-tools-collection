@@ -1,0 +1,11 @@
+syntax = "v1"
+
+info (
+    title: "tis is company api define"
+)
+
+import "../student/student_api.api"
+type CompanyItem {
+    Name string `json:"name"`
+    Stud StudentItem `json:"stud"`
+}

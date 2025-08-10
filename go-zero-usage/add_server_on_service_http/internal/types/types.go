@@ -14,6 +14,11 @@ type Bar struct {
 	Qux map[string]string `json:"qux"`
 }
 
+type CompanyItem struct {
+	Name string      `json:"name"`
+	Stud StudentItem `json:"stud"`
+}
+
 type ComposeData struct {
 	Ns SliceDef `json:"ns"`
 	Ss SliceDef `json:"ss"`
@@ -95,7 +100,12 @@ type Student struct {
 	Name string `json:"name"`
 }
 
+type StudentItem struct {
+	Address string `json:"address"`
+}
+
 type UpdateReq struct {
-	Arg1       string    `json:"arg1"`
-	PersonData PersonReq `json:"person"`
+	Arg1       string      `json:"arg1"`
+	PersonData PersonReq   `json:"person"`
+	CompanyV   CompanyItem `json:"company"`
 }

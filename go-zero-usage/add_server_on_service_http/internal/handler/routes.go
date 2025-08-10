@@ -16,13 +16,22 @@ import (
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			//  在每次处理请求链前的 auth
 			[]rest.Middleware{serverCtx.AuthInterceptor},
 			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/foo/bar/:id/:name",
+					Handler: g1.DemoPath4Handler(serverCtx),
+				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/form/example",
 					Handler: g1.FormExampleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/form/getExample",
+					Handler: g1.FormGetExampleHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
@@ -53,8 +62,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 			}...,
 		),
-		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		//  增加路由组，每个路由路径前加上 /v1
 		rest.WithPrefix("/v1"),
 		rest.WithTimeout(3000*time.Millisecond),
 		rest.WithMaxBytes(1048576),

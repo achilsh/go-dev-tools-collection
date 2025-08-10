@@ -1,0 +1,8 @@
+syntax = "v1"
+info (
+    title: "tis is student api define"
+)
+
+type StudentItem {
+    Address string `json:"address"`
+}
