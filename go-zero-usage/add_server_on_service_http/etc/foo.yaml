@@ -1,3 +1,6 @@
 Name: Foo
 Host: 0.0.0.0
 Port: 8888
+Auth:
+  AccessSecret: "912312k31313"
+  AccessExpire: 10
