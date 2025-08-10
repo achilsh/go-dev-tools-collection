@@ -39,11 +39,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: g1.ListHandler(serverCtx),
 				},
 				{
-					Method:  http.MethodPost,
-					Path:    "/login",
-					Handler: g1.LoginHandler(serverCtx),
-				},
-				{
 					Method:  http.MethodGet,
 					Path:    "/path/example/:id",
 					Handler: g1.PathExampleHandler(serverCtx),
@@ -59,6 +54,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/update",
 					Handler: g1.UpdateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/v1"),
+		rest.WithTimeout(3000*time.Millisecond),
+		rest.WithMaxBytes(1048576),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthInterceptor},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/login",
+					Handler: g1.LoginHandler(serverCtx),
 				},
 			}...,
 		),
