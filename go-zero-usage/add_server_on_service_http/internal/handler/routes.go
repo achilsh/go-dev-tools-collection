@@ -53,6 +53,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 			}...,
 		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		//  增加路由组，每个路由路径前加上 /v1
 		rest.WithPrefix("/v1"),
 		rest.WithTimeout(3000*time.Millisecond),

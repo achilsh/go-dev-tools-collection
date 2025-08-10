@@ -55,7 +55,10 @@ type PathExampleResp {
 // 5. jwt 鉴权开关
 // 所有声明仅对当前 service 中的路由有效， 比如下面仅挨着的 service Foo 有效。
 @server (
-	// jwt:        Auth // 对当前 Foo 语法块下的所有路由，开启 jwt 认证，不需要则请删除此行
+	// jwt 声明
+	// 如果 key 固定为 “jwt:”，则代表开启 jwt 鉴权声明
+	// value 则为配置文件的结构体名称
+	jwt:        Auth // 对当前 Foo 语法块下的所有路由，开启 jwt 认证，不需要则请删除此行
 	prefix:     /v1 // 对当前 Foo 语法块下的所有路由，新增 /v1 路由前缀，不需要则请删除此行
 	group:      g1 // 对当前 Foo 语法块下的所有路由，路由归并到 g1 目录下，不需要则请删除此行
 	timeout:    3s // 对当前 Foo 语法块下的所有路由进行超时配置，不需要则请删除此行
