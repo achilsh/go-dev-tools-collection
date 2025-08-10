@@ -70,8 +70,68 @@ import (
  "int8"    | "int16"     | "int32"      | "int64"  | "float32" |
  "float64" | "complex64" | "complex128" | "string" | "int"     |
  "uint"    | "uintptr"   | "byte"       | "rune"   | "any"     | 
+
  map[基础类型]  基础类型 或者type struct 自定义类型
- []基础类型， 或者 [] type struct 自定义类型
- [n] 基础类型， 或者 type struct 自定义类型
+ []基础类型， 或者 [] type  自定义类型
+ [n] 基础类型， 或者 type  自定义类型
+
+```
+
+* server 语句：@server 语句是对一个服务语句的 meta 信息描述，其对应特性包含但不限于：
+
+```
+jwt 开关
+中间件
+路由分组
+路由前缀
+
+```
+
+格式是：@server()空内容， @server(//  )有内容，如下：
+
+```
+ @server(
+    // jwt 声明
+    // 如果 key 固定为 “jwt:”，则代表开启 jwt 鉴权声明
+    // value 则为配置文件的结构体名称
+    jwt: Auth
+
+
+
+    // 路由前缀
+    // 如果 key 固定为 “prefix:”
+    // 则代表路由前缀声明，value 则为具体的路由前缀值，字符串中没让必须以 / 开头
+    prefix: /v1
+
+
+
+    // 路由分组
+    // 如果 key 固定为 “group:”，则代表路由分组声明
+    // value 则为具体分组名称，在 goctl生成代码后会根据此值进行文件夹分组
+    group: Foo
+
+
+
+    // 中间件
+    // 如果 key 固定为 middleware:”，则代表中间件声明
+    // value 则为具体中间件函数名称，在 goctl生成代码后会根据此值进生成对应的中间件函数；代码目录在解释器目录中。
+    middleware: AuthInterceptor
+
+
+
+    // 超时控制
+    // 如果 key 固定为  timeout:”，则代表超时配置
+    // value 则为具体中duration，在 goctl生成代码后会根据此值进生成对应的超时配置
+    timeout: 3s
+)
+```
+
+* 服务条目：服务条目（ServiceItemStmt）是对单个 HTTP 请求的描述，包括 @doc 语句，@handler 语句，路由语句信息，格式：
+
+```
+service user (
+    @doc "登录"
+    @handler login
+)
 
 ```

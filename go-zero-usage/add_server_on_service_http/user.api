@@ -64,10 +64,12 @@ type PathExampleResp {
 )
 //
 service Foo {
+	@doc "ping"
 	// 定义没有请求体和响应体的接口，如 ping
 	@handler ping
 	get /ping
 
+	@doc "更新"
 	// 定义只有请求体的接口，如更新信息
 	@handler update
 	post /update (UpdateReq)

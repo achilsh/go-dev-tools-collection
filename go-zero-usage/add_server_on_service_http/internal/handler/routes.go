@@ -16,7 +16,7 @@ import (
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			//  在每次处理请求链前的 auth.
+			//  在每次处理请求链前的 auth
 			[]rest.Middleware{serverCtx.AuthInterceptor},
 			[]rest.Route{
 				{
@@ -40,11 +40,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: g1.PathExampleHandler(serverCtx),
 				},
 				{
+					// ping
 					Method:  http.MethodGet,
 					Path:    "/ping",
 					Handler: g1.PingHandler(serverCtx),
 				},
 				{
+					// 更新
 					Method:  http.MethodPost,
 					Path:    "/update",
 					Handler: g1.UpdateHandler(serverCtx),

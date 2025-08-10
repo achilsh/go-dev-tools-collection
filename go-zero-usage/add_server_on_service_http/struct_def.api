@@ -29,3 +29,23 @@ type IncludeBaseDef {
     Nui uint `json:"nui"`
     NB byte `json:"nb"`
 }
+
+
+type MapDef {
+    Age int `json:"age"`
+    MapDat map[int]int `json:"mapData"`
+}
+
+type SliceDef {
+    Nums []int `json:"nums"`
+}
+
+type ArrayDef {
+    Nums [10]int `json:"nums"`
+}
+
+type ComposeData {
+    Ns  SliceDef `json:"ns"`
+    Ss SliceDef `json:"ss"`
+    Md MapDef `json:"md"`
+}

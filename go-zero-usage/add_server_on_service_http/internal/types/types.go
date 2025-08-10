@@ -3,6 +3,16 @@
 
 package types
 
+type ArrayDef struct {
+	Nums [10]int `json:"nums"`
+}
+
+type ComposeData struct {
+	Ns SliceDef `json:"ns"`
+	Ss SliceDef `json:"ss"`
+	Md MapDef   `json:"md"`
+}
+
 type DefEempty struct {
 }
 
@@ -40,6 +50,11 @@ type LoginResp struct {
 	Name string `json:"name"`
 }
 
+type MapDef struct {
+	Age    int         `json:"age"`
+	MapDat map[int]int `json:"mapData"`
+}
+
 type PathExampleReq struct {
 	ID string `path:"id"`
 }
@@ -54,6 +69,10 @@ type PersonReq struct {
 
 type PersonRsp struct {
 	Data string `json:"data"`
+}
+
+type SliceDef struct {
+	Nums []int `json:"nums"`
 }
 
 type UpdateReq struct {
