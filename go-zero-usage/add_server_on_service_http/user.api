@@ -96,9 +96,13 @@ service Foo {
 	@handler formExample
 	post /form/example (FormExampleReq)
 
+	// 定义get ; http://ip:port/v1/form/getExample?name=123213
+	@handler formGetExample
+	get /form/getExample (FormExampleReq)
+
 	// 定义 path 参数；
 	// 示例路由 /foo/bar/:id，其中 id 为请求体中的字段
-	//客户端的url: http://ip:port/path/exmaple/id_value
+	//客户端的url: http://ip:port/v1/path/exmaple/id_value
 	@handler pathExample
 	get /path/example/:id (PathExampleReq) returns (PathExampleResp)
 
