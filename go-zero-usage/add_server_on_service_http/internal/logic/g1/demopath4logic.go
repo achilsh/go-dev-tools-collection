@@ -9,22 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type PathExampleLogic struct {
+type DemoPath4Logic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewPathExampleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PathExampleLogic {
-	return &PathExampleLogic{
+func NewDemoPath4Logic(ctx context.Context, svcCtx *svc.ServiceContext) *DemoPath4Logic {
+	return &DemoPath4Logic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *PathExampleLogic) PathExample(req *types.PathExampleReq) (resp *types.PathExampleResp, err error) {
+func (l *DemoPath4Logic) DemoPath4(req *types.DemoPath4Req) (resp *types.DemoResp, err error) {
 	// todo: add your logic here and delete this line
-	l.Infof("req: %v", *req)
+
 	return
 }

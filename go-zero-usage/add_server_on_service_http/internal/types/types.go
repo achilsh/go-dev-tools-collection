@@ -23,6 +23,14 @@ type ComposeData struct {
 type DefEempty struct {
 }
 
+type DemoPath4Req struct {
+	Id   int64  `path:"id"`
+	Name string `path:"name"`
+}
+
+type DemoResp struct {
+}
+
 type FormExampleReq struct {
 	Name string `form:"name"`
 }

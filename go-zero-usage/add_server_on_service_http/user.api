@@ -43,6 +43,13 @@ type PathExampleResp {
 	Name string `json:"name"`
 }
 
+type DemoPath4Req {
+	Id   int64  `path:"id"`
+	Name string `path:"name"`
+}
+
+type DemoResp {}
+
 /**
 
 ***/
@@ -58,7 +65,7 @@ type PathExampleResp {
 	// jwt 声明
 	// 如果 key 固定为 “jwt:”，则代表开启 jwt 鉴权声明
 	// value 则为配置文件的结构体名称
-	jwt:        Auth // 对当前 Foo 语法块下的所有路由，开启 jwt 认证，不需要则请删除此行
+	// jwt:        Auth // 对当前 Foo 语法块下的所有路由，开启 jwt 认证，不需要则请删除此行
 	prefix:     /v1 // 对当前 Foo 语法块下的所有路由，新增 /v1 路由前缀，不需要则请删除此行
 	group:      g1 // 对当前 Foo 语法块下的所有路由，路由归并到 g1 目录下，不需要则请删除此行
 	timeout:    3s // 对当前 Foo 语法块下的所有路由进行超时配置，不需要则请删除此行
@@ -89,8 +96,15 @@ service Foo {
 	@handler formExample
 	post /form/example (FormExampleReq)
 
-	// 定义 path 参数
+	// 定义 path 参数；
+	// 示例路由 /foo/bar/:id，其中 id 为请求体中的字段
+	//客户端的url: http://ip:port/path/exmaple/id_value
 	@handler pathExample
 	get /path/example/:id (PathExampleReq) returns (PathExampleResp)
+
+	// 示例路由 /foo/bar/:id/:name，其中 id，name 为请求体中的字段
+	//客户端访问： http://ip:port/foo/bar/id_value/name_value 其中 请求结构体的字段值。
+	@handler demoPath4
+	get /foo/bar/:id/:name (DemoPath4Req) returns (DemoResp)
 }
 
