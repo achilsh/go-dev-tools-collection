@@ -7,6 +7,13 @@ type ArrayDef struct {
 	Nums [10]int `json:"nums"`
 }
 
+type Bar struct {
+	Foo int               `json:"foo"`
+	Bar bool              `json:"bar"`
+	Baz []string          `json:"baz"`
+	Qux map[string]string `json:"qux"`
+}
+
 type ComposeData struct {
 	Ns SliceDef `json:"ns"`
 	Ss SliceDef `json:"ss"`
@@ -73,6 +80,11 @@ type PersonRsp struct {
 
 type SliceDef struct {
 	Nums []int `json:"nums"`
+}
+
+type Student struct {
+	Age  int    `json:"age"`
+	Name string `json:"name"`
 }
 
 type UpdateReq struct {

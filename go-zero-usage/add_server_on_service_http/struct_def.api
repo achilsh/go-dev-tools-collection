@@ -49,3 +49,17 @@ type ComposeData {
     Ss SliceDef `json:"ss"`
     Md MapDef `json:"md"`
 }
+
+// 把Bar，Student 逻辑上放在一组，管理起来，代码会生成各个数据结构
+type (
+    Bar {
+        Foo int               `json:"foo"`
+        Bar bool              `json:"bar"`
+        Baz []string          `json:"baz"`
+        Qux map[string]string `json:"qux"`
+    }
+    Student {
+        Age int `json:"age"`
+        Name string `json:"name"`
+    }
+)

@@ -75,6 +75,22 @@ import (
  []基础类型， 或者 [] type  自定义类型
  [n] 基础类型， 或者 type  自定义类型
 
+参考： https://go-zero.dev/docs/tutorials/api/types
+```
+
+结构体分组： type() eg:
+
+```
+type (
+    Int int
+    Integer = int
+    Bar {
+        Foo int               `json:"foo"`
+        Bar bool              `json:"bar"`
+        Baz []string          `json:"baz"`
+        Qux map[string]string `json:"qux"`
+    }
+)
 ```
 
 * server 语句：@server 语句是对一个服务语句的 meta 信息描述，其对应特性包含但不限于：
@@ -132,6 +148,9 @@ jwt 开关
 service user (
     @doc "登录"
     @handler login
+
 )
 
 ```
+
+其中：@handler 语句是对单个路由的 handler 信息控制，主要用于生成 golang http.HandleFunc 的实现转换方法。
