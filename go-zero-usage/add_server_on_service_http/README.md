@@ -183,3 +183,25 @@ import "../student/student_api.api"
 ## 配置的使用
 
 * 修改  etc/foo.yaml 配置文件
+* 在internal/config/config.go文件增加配置结构体定义。
+* conf 目前已经默认自动支持 key 大小写不敏感，例如对应如下的配置我们都可以解析出来.
+* 参考： <https://go-zero.dev/docs/tutorials/go-zero/configuration/overview>
+*其中配置规则也如上所示，示例：
+
+```
+type Config struct {
+    Name string // 没有任何 tag，表示配置必填
+
+    <!--  default 当前参数默认值  -->
+    Port int64 `json:",default=8080"` // 如果配置中没有配置，将会初始成 8080
+
+    <!-- 当前字段是可选参数，允许为零值(zero value)  -->
+    Path string `json:",optional"` //当前字段是可选参数，允许为零值(zero value)
+
+    <!-- options 当前参数仅可接收的枚举值； default 当前参数默认值 -->
+    Mode       string `json:",default=pro,options=dev|test|rt|pre|pro"`  
+
+    <!-- json tag 的后面加上 env=SERVER_NAME 的标签，conf 将会自动去加载对应的环境变量。 -->
+    ServerName string `json:",env=SERVER_NAME"`
+}
+```
