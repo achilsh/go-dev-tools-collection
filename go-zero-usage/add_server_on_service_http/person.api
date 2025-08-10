@@ -1,0 +1,16 @@
+syntax = "v1"
+info(
+    title: "person protocol files"
+    desc:    "演示如何编写 api 文件"
+	author:  "keson.an"
+	date:    "2022 年 12 月 26 日"
+	version: "v1"
+)
+
+type PersonReq {
+    Name string `json:"name"`
+}
+
+type PersonRsp {
+    Data string `json:"data"`
+}

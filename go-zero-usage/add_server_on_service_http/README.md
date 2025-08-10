@@ -12,3 +12,30 @@
 ## 重新运行命令，文件覆盖情况
 
 * 如果更新了 api文件，重新运行  goctl api go  -api user.api -dir ./  命令， 会覆盖  types/types.go 文件，router.go 文件；
+
+## api 定义http协议的描述
+
+* api 文件主要包括的内容：api 领域特性语言包含 “语法版本”，“info 块”，“结构体声明”，“服务描述” 等几大块语法组成，其中结构体和 Golang 结构体 语法几乎一样，只是移除了 struct 关键字。
+
+* api 文件中的注释： 单行注释 //， 多行注释 /*
+    this is demo test.
+**/
+
+* api 文件 版本声明语法：
+
+```
+syntax = "v1"
+```
+
+* info 语句，仅对api文件进行描述，不参与代码生成，在生成 的types.go文件中不会有info 语句。 格式：
+
+```
+info()
+或者
+info(
+   k1: "value" 
+   k2: "value"
+)
+```
+
+* import 语句，在 api 中引入其他 api 文件的语法块，其支持相对/绝对路径。

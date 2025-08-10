@@ -8,8 +8,11 @@ info (
 	version: "v1"
 )
 
+import "person.api"
+
 type UpdateReq {
-	Arg1 string `json:"arg1"`
+	Arg1       string    `json:"arg1"`
+	PersonData PersonReq `json:"person"`
 }
 
 type ListItem {
@@ -39,6 +42,17 @@ type PathExampleResp {
 	Name string `json:"name"`
 }
 
+/**
+
+***/
+// 定义 HTTP 服务
+// @server 语法块主要用于控制对 HTTP 服务生成时 meta 信息，目前支持功能有：
+// 1. 路由分组
+// 2. 中间件声明
+// 3. 路由前缀
+// 4. 超时配置
+// 5. jwt 鉴权开关
+// 所有声明仅对当前 service 中的路由有效， 比如下面仅挨着的 service Foo 有效。
 @server (
 	// jwt:        Auth // 对当前 Foo 语法块下的所有路由，开启 jwt 认证，不需要则请删除此行
 	prefix:     /v1 // 对当前 Foo 语法块下的所有路由，新增 /v1 路由前缀，不需要则请删除此行
@@ -47,6 +61,7 @@ type PathExampleResp {
 	middleware: AuthInterceptor // 对当前 Foo 语法块下的所有路由添加中间件，不需要则请删除此行
 	maxBytes:   1048576 // 对当前 Foo 语法块下的所有路由添加请求体大小控制，单位为 byte,goctl 版本 >= 1.5.0 才支持
 )
+//
 service Foo {
 	// 定义没有请求体和响应体的接口，如 ping
 	@handler ping

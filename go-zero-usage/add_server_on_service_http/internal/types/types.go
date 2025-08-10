@@ -28,6 +28,15 @@ type PathExampleResp struct {
 	Name string `json:"name"`
 }
 
+type PersonReq struct {
+	Name string `json:"name"`
+}
+
+type PersonRsp struct {
+	Data string `json:"data"`
+}
+
 type UpdateReq struct {
-	Arg1 string `json:"arg1"`
+	Arg1       string    `json:"arg1"`
+	PersonData PersonReq `json:"person"`
 }
