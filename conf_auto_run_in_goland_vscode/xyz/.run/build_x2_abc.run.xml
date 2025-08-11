@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="build_x2_abc" type="Multirun" separateTabs="false" reuseTabsWithFailures="false" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="7.0">
+    <runConfiguration name="abc_build" type="Go Build" />
+    <runConfiguration name="x2_build" type="Go Build" />
+    <method v="2" />
+  </configuration>
+</component>

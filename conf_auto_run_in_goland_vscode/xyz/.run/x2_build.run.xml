@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="x2_build" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="xyz" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="-port=123 -debug=true -conf=../../demo.yaml" />
+    <kind value="PACKAGE" />
+    <package value="github/xyz/cmd/x2" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/x2/x2_main.go" />
+    <method v="2" />
+  </configuration>
+</component>
