@@ -25,6 +25,9 @@ func NewUserServicePostLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 
 func (l *UserServicePostLogic) UserServicePost(req *types.PRequest) (resp *types.PResponse, err error) {
 	// todo: add your logic here and delete this line
-	l.Infof("req: %+v", *req)
+
+	v := l.ctx.Value("x-abc")
+	l.Infof("x-abc: ", v)
+	l.Infof(">>>>>>>>> req: %+v", *req)
 	return
 }

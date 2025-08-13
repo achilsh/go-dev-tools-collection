@@ -26,5 +26,12 @@ func NewUserserviceUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 func (l *UserserviceUserLogic) UserserviceUser() (resp *types.Response, err error) {
 	// todo: add your logic here and delete this line
 
+	v := l.ctx.Value("x-abc")
+	vs, ok := v.(string)
+	if ok {
+		l.Logger.Infof("get header data: %v", vs)
+	} else {
+		l.Logger.Infof(".....: %v", v)
+	}
 	return
 }

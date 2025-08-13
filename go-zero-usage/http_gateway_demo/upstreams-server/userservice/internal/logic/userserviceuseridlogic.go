@@ -28,7 +28,7 @@ func (l *UserserviceUserIdLogic) UserserviceUserId(req *types.Request) (resp *ty
 	v := l.ctx.Value("x-abc")
 	vs, ok := v.(string)
 	if ok {
-		//
+		l.Logger.Infof("get header data: %v", v)
 	}
 	resp = &types.Response{
 		Message: "this is user id response: " + vs,

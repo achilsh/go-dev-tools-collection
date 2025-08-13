@@ -3,10 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"http_gateway_demo/upstreams-server/userservice/internal/logic"
 	"http_gateway_demo/upstreams-server/userservice/internal/svc"
 	"http_gateway_demo/upstreams-server/userservice/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func UserServicePostHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +17,8 @@ func UserServicePostHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
+		// loger := logx.WithContext(r.Context())
+		// loger.Infof("req body: %+v", r.Body.Read())
 
 		l := logic.NewUserServicePostLogic(r.Context(), svcCtx)
 		resp, err := l.UserServicePost(&req)

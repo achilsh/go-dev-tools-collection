@@ -49,7 +49,7 @@ func ModifyRequestBody(r *http.Request) (*http.Request, error) {
 	}
 
 	// 添加自定义字段（例如：添加网关标识）
-	data["name"] = fmt.Sprintf("%v:%v", data["name"], "-----")
+	data["name"] = "data++++++1"
 	// data["timestamp"] = time.Now().Unix()
 
 	// 重新序列化JSON
