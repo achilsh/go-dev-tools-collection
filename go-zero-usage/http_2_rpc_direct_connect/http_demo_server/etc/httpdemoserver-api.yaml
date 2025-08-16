@@ -1,0 +1,12 @@
+Name: http_demo_server-api
+Host: 0.0.0.0
+Port: 8888
+
+#  直接连接
+DirectConnetClientCfg:
+  Target: dns:///127.0.0.1:8080
+
+
+
+# 
+
