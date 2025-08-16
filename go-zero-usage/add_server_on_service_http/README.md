@@ -1,7 +1,31 @@
-## 给 http server api 文件的每个 service 增加
+## 通过 goctl api 来快速生成一个 api 服务；该api服务就是一个http服务
 
-* 定义 user.api 文件
+* 定义 user.api 文件， 根据api文件中的接口产生 *.go 文件。
 * 运行 命令 生成 http server:   goctl api go  -api user.api -dir ./
+
+```
+比如 运行命令：goctl api go  --api ./demo_api.api -style go_zero  --dir ./
+产生的源码：
+
+├── demo_api.api
+├── demo_api.go
+├── etc
+│   └── demo_api-api.yaml
+├── go.mod
+└── internal
+    ├── config
+    │   └── config.go
+    ├── handler
+    │   ├── demo_api_handler.go
+    │   └── routes.go
+    ├── logic
+    │   └── demo_api_logic.go
+    ├── svc
+    │   └── service_context.go
+    └── types
+        └── types.go
+
+```
 
 ## 生成代码，服务端接收客户端请求处理逻辑
 

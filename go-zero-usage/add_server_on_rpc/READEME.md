@@ -16,23 +16,26 @@ goctl  rpc --o pb/demo.proto
  protoc pb/demo.proto --go_out=./pb --go-grpc_out=./pb
 ```
 
-* 根据 上面 proto 文件生成 zrpc 后端服务命令（单个rpc服务）：
+*根据 protobufer 文件生成 rpc 服务： 根据 上面 proto 文件生成 zrpc 后端服务命令（单个rpc服务）命令：
 
 ```
+Generate grpc code： 
 goctl rpc protoc pb/demo.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true 
 ```
 
 * 根据上面proto 文件生成zrpc 后端服务命令（多个rpc服务）
 
 ```
-goctl rpc protoc pb/demo.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true  -m
+goctl rpc protoc pb/demo.proto --go_out=./pb    --go-grpc_out=./pb    --zrpc_out=. --client=true  -m
 ```
 
+其中 protoc pb/demo.proto --go_out=./pb --go-grpc_out=./pb 完全是 protoc 指令的用法
+
 *注意事项：
-goctl rpc protoc 指令生成 rpc 服务对 proto 有一些事项须知：
+goctl rpc protoc 指令生成 rpc 服务 对 proto 有一些事项须知：
 
 proto 文件中如果有 import 语句，goctl 不会对 import 的 proto 文件进行处理，需要自行手动处理。
-rpc service 中的请求体和响应体必须是当前 proto 文件中的 message，不能是 import 的 proto 文件中的 message。
+rpc service 中的请求体和响应体必须是当前 proto 文件中的 message，比如上面的 pb/demo.proto; 不能是 import 的 proto 文件中的 message。
 
 --------------------------------------------
 
@@ -59,9 +62,9 @@ Mode: dev
 
 ```
 
-## rpc 服务端设置 中间件
+## rpc 服务端设置 中间件（rpc 默认提供的中间件，需要时只需自己配置即可）
 
-* 框架提供的 中间件注册 是有配置决定，比如配置项：
+* 框架提供的中间件注册是由配置决定，比如配置项：
 
 ``
 先定义服务中间配置类型：
@@ -84,7 +87,7 @@ type RpcServerConf struct {
 
 ```
 
-服务端依据上面配置定义，在服务端初始化的时候做判断是否需要注册中间件。比如初始化服务流程：
+服务端依据上面配置定义，在服务端初始化的时候做判断是否需要注册中间件。具体流程：比如初始化服务流程：
 ```
 
 // NewServer returns a RpcServer.
@@ -121,39 +124,39 @@ func NewServer(c RpcServerConf, register internal.RegisterFn) (*RpcServer, error
 
  func setupStreamInterceptors(svr internal.Server, c RpcServerConf) {
  if c.Middlewares.Trace {
-  svr.AddStreamInterceptors(serverinterceptors.StreamTracingInterceptor)
+    svr.AddStreamInterceptors(serverinterceptors.StreamTracingInterceptor)
  }
  if c.Middlewares.Recover {
-  svr.AddStreamInterceptors(serverinterceptors.StreamRecoverInterceptor)
+    svr.AddStreamInterceptors(serverinterceptors.StreamRecoverInterceptor)
  }
  if c.Middlewares.Breaker {
-  svr.AddStreamInterceptors(serverinterceptors.StreamBreakerInterceptor)
+    svr.AddStreamInterceptors(serverinterceptors.StreamBreakerInterceptor)
  }
 }
 
 func setupUnaryInterceptors(svr internal.Server, c RpcServerConf, metrics *stat.Metrics) {
  if c.Middlewares.Trace {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryTracingInterceptor)
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryTracingInterceptor)
  }
  if c.Middlewares.Recover {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryRecoverInterceptor)
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryRecoverInterceptor)
  }
  if c.Middlewares.Stat {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryStatInterceptor(metrics, c.Middlewares.StatConf))
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryStatInterceptor(metrics, c.Middlewares.StatConf))
  }
  if c.Middlewares.Prometheus {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryPrometheusInterceptor)
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryPrometheusInterceptor)
  }
  if c.Middlewares.Breaker {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryBreakerInterceptor)
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryBreakerInterceptor)
  }
  if c.CpuThreshold > 0 {
-  shedder := load.NewAdaptiveShedder(load.WithCpuThreshold(c.CpuThreshold))
-  svr.AddUnaryInterceptors(serverinterceptors.UnarySheddingInterceptor(shedder, metrics))
+    shedder := load.NewAdaptiveShedder(load.WithCpuThreshold(c.CpuThreshold))
+    svr.AddUnaryInterceptors(serverinterceptors.UnarySheddingInterceptor(shedder, metrics))
  }
  if c.Timeout > 0 {
-  svr.AddUnaryInterceptors(serverinterceptors.UnaryTimeoutInterceptor(
-   time.Duration(c.Timeout)*time.Millisecond, c.MethodTimeouts...))
+    svr.AddUnaryInterceptors(serverinterceptors.UnaryTimeoutInterceptor(
+    time.Duration(c.Timeout)*time.Millisecond, c.MethodTimeouts...))
  }
 }
 
@@ -179,10 +182,67 @@ func setupAuthInterceptors(svr internal.Server, c RpcServerConf) error {
 
 关键流程是：定义 中间件 f， 调用 Server.AddUnaryInterceptors(f)
 Server.AddStreamInterceptors()
+
 如果业务注册自定义的中间件，需要的步骤：
 
-1. 定义
-2. 注册
+1. 定义中间件，
+2. 注册 注册中间件
+
+```
+定义中间件，比如在 目录 internal/middleware 下新建一个中间件文件 m1.go 
+
+import (
+ "context"
+ "fmt"
+ "time"
+
+ "google.golang.org/grpc"
+)
+
+func ExampleUnaryInterceptor(
+ ctx context.Context,
+ req interface{},
+ info *grpc.UnaryServerInfo,
+ handler grpc.UnaryHandler,
+) (resp interface{}, err error) {
+ // TODO: fill your logic here
+
+ beginTim := time.Now()
+
+ ret, err := handler(ctx, req)
+
+ fmt.Println("cost time: ", time.Since(beginTim))
+ return ret, err
+}
 
 ```
 
+```
+2.在rpc服务的主流程中注册中间件，在 demo.go main()函数内注册中间：
+
+var configFile = flag.String("f", "etc/demo.yaml", "the config file")
+
+func main() {
+ flag.Parse()
+
+ var c config.Config
+ conf.MustLoad(*configFile, &c)
+ ctx := svc.NewServiceContext(c)
+
+ s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+  demo.RegisterDemoServer(grpcServer, demoServer.NewDemoServer(ctx))
+
+  if c.Mode == service.DevMode || c.Mode == service.TestMode {
+   reflection.Register(grpcServer)
+  }
+ })
+ defer s.Stop()
+
+ // add 自定义的中间件
+ s.AddUnaryInterceptors(middleware.ExampleUnaryInterceptor)
+
+ fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
+ s.Start()
+}
+
+```

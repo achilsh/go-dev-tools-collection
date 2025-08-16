@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"rpc_demo_server1/internal/svc"
-	"rpc_demo_server1/rpc_demo_server1"
+	"rpc_demo_server2/internal/svc"
+	"rpc_demo_server2/rpc_demo_server2"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,11 +23,11 @@ func NewPingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PingLogic {
 	}
 }
 
-func (l *PingLogic) Ping(in *rpc_demo_server1.Request) (*rpc_demo_server1.Response, error) {
+func (l *PingLogic) Ping(in *rpc_demo_server2.Request) (*rpc_demo_server2.Response, error) {
 	// todo: add your logic here and delete this line
 
-	l.Logger.Infof("req_v1: %v", in.Ping)
-	return &rpc_demo_server1.Response{
-		Pong: "111111111111111",
+	l.Logger.Infof("req_v2: %v", in.Ping)
+	return &rpc_demo_server2.Response{
+		Pong: "pong response 2",
 	}, nil
 }

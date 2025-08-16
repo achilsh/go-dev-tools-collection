@@ -1,0 +1,15 @@
+syntax = "v1"
+
+type Request {
+	Name string `path:"name,options=you|me"`
+}
+
+type Response {
+	Message string `json:"message"`
+}
+
+service snake_case_style-api {
+	@handler Snake_case_styleHandler
+	get /from/:name (Request) returns (Response)
+}
+
