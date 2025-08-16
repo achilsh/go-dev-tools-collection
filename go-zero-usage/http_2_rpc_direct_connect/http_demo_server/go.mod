@@ -5,9 +5,14 @@ go 1.24.1
 require (
 	github.com/zeromicro/go-zero v1.8.5
 	rpc_demo_server1 v0.0.0-00010101000000-000000000000
+	rpc_demo_server2 v0.0.0-00010101000000-000000000000
 )
 
 replace rpc_demo_server1 => ../rpc_demo_server1
+
+replace rpc_demo_server2 => ../rpc_demo_server2
+
+replace rpc_demo_server3 => ../rpc_demo_server3
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

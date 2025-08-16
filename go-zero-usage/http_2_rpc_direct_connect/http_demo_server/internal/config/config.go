@@ -11,4 +11,7 @@ type Config struct {
 
 	//  rpc client 的配置定义
 	DirectConnetClientCfg zrpc.RpcClientConf
+
+	// 多个rpc 服务 client 配置定义
+	MoreNodeConnClientCfg zrpc.RpcClientConf
 }
