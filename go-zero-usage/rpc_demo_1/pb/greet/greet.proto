@@ -7,6 +7,7 @@ package greet;
 // 生成 golang 代码后的包名
 option go_package = "rpc_demo_1/pb/greet";
 
+// 从公共目录的根目录开始
 import "pb/base/base.proto";
 
 enum Status{
