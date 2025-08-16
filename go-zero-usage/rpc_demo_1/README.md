@@ -1,11 +1,11 @@
-## 使用 goctl 创建一个简单的服务
+## 使用 goctl 创建一个rpc服务，服务 proto 文件存在相互引用场景
 
-* 使用 goctl rpc -o pb/simple_demo.proto 创建一个 pb 文件
+* 使用 goctl rpc -o pb/greet.proto 创建一个 pb 文件
 
 * 在这基础上编写 rpc 分组， 通过不同 service 名称来区分 不同的rpc分组
 
 * 不同proto 文件之间的引用实例：
-按下面格式来创建不同proto文件，然后运行命令：
+proto 源码生成命令：
 
 ```
 goctl rpc protoc pb/greet/greet.proto --go_out=../ --go-grpc_out=../ --zrpc_out=. --client=true  -m
@@ -20,7 +20,9 @@ protoc pb/base/base.proto --go_out=.. --go-grpc_out=..
 生成 rpc_demo_1 目录下的源码文件：
 
 ```
-├── base.pb.go
+├── pb
+│   ├── base
+│   │   ├── base.pb.go
 │   │   └── base.proto
 │   └── greet
 │       ├── greet_grpc.pb.go
@@ -101,7 +103,7 @@ message Base{
 }
 ```
 
-* 生成类似如下源码 proto, pb 文件, 要求所有的生成源码放在项目 pb/gen目录下：
+* 如果把生成proto 源码放在同一目录下；生成类似如下源码 proto, pb 文件, 要求所有的生成源码放在项目 pb/gen目录下：
 
 ```
 ├── pb
@@ -200,7 +202,7 @@ message Base{
 
 ```
 
-* 生成proto源码在不同的独立目录：
+* 生成proto生成的源码在不同的独立目录：
 
 ```
 ├── pb

@@ -9,7 +9,7 @@ import (
 
 	"rpc_demo_1/internal/logic/message"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/gen/greet"
+	"rpc_demo_1/pb/greet"
 )
 
 type MessageServer struct {

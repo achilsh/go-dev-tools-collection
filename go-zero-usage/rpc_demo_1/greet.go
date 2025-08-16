@@ -8,7 +8,7 @@ import (
 	greetServer "rpc_demo_1/internal/server/greet"
 	messageServer "rpc_demo_1/internal/server/message"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/gen/greet"
+	"rpc_demo_1/pb/greet"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"

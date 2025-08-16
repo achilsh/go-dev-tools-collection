@@ -82,7 +82,7 @@ const file_pb_base_base_proto_rawDesc = "" +
 	"\x12pb/base/base.proto\x12\x04base\",\n" +
 	"\x04Base\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x10\n" +
-	"\x03msg\x18\x02 \x01(\tR\x03msgB\x18Z\x16rpc_demo_1/pb/gen/baseb\x06proto3"
+	"\x03msg\x18\x02 \x01(\tR\x03msgB\x14Z\x12rpc_demo_1/pb/baseb\x06proto3"
 
 var (
 	file_pb_base_base_proto_rawDescOnce sync.Once

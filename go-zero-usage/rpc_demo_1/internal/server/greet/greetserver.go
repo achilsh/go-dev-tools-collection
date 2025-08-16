@@ -7,7 +7,7 @@ package server
 import (
 	"rpc_demo_1/internal/logic/greet"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/gen/greet"
+	"rpc_demo_1/pb/greet"
 )
 
 type GreetServer struct {
