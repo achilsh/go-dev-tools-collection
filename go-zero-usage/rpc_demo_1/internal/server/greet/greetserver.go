@@ -7,12 +7,12 @@ package server
 import (
 	"rpc_demo_1/internal/logic/greet"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/greet"
+	"rpc_demo_1/pb/gen"
 )
 
 type GreetServer struct {
 	svcCtx *svc.ServiceContext
-	greet.UnimplementedGreetServer
+	gen.UnimplementedGreetServer
 }
 
 func NewGreetServer(svcCtx *svc.ServiceContext) *GreetServer {
@@ -22,7 +22,7 @@ func NewGreetServer(svcCtx *svc.ServiceContext) *GreetServer {
 }
 
 // 定义客户端流式 rpc
-func (s *GreetServer) SendMessage(stream greet.Greet_SendMessageServer) error {
+func (s *GreetServer) SendMessage(stream gen.Greet_SendMessageServer) error {
 	l := greetlogic.NewSendMessageLogic(stream.Context(), s.svcCtx)
 	return l.SendMessage(stream)
 }

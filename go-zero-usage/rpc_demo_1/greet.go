@@ -8,7 +8,7 @@ import (
 	greetServer "rpc_demo_1/internal/server/greet"
 	messageServer "rpc_demo_1/internal/server/message"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/greet"
+	"rpc_demo_1/pb/gen"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -27,8 +27,8 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		greet.RegisterGreetServer(grpcServer, greetServer.NewGreetServer(ctx))
-		greet.RegisterMessageServer(grpcServer, messageServer.NewMessageServer(ctx))
+		gen.RegisterGreetServer(grpcServer, greetServer.NewGreetServer(ctx))
+		gen.RegisterMessageServer(grpcServer, messageServer.NewMessageServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

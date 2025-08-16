@@ -8,13 +8,12 @@
 
 // proto 包名
 
-package greet
+package gen
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	base "rpc_demo_1/pb/base"
 	sync "sync"
 	unsafe "unsafe"
 )
@@ -194,7 +193,7 @@ func (x *SendMessage) GetBoolean() bool {
 type SendMessageResp struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 其中base 是包名；就是在 base.proto中定义的package base
-	Base          *base.Base   `protobuf:"bytes,1,opt,name=base,proto3" json:"base,omitempty"`
+	Base          *Base        `protobuf:"bytes,1,opt,name=base,proto3" json:"base,omitempty"`
 	Data          *SendMessage `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -230,7 +229,7 @@ func (*SendMessageResp) Descriptor() ([]byte, []int) {
 	return file_pb_greet_greet_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *SendMessageResp) GetBase() *base.Base {
+func (x *SendMessageResp) GetBase() *Base {
 	if x != nil {
 		return x.Base
 	}
@@ -271,7 +270,7 @@ const file_pb_greet_greet_proto_rawDesc = "" +
 	"\x05Greet\x12>\n" +
 	"\vSendMessage\x12\x15.greet.SendMessageReq\x1a\x16.greet.SendMessageResp(\x012@\n" +
 	"\amessage\x125\n" +
-	"\x04Pong\x12\x15.greet.SendMessageReq\x1a\x16.greet.SendMessageRespB\x15Z\x13rpc_demo_1/pb/greetb\x06proto3"
+	"\x04Pong\x12\x15.greet.SendMessageReq\x1a\x16.greet.SendMessageRespB\x13Z\x11rpc_demo_1/pb/genb\x06proto3"
 
 var (
 	file_pb_greet_greet_proto_rawDescOnce sync.Once
@@ -293,7 +292,7 @@ var file_pb_greet_greet_proto_goTypes = []any{
 	(*SendMessage)(nil),     // 2: greet.SendMessage
 	(*SendMessageResp)(nil), // 3: greet.SendMessageResp
 	nil,                     // 4: greet.SendMessage.MapEntry
-	(*base.Base)(nil),       // 5: base.Base
+	(*Base)(nil),            // 5: base.Base
 }
 var file_pb_greet_greet_proto_depIdxs = []int32{
 	0, // 0: greet.SendMessage.status:type_name -> greet.Status
@@ -316,6 +315,7 @@ func file_pb_greet_greet_proto_init() {
 	if File_pb_greet_greet_proto != nil {
 		return
 	}
+	file_pb_base_base_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

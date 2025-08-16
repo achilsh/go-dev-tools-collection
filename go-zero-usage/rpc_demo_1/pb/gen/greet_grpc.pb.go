@@ -8,7 +8,7 @@
 
 // proto 包名
 
-package greet
+package gen
 
 import (
 	context "context"

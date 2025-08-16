@@ -9,12 +9,12 @@ import (
 
 	"rpc_demo_1/internal/logic/message"
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/greet"
+	"rpc_demo_1/pb/gen"
 )
 
 type MessageServer struct {
 	svcCtx *svc.ServiceContext
-	greet.UnimplementedMessageServer
+	gen.UnimplementedMessageServer
 }
 
 func NewMessageServer(svcCtx *svc.ServiceContext) *MessageServer {
@@ -23,7 +23,7 @@ func NewMessageServer(svcCtx *svc.ServiceContext) *MessageServer {
 	}
 }
 
-func (s *MessageServer) Pong(ctx context.Context, in *greet.SendMessageReq) (*greet.SendMessageResp, error) {
+func (s *MessageServer) Pong(ctx context.Context, in *gen.SendMessageReq) (*gen.SendMessageResp, error) {
 	l := messagelogic.NewPongLogic(ctx, s.svcCtx)
 	return l.Pong(in)
 }

@@ -7,16 +7,16 @@ package message
 import (
 	"context"
 
-	"rpc_demo_1/pb/greet"
+	"rpc_demo_1/pb/gen"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	SendMessage     = greet.SendMessage
-	SendMessageReq  = greet.SendMessageReq
-	SendMessageResp = greet.SendMessageResp
+	SendMessage     = gen.SendMessage
+	SendMessageReq  = gen.SendMessageReq
+	SendMessageResp = gen.SendMessageResp
 
 	Message interface {
 		Pong(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error)
@@ -34,6 +34,6 @@ func NewMessage(cli zrpc.Client) Message {
 }
 
 func (m *defaultMessage) Pong(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error) {
-	client := greet.NewMessageClient(m.cli.Conn())
+	client := gen.NewMessageClient(m.cli.Conn())
 	return client.Pong(ctx, in, opts...)
 }
