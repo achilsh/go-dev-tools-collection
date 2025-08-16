@@ -7,20 +7,20 @@ package greet
 import (
 	"context"
 
-	"rpc_demo_1/pb/gen"
+	"rpc_demo_1/pb/gen/greet"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	SendMessage     = gen.SendMessage
-	SendMessageReq  = gen.SendMessageReq
-	SendMessageResp = gen.SendMessageResp
+	SendMessage     = greet.SendMessage
+	SendMessageReq  = greet.SendMessageReq
+	SendMessageResp = greet.SendMessageResp
 
 	Greet interface {
 		// 定义客户端流式 rpc
-		SendMessage(ctx context.Context, opts ...grpc.CallOption) (gen.Greet_SendMessageClient, error)
+		SendMessage(ctx context.Context, opts ...grpc.CallOption) (greet.Greet_SendMessageClient, error)
 	}
 
 	defaultGreet struct {
@@ -35,7 +35,7 @@ func NewGreet(cli zrpc.Client) Greet {
 }
 
 // 定义客户端流式 rpc
-func (m *defaultGreet) SendMessage(ctx context.Context, opts ...grpc.CallOption) (gen.Greet_SendMessageClient, error) {
-	client := gen.NewGreetClient(m.cli.Conn())
+func (m *defaultGreet) SendMessage(ctx context.Context, opts ...grpc.CallOption) (greet.Greet_SendMessageClient, error) {
+	client := greet.NewGreetClient(m.cli.Conn())
 	return client.SendMessage(ctx, opts...)
 }

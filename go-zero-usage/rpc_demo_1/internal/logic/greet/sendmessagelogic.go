@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/gen"
+	"rpc_demo_1/pb/gen/greet"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +24,7 @@ func NewSendMessageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendM
 }
 
 // 定义客户端流式 rpc
-func (l *SendMessageLogic) SendMessage(stream gen.Greet_SendMessageServer) error {
+func (l *SendMessageLogic) SendMessage(stream greet.Greet_SendMessageServer) error {
 	// todo: add your logic here and delete this line
 
 	return nil

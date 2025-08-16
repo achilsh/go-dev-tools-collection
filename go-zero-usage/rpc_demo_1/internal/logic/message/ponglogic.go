@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"rpc_demo_1/internal/svc"
-	"rpc_demo_1/pb/gen"
+	"rpc_demo_1/pb/gen/greet"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +23,8 @@ func NewPongLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PongLogic {
 	}
 }
 
-func (l *PongLogic) Pong(in *gen.SendMessageReq) (*gen.SendMessageResp, error) {
+func (l *PongLogic) Pong(in *greet.SendMessageReq) (*greet.SendMessageResp, error) {
 	// todo: add your logic here and delete this line
 
-	return &gen.SendMessageResp{}, nil
+	return &greet.SendMessageResp{}, nil
 }

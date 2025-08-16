@@ -4,7 +4,7 @@ syntax = "proto3";
 package base;
 
 // 生成 golang 代码后的包名
-option go_package = "rpc_demo_1/pb/gen";
+option go_package = "rpc_demo_1/pb/gen/base";
 
 message Base{
   int32 code = 1;
