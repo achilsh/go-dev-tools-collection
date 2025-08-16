@@ -29,3 +29,4 @@ demo-service/cmd/demo-server/demo-server
 .trunk/
 flow_limiter/main
 langchango_usage/langchango_usage
+go-zero-usage/http_2_rpc_with_etcd/etcd_install/data/*

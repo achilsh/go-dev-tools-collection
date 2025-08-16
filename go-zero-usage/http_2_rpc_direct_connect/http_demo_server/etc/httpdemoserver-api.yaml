@@ -8,7 +8,7 @@ DirectConnetClientCfg:
 
 # 直连多个节点：
 MoreNodeConnClientCfg:
-  # 使用 endpoint，只需要配置ip:port 即可
+  # 使用 endpoint，只需要配置 后端的 ip:port 即可
   Endpoints:
     - 127.0.0.1:8082
     - 127.0.0.1:8083

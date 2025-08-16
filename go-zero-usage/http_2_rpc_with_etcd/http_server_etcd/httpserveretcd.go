@@ -30,6 +30,7 @@ func main() {
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 
+	// http 自身向 etcd 注册动作
 	logx.Must(etcd.RegisterRest(c.RegisterEtcd, c.RestConf))
 
 	server.Start()
