@@ -1,0 +1,7 @@
+Name: http_server_etcd-api
+Host: 0.0.0.0
+Port: 8888
+RegisterEtcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: http_server.api.1
