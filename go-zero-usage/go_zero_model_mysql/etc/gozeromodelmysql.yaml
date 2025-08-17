@@ -1,0 +1,24 @@
+Name: gozeromodelmysql.rpc
+ListenOn: 0.0.0.0:8080
+
+#user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+## username:password@protocol(address)/dbname?param=value
+DataSource: root:123456@tcp(172.31.60.55:3306)/demo_db?charset=utf8mb4&parseTime=True&loc=Local
+
+RedisConf:
+  # redis 服务地址 ip:port, 如果是 redis cluster 则为 ip1:port1,ip2:port2,ip3:port3...(暂不支持redis sentinel)
+  Host: 0.0.0.0:6379
+  # node 单节点 redis，cluster redis 集群
+  Type: node 
+  Pass: pw_test
+  Tls: false
+
+
+Log:
+  Mode: file
+  Encoding: plain
+  Level: debug
+# Etcd:
+#   Hosts:
+#   - 127.0.0.1:2379
+#   Key: gozeromodelmysql.rpc

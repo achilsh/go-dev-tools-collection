@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package go_zero_model_mysql;
+option go_package="./go_zero_model_mysql";
+
+message Request {
+  string ping = 1;
+}
+
+message Response {
+  string pong = 1;
+}
+
+service Go_zero_model_mysql {
+  rpc Ping(Request) returns(Response);
+}
