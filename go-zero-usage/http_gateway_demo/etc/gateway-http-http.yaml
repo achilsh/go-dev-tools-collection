@@ -23,7 +23,7 @@ Upstreams: # upstreams
       Timeout: 3000 
     Mappings:
       - Method: POST 
-        Path: /play/v1/:lastId
+        Path: /play/v1/:lastId   ## :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad
 ## 路由重写时 网关增加映射
 ReWrites:
   - Method: POST
