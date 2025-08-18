@@ -24,7 +24,17 @@ Upstreams: # upstreams
     Mappings:
       - Method: POST 
         Path: /play/v1/:lastId   ## :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad
-## 路由重写时 网关增加映射
+
+## 自定义一些特性
+UpstreamsBiz:
+  - Name: studentservice
+    Http: # grpc upstream nodes， 总共100
+        - Target: 0.0.0.0:8080
+          Weight: 50 ##
+        - Target: 0.0.0.0:8081
+          Weight: 50 ##
+
+## 对所有的 upstreams 都适用；路由重写时 网关增加映射
 ReWrites:
   - Method: POST
     From: ^/play/v1/000004  ## 客户输入Url 

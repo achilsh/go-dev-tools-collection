@@ -2,6 +2,7 @@ package rewrites
 
 import (
 	"fmt"
+	balanceupstreams "http_gateway_demo/balance_upstreams"
 	"regexp"
 
 	"github.com/zeromicro/go-zero/gateway"
@@ -22,6 +23,7 @@ type RewritHttpUrlPathConf struct {
 type ServiceConfig struct {
 	gateway.GatewayConf
 	RewritHttpUrlPathConf
+	balanceupstreams.UpstreamsBizConfig
 }
 
 type RewriteRule struct {
