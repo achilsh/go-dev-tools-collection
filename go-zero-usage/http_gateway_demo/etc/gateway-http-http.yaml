@@ -16,3 +16,19 @@ Upstreams: # upstreams
         Path: /users/:id
       - Method: POST
         Path: /users/post
+  ## 路由重写时需要配置
+  - Name: studentservice 
+    Http:
+      Target: 0.0.0.0:8081
+      Timeout: 3000 
+    Mappings:
+      - Method: POST 
+        Path: /play/v1/:lastId
+## 路由重写时 网关增加映射
+ReWrites:
+  - Method: POST
+    From: ^/play/v1/000004  ## 客户输入Url 
+    To: /play/v1/login     ## upstream 处理的url
+  - Method: POST
+    From: ^/pay/v1/aaaa3
+    To: /pay/v1/send
