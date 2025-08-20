@@ -2,7 +2,6 @@ package rewrites
 
 import (
 	"fmt"
-	balanceupstreams "http_gateway_demo/balance_upstreams"
 	"regexp"
 
 	"github.com/zeromicro/go-zero/gateway"
@@ -21,9 +20,10 @@ type RewritHttpUrlPathConf struct {
 }
 
 type ServiceConfig struct {
+	// 网关框架带的配置
 	gateway.GatewayConf
+	// 全局路由重写配置项
 	RewritHttpUrlPathConf
-	balanceupstreams.UpstreamsBizConfig
 }
 
 type RewriteRule struct {
