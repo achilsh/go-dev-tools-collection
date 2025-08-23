@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/zeromicro/go-zero/core/logc"
 )
 
 // 自定义的中间件
@@ -38,7 +40,7 @@ func ModifyRequestBody(r *http.Request) (*http.Request, error) {
 	defer r.Body.Close()
 
 	// 打印原始Body
-	fmt.Printf("原始请求体: %s\n", string(body))
+	logc.Infof(r.Context(), "原始请求体: %s", string(body))
 
 	// 解析JSON并添加字段（假设Body是JSON格式）
 	var data map[string]interface{}
@@ -59,7 +61,7 @@ func ModifyRequestBody(r *http.Request) (*http.Request, error) {
 	}
 
 	// 打印修改后的Body
-	fmt.Printf("修改后的请求体: %s\n", string(newBody))
+	logc.Infof(r.Context(), "修改后的请求体: %s", string(newBody))
 
 	// 重新构造请求对象（因为Body已被读取，需要重置）
 	r.Body = io.NopCloser(bytes.NewBuffer(newBody))

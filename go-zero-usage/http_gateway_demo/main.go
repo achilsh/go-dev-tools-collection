@@ -21,6 +21,7 @@ func main() {
 	defer gw.Stop()
 	gw.Use(middleware.HeaderMiddlewares)
 	//
-	gw.Use(middleware.PathRewriteMiddleware(rewrites.TransRewriteCfgToRules(&c.RewritHttpUrlPathConf)))
+	// gw.Use(middleware.PathRewriteMiddleware(rewrites.TransRewriteCfgToRules(&c.RewritHttpUrlPathConf)))
+	// gw.Use(middleware.PathRewriteMiddleware(rewrites.TransRewriteCfgToRules(nil)))
 	gw.Start()
 }

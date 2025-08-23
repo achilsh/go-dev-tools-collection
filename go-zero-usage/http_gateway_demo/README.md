@@ -25,3 +25,11 @@ Upstreams: # upstreams
       - Method: POST
         Path: /users/post
 ```
+
+## gateway 不需要 编写 lb 和 路由重写 中间件
+
+* 直接有 go-zero 特性分支提供能力， 启动 gateway 时的配置文件参考：
+
+```
+ go run ./ -f etc/gateway-http2http-rewrite-inner.yaml 
+```

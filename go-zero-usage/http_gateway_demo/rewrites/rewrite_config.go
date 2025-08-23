@@ -23,7 +23,7 @@ type ServiceConfig struct {
 	// 网关框架带的配置
 	gateway.GatewayConf
 	// 全局路由重写配置项
-	RewritHttpUrlPathConf
+	RewritHttpUrlPathConf `json:",optional"`
 }
 
 type RewriteRule struct {

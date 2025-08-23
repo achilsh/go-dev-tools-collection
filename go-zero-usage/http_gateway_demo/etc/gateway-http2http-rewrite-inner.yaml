@@ -19,30 +19,41 @@ Upstreams: # upstreams
   # ## 路由重写时需要配置
   - Name: studentservice 
     Http:
-      # Target: 0.0.0.0:0
-      NodeList:
-          - Target: 0.0.0.0:8081
-            Weight: 5
-            Timeout: 3000
-          - Target: 0.0.0.0:8082
-            Weight: 1
-            Timeout: 3000
-    Rewrites:
-      - Method: POST ##支持大小写和大小写混写
-        Pattern:  ## from url 匹配的规则，包括精准匹配和正则表达式匹配
-        Target:       ## 重写后的url, 就是 upstream url 
-
+      Target: 0.0.0.0:0
     ### 用于服务监听的 url，指定在这些url接收数据
     Mappings:
-      - Method: POST ## 大小写都可以
-        # Path: /play/v1/:lastId   ##  :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad 是原请求的url
+      - Method: POST ## client 请求的 method, 大小写都可以
+        # 客户都安请求的url Path: /play/v1/:lastId   ##  :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad 是原请求的url
         Path: /play/v1/:lastId   ##  :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad 是原请求的url
+        # 指示是 http proxy
+        HttpProxy: 1
+        Rewrites: # 可以把 客户端发过来的每个url重写成特定的后端url
+          - Method: POST
+            Pattern: ^/play/v1/000004 ## 客户端  url 匹配的规则，包括精准匹配和正则表达式匹配；可进一步细分客户端的请求url
+            Target:  /play/v1/login    ## 重写后的后端url, 就是 upstream url
+            ## 每个 重写后的 url 对应的后端服务节点列表
+            NodeList:
+              - Node: 0.0.0.0:8081
+                Weight: 5
+                Timeout: 3000
+              - Node: 0.0.0.0:8082
+                Weight: 1
+                Timeout: 3000
 
-## 对所有的 upstreams 都适用；路由重写时 网关增加映射
-ReWrites:
-  - Method: POST
-    From: ^/play/v1/000004  ## 客户输入Url 
-    To: /play/v1/login     ## upstream 处理的url
-  - Method: POST
-    From: ^/play/v1/aaaa3
-    To: /play/v1/send
+          - Method: POST
+            Pattern: ^/play/v1/aaaa3 ## 客户端  url 匹配的规则，包括精准匹配和正则表达式匹配；可进一步细分客户端的请求url
+            Target:  /play/v1/send     ## 重写后的后端url, 就是 upstream url
+            ## 每个 重写后的 url 对应的后端服务节点列表
+            NodeList:
+              - Node: 0.0.0.0:8081
+                Weight: 100
+                Timeout: 3000
+
+# ## 对所有的 upstreams 都适用；路由重写时 网关增加映射
+# ReWrites:
+#   - Method: POST
+#     From: ^/play/v1/000004  ## 客户输入Url 
+#     To: /play/v1/login     ## upstream 处理的url
+#   - Method: POST
+#     From: ^/play/v1/aaaa3
+#     To: /play/v1/send
