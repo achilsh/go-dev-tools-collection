@@ -37,7 +37,8 @@ func TransRewriteCfgToRules(rewriteCfg *RewritHttpUrlPathConf) *RewritHttpUrlPat
 		return nil
 	}
 	rules := make([]RewriteRule, 0, len(rewriteCfg.ReWrites))
-	for _, rcfg := range rewriteCfg.ReWrites {
+	for i := range rewriteCfg.ReWrites {
+		rcfg := rewriteCfg.ReWrites[i]
 		re, err := regexp.Compile(rcfg.From)
 		if err != nil {
 			panic(fmt.Sprintf("compile from rege fail, from: %v", rcfg.From))
