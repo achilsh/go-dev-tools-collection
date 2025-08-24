@@ -2,11 +2,14 @@ module http_gateway_demo
 
 go 1.24.1
 
-require github.com/zeromicro/go-zero v1.9.0
+require (
+	github.com/zeromicro/go-zero v1.9.0
+	github.com/zeromicro/zero-contrib/rest/registry/etcd v0.0.0-20250809040225-5c1d3d09e28c
+)
 
-replace github.com/zeromicro/go-zero => github.com/achilsh/go-zero v1.9.1-0.20250823090442-5cae9941f57e
+replace github.com/zeromicro/go-zero => github.com/achilsh/go-zero v1.9.1-0.20250824125105-a9583d586c28
 
-// replace github.com/zeromicro/go-zero => /home/user/works/go-zero
+//replace github.com/zeromicro/go-zero => /home/user/works/go-zero
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

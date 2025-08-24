@@ -1,0 +1,10 @@
+Name: student-api
+Host: 0.0.0.0
+Port: 8081
+
+
+## 向etcd 注册自己的身份 key
+Etcd:                                                                                                                       
+  Hosts:                                                                                                                    
+  - 127.0.0.1:2379                                                                                                          
+  Key: student_info.http.1  ## 向etcd 注册自己的身份 key 
