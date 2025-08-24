@@ -28,8 +28,10 @@ Upstreams: # upstreams
 
 ## gateway 不需要 编写 lb 和 路由重写 中间件
 
-* 直接有 go-zero 特性分支提供能力， 启动 gateway 时的配置文件参考：
+* 直接有 go-zero 特性分支提供负载均衡器能力实现路由分发， 此时启动 gateway 时的配置文件参考：
 
 ```
  go run ./ -f etc/gateway-http2http-rewrite-inner.yaml 
 ```
+## 该项目支持 gateay --> http  conn by loadbalance with ip:Port in gateway etc
+* 也支持 gateway--> http 时 客户端请求url 被重写到其他，转发给 后端http 服务。
