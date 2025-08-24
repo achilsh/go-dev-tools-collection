@@ -1,0 +1,48 @@
+Name: gateway-example # gateway name
+Host: 0.0.0.0 # gateway host
+Port: 8888 # gateway port
+Upstreams: # upstreams
+  # - Name: userservice
+  #   Http: # grpc upstream
+  #       Target: 0.0.0.0:8080 # grpc target,the direct grpc server address,for only one node
+  #       Prefix: /api/v1  # 可选 后端服务的路由前缀，后端服务的url 为该前缀 + 网关对外提供的url
+  #       Timeout: 3000    # 单位为毫秒，默认值 3000
+  #   Mappings: # routes mapping： map request url to  /api/v1
+  #     - Method: GET  ## 代理对外提供的方法,也是后端服务访问的方法
+  #       Path: /ping   ## 代理对外提供的url, 后端路由在该url 前面加上 prefix的字段值
+  #     - Method: GET
+  #       Path: /users_only
+  #     - Method: GET
+  #       Path: /users/:id
+  #     - Method: POST
+  #       Path: /users/post
+  # ## 路由重写时需要配置
+  - Name: studentservice 
+    Http:
+      # Target: 0.0.0.0:0
+      NodeList:
+          - Target: 0.0.0.0:8081
+            Weight: 5
+            Timeout: 3000
+          - Target: 0.0.0.0:8082
+            Weight: 1
+            Timeout: 3000
+    Rewrites:
+      - Method: POST ##支持大小写和大小写混写
+        Pattern:  ## from url 匹配的规则，包括精准匹配和正则表达式匹配
+        Target:       ## 重写后的url, 就是 upstream url 
+
+    ### 用于服务监听的 url，指定在这些url接收数据
+    Mappings:
+      - Method: POST ## 大小写都可以
+        # Path: /play/v1/:lastId   ##  :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad 是原请求的url
+        Path: /play/v1/:lastId   ##  :lastId 是一个url中占位符，由实际传入值填充，比如: /pay/v1/isfad 是原请求的url
+
+## 对所有的 upstreams 都适用；路由重写时 网关增加映射
+ReWrites:
+  - Method: POST
+    From: ^/play/v1/000004  ## 客户输入Url 
+    To: /play/v1/login     ## upstream 处理的url
+  - Method: POST
+    From: ^/play/v1/aaaa3
+    To: /play/v1/send

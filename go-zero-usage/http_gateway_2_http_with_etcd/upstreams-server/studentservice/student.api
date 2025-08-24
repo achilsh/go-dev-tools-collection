@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info (
+	title:  "student" // TODO: add title
+	desc:   "student" // TODO: add description
+	author: "achilsh"
+	email:  "hwshtongxin@126.com"
+)
+
+type LoginReq {
+	UserName string `json:"user_name"`
+	Passwd   string `json:"passwd"`
+}
+
+type LoginResponse {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type SendReq {
+	Age int `json:"age"`
+}
+
+type SendResponse {
+	Name string `json:"name"`
+}
+
+service student-api {
+	@handler login // TODO: set handler name and delete this comment
+	post /play/v1/login (LoginReq) returns (LoginResponse)
+
+	@handler send // TODO: set handler name and delete this comment
+	post /play/v1/send (SendReq) returns (SendResponse)
+}
+

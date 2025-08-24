@@ -1,0 +1,54 @@
+package rewrites
+
+import (
+	"fmt"
+	"regexp"
+
+	"github.com/zeromicro/go-zero/gateway"
+)
+
+type RewriteHttpPathCfgElem struct {
+	Method string `json:"Method"`
+	From   string `json:"From"`
+	To     string `json:"To"`
+}
+
+type RewritHttpUrlPathConf struct {
+	ReWrites []RewriteHttpPathCfgElem `json:"ReWrites,optional"`
+	// 规则定义
+	RewriteRules []RewriteRule `json:"-"`
+}
+
+type ServiceConfig struct {
+	// 网关框架带的配置
+	gateway.GatewayConf
+	// 全局路由重写配置项
+	RewritHttpUrlPathConf `json:",optional"`
+}
+
+type RewriteRule struct {
+	From   *regexp.Regexp // from是正则表达式
+	To     string         // to 是目标path
+	Method string
+}
+
+func TransRewriteCfgToRules(rewriteCfg *RewritHttpUrlPathConf) *RewritHttpUrlPathConf {
+	if rewriteCfg == nil {
+		return nil
+	}
+	rules := make([]RewriteRule, 0, len(rewriteCfg.ReWrites))
+	for i := range rewriteCfg.ReWrites {
+		rcfg := rewriteCfg.ReWrites[i]
+		re, err := regexp.Compile(rcfg.From)
+		if err != nil {
+			panic(fmt.Sprintf("compile from rege fail, from: %v", rcfg.From))
+		}
+		rules = append(rules, RewriteRule{
+			From:   re,
+			To:     rcfg.To,
+			Method: rcfg.Method,
+		})
+	}
+	rewriteCfg.RewriteRules = rules
+	return rewriteCfg
+}
