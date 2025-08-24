@@ -1,0 +1,8 @@
+Name: rpcserveretcd.rpc
+ListenOn: 0.0.0.0:8081
+
+## 向etcd 注册自己的身份 key
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: rpc_etcd1.rpc.1  ## 向etcd 注册自己的身份 key

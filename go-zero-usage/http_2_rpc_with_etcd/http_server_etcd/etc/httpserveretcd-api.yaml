@@ -3,13 +3,13 @@ Host: 0.0.0.0
 Port: 8888
 RegisterEtcd:
   Hosts:
-    - 127.0.0.1:2379
+  - 127.0.0.1:2379
   Key: http_server.api.1 ## http 向 etcd 注册的自身标识
 
 ## 访问rpc 的client配置
 ClientEtcd:
   Etcd:  ## 使用的etcd,从中获取服务端的节点信息
     Hosts:  ## 这是etcd 的节点
-      - 127.0.0.1:2379
-    Key: rpc_etcd1.rpc.1  ## 对端服务在etcd上注册key 
-    
+    - 127.0.0.1:2379
+    Key: rpc_etcd1.rpc.1  ## 对端服务在etcd上注册key  前缀
+

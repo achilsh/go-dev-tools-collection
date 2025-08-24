@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // 第一个配置：abc_build（保留之前的配置）
+        {
+            "name": "gateway_build",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/",
+            "args": [
+                "-f",
+                // "${workspaceFolder}/etc/gateway-http-http.yaml"
+                "${workspaceFolder}/etc/gateway-http2http-rewrite-inner.yaml"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "showLog": true
+        },
+        {
+            "name": "student_build",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/upstreams-server/studentservice",
+            "args": [
+                "-f",
+                "${workspaceFolder}/upstreams-server/studentservice/etc/student-api.yaml"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "showLog": true
+        }
+    ]
+}
