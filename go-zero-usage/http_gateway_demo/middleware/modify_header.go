@@ -25,6 +25,67 @@ func HeaderMiddlewares(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// 自定义ResponseWriter用于捕获响应
+type responseRecorder struct {
+	http.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (r *responseRecorder) Write(b []byte) (int, error) {
+	return r.body.Write(b)
+}
+
+// 2. 中间件：在next()后修改响应体
+func ModifyResponseMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// 创建包装器，替换原始w
+		buffer := &responseRecorder{
+			ResponseWriter: w,
+			body:           &bytes.Buffer{},
+		}
+
+		// 调用后续处理器：响应会写入buffer（而非直接发送）
+		next.ServeHTTP(buffer, r)
+
+		// 3. next()之后：修改缓存的响应体
+		originalBody := buffer.body.String()
+		modifiedBody := originalBody + "\n[已被中间件修改]"
+
+		// 4. 将修改后的响应通过原始w发送给客户端
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(modifiedBody)))
+		w.Write([]byte(modifiedBody))
+		logc.Infof(r.Context(), "-------------------------------: %v", modifiedBody)
+	}
+}
+
+// func (r *responseRecorder) Header() http.Header {
+// 	return r.ResponseWriter.Header()
+// }
+
+// 处理响应体的具体逻辑
+func processResponseBody(originalBody string, r *http.Request) string {
+	// 尝试解析为JSON
+	var responseData map[string]interface{}
+	if err := json.Unmarshal([]byte(originalBody), &responseData); err != nil {
+		// 非JSON格式处理
+		return originalBody + "\n\n[响应已被HeaderMiddlewares处理]"
+	}
+
+	// 添加响应修改标记
+	responseData["response_modified_by_header_mw"] = true
+	// 加入请求头信息
+	responseData["x-abc_from_request"] = r.Header.Get("x-abc")
+	// 可以添加其他需要的字段
+
+	// 重新序列化为JSON
+	modifiedData, err := json.MarshalIndent(responseData, "", "  ")
+	if err != nil {
+		return originalBody
+	}
+
+	return string(modifiedData)
+}
+
 // 修改请求Body的函数（示例：给JSON请求添加字段）
 func ModifyRequestBody(r *http.Request) (*http.Request, error) {
 	// 仅处理POST/PUT等有Body的请求

@@ -20,6 +20,7 @@ func main() {
 	gw := gateway.MustNewServer(c.GatewayConf)
 	defer gw.Stop()
 	gw.Use(middleware.HeaderMiddlewares)
+	gw.Use(middleware.ModifyResponseMiddleware)
 	//
 	// gw.Use(middleware.PathRewriteMiddleware(rewrites.TransRewriteCfgToRules(&c.RewritHttpUrlPathConf)))
 	// gw.Use(middleware.PathRewriteMiddleware(rewrites.TransRewriteCfgToRules(nil)))
