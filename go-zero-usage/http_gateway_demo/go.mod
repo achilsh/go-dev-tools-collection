@@ -4,9 +4,9 @@ go 1.24.1
 
 require github.com/zeromicro/go-zero v1.9.0
 
-replace github.com/zeromicro/go-zero => github.com/achilsh/go-zero v1.9.1-0.20250823090442-5cae9941f57e
+//replace github.com/zeromicro/go-zero => github.com/achilsh/go-zero v1.9.1-0.20250823090442-5cae9941f57e
 
-// replace github.com/zeromicro/go-zero => /home/user/works/go-zero
+replace github.com/zeromicro/go-zero => /home/user/works/go-zero
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

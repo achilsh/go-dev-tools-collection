@@ -31,7 +31,7 @@ Upstreams: # upstreams
           - Method: POST
             Pattern: ^/play/v1/000004 ## 客户端  url 匹配的规则，包括精准匹配和正则表达式匹配；可进一步细分客户端的请求url
             Target:  /play/v1/login    ## 重写后的后端url, 就是 upstream url
-            ## 每个 重写后的 url 对应的后端服务节点列表
+            ## 把 target的路径/ 每个 重写后的 url 对应的后端服务节点列表
             NodeList:
               - Node: 0.0.0.0:8081
                 Weight: 5
@@ -43,7 +43,7 @@ Upstreams: # upstreams
           - Method: POST
             Pattern: ^/play/v1/aaaa3 ## 客户端  url 匹配的规则，包括精准匹配和正则表达式匹配；可进一步细分客户端的请求url
             Target:  /play/v1/send     ## 重写后的后端url, 就是 upstream url
-            ## 每个 重写后的 url 对应的后端服务节点列表
+            ## target 的路径， 每个 重写后的 url 对应的后端服务节点列表
             NodeList:
               - Node: 0.0.0.0:8081
                 Weight: 100
