@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // 第一个配置：abc_build（保留之前的配置）
+        {
+            "name": "jwt-build",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/",
+            "args": [
+                "-f",
+                // "${workspaceFolder}/etc/gateway-http-http.yaml"
+                "${workspaceFolder}/etc/jwt-api.yaml"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "showLog": true
+        }
+    ]
+}
