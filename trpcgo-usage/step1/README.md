@@ -174,3 +174,91 @@ client:
 
 * 描述：  <https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/framework_conf.zh_CN.md>
 * 配置实例： <https://github.com/trpc-group/trpc-go/blob/main/testdata/trpc_go.yaml>
+
+## 客户端/服务端 过滤器 filter
+
+* 代码自定义过滤器 和 配置文件中配置过滤器
+* 客户端定义自定义过滤器:
+
+```
+func MyFilter(ctx context.Context, req, rsp interface{}, next ClientHandleFunc) error {
+ // 前置流程
+ err := next(ctx, req, rsp)
+ // 后置流程
+ return err
+}
+```
+
+再通过 client.WithFilters(MyFilter) 注册到 客户端中。
+参考： <https://github.com/trpc-group/trpc-go/blob/main/examples/features/filter/client/main.go>
+
+* 服务端定义自定义过滤器：
+
+```
+type ServerFilter func(ctx context.Context, req interface{}, next ServerHandleFunc) (rsp interface{}, err error)
+type ServerHandleFunc func(ctx context.Context, req interface{}) (rsp interface{}, err error)
+```
+
+然后通过 server.WithFilters(自定义的服务端过滤器) 注册到框架中。参考： <https://github.com/trpc-group/trpc-go/blob/main/examples/features/filter/server/main.go>
+
+上面是代码实现的过滤器；当代码和配置文件同时存在时，代码指定的拦截器会先执行，然后再执行配置文件指定的拦截器。
+
+## 插件介绍
+
+* 插件的作用： 插件是 tRPC-Go 基于 yaml 配置文件设计的一套自动化模块加载机制。
+接口定义如下：
+
+```
+package plugin
+
+type Factory interface {
+ Type() string
+ Setup(name string, dec Decoder) error
+}
+
+type Decoder interface {
+ Decode(cfg interface{}) error
+}
+```
+
+其中：Type 返回插件的类型，Setup 时会传入插件名和一个 Decoder，用于解析 yaml 的内容。yaml 来自 trpc_go.yaml 配置：
+
+```
+plugins:
+  __type:
+    __name:
+      # plugin contents
+```
+
+其中 __type 应替换为 Factory.Type() 返回的值，__name 应替换为 plugin.Register 的第一个参数。
+
+在实现 plugin 时，你应该创建一个 func init() 函数，通过 Register 注册你的插件。这样别人用你的插件时，只需要在代码中匿名 import 你的包即可。当调用 trpc.NewServer() 时，插件就会调用 Factory.Setup 函数进行初始化。
+
+插件经常和拦截器配合，比如在 Factory.Setup 函数中调用 filter.Register 注册拦截器。框架保证插件初始化在拦截器加载之前完成。这样，你就可以通过修改 trpc_go.yaml 来配置拦截器的行为. 参考： <https://github.com/trpc-group/trpc-go/blob/bbfd46a69805ce14c3cbb4c439083fc12f8f20d8/examples/features/plugin/README.md>
+
+* plugin中加载filter：配置中 plugins 用来给插件传配置参数，插件启动时会执行 Setup() 并拿到这些参数。
+filter: 用来指定在请求链路中启用哪些拦截器（顺序生效）。
+有的插件不需要 filter（比如日志），有的插件既有配置（plugins）又要挂在链路上（filter）。
+
+## trpc-go 中 proto 文件中 提供 对外提供 Http 能力
+
+* 在 pb 文件定义的 rpc 接口 后加上 类似： // @alias=/demo/Hello  
+生成的 类似：
+
+```
+var HelloWorldServer_ServiceDesc = server.ServiceDesc{
+ ServiceName: "demo.simplest.HelloWorld",
+ HandlerType: ((*HelloWorldService)(nil)),
+ Methods: []server.Method{
+  {
+   Name: "/demo/Hello",
+   Func: HelloWorldService_Hello_Handler,
+  },
+  {
+   Name: "/demo.simplest.HelloWorld/Hello",
+   Func: HelloWorldService_Hello_Handler,
+  },
+ },
+}
+
+```
