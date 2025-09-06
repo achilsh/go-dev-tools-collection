@@ -256,7 +256,7 @@ filter: 用来指定在请求链路中启用哪些拦截器（顺序生效）。
 
 ## trpc-go 中 proto 文件中 提供 对外提供 Http 能力
 
-* 在 pb 文件定义的 rpc 接口 后加上 类似： // @alias=/demo/Hello  
+* 在 pb 文件定义的 rpc 接口 后加上 类似： // @alias=/demo/Hello  ； trpc create 时 需要加上 --alias
 生成的 类似：
 
 ```
