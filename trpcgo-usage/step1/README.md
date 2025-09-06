@@ -1,9 +1,21 @@
+## trpc 文档
+
+<https://github.com/trpc-group/trpc-go/blob/main/docs/README.zh_CN.md>
+
+* 快速开始参考：
+<https://github.com/trpc-group/trpc-go/blob/main/docs/quick_start.zh_CN.md>
+
 ## trpc 工具的安装
 
 * 下面的示例是 trpc-client <----> trpc-server 的调用关系。
 * trpc的特性参考文献： <https://github.com/trpc-group/trpc-go/tree/v1.0.3/examples/features>
 
-* trpc-cmdline ，eg: <https://github.com/trpc-group/trpc-cmdline>
+* trpc-cmdline 工具： 用于生成 源码stub或者 生成项目，eg: <https://github.com/trpc-group/trpc-cmdline>
+* 参考工具选项： <https://github.com/trpc-group/trpc-cmdline/blob/main/docs/README.zh_CN.md>
+* 参考： <https://github.com/trpc-group/trpc-cmdline/blob/main/docs/examples/example-1/README.zh_CN.md>
+* 参考： <https://github.com/trpc-group/trpc-cmdline/tree/main/testcase/create>
+* 参考： http protocol, alias生效： <https://github.com/trpc-group/trpc-cmdline/blob/main/docs/examples/example-2/README.zh_CN.md>
+* 工具自定义模板参考： <https://github.com/trpc-group/trpc-cmdline/blob/main/docs/README.zh_CN.md>
 
 ```
 First, add the following into your ~/.gitconfig:
@@ -25,6 +37,8 @@ trpc setup
 ```
 
 * 使用 protobuffer 文件来生成项目，比如项目proto文件：
+* 参考 trpc-go example:
+<https://github.com/trpc-group/trpc-go/tree/main/examples/helloworld>
 
 ```
 syntax = "proto3";
