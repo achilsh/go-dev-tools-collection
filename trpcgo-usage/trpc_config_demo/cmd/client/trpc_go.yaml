@@ -1,0 +1,116 @@
+global:  # Global configuration.
+  namespace: Development  # Environment type, either Production or Development.
+  env_name: test  # Environment name for non-production environments.
+  # 选填，当未配置服务端 IP 时，使用该字段作为默认 IP
+  local_ip: String(ipv4 or ipv6)
+# 服务端配置
+server: # 服务端配置 # Server configuration.
+  #
+  # 必填，服务所属的应用名
+  app: yourAppName    # Application name for the business. 
+  #
+  # 必填，服务所属的服务名 
+  server: HelloWorldService   # Process server name.
+  #
+  # 选填，可执行文件的路径
+  bin_path: /usr/local/trpc/bin/    # Path to binary executable files and framework configuration files.
+  #
+  # 选填，配置文件的路径 
+  conf_path: /usr/local/trpc/conf/   # Path to business configuration files.
+  #
+  # 选填，数据文件的路径 
+  data_path: /usr/local/trpc/data/ # Path to business data files.
+  #
+  # 选填，网络类型，当 service 未配置 network 时，以该字段为准，默认为 tcp
+  # network: String(tcp, tcp4, tcp6, udp, udp4, udp6)
+  #
+  # 选填，协议类型，当 service 未配置 protocol 时，以该字段为准，默认为 trpc
+  # protocol: String(trpc, grpc, http, etc.)
+  #
+  # 选填，所有 service 共享的拦截器配置
+  filter:  # List of interceptors for all service handler functions.
+  - simpledebuglog
+  - recovery  # Intercept panics from business processing goroutines created by the framework.
+  # 必填，service 列表
+  service:  # Services provided by the business, can have multiple.
+  - ##
+    # 必填，服务名，用于服务发现（）
+    name: helloworld.HelloWorldService  # Route name for the service.
+    #
+    # 选填，service 监听的 IP 地址，如果为空，则会尝试获取网卡 IP，如果仍为空，则使用 global.local_ip
+    # 如果需要监听所有地址的话，请使用 "0.0.0.0" (ipv4) 或 "::" (ipv6)
+    ip: 127.0.0.1  # Service listening IP address, can use placeholder ${ip}. Use either ip or nic, ip takes priority.
+    #
+    # 选填，该 service 绑定的网卡，只有 ip 为空时，才会生效
+    # nic: eth0
+    #
+    # 选填，service 监听的地址，为空时使用 ip:port，非空时，忽略 ip:port
+    # address: String
+    #
+    # 选填，该 service 绑定的端口，address 为空时，port 必填
+    port: 8000  # Service listening port, can use placeholder ${port}.
+
+    #
+    # 选填，网络类型，为空时，使用 server.network
+    network: tcp  # Network listening type: tcp or udp.
+    #
+    # 选填，协议类型，为空时，使用 server.protocol
+    protocol: trpc  # Application layer protocol: trpc or http.
+    #
+    #选填，service 处理请求的超时时间 单位 毫秒
+    timeout: 1000  # Maximum processing time for requests in milliseconds.
+
+
+# 客户端配置； 程序作为客户端时的通用配置
+client:  # Backend configuration for client calls.
+  timeout: 1000  # Maximum processing time for all backends.
+  #
+  # 选填，为空时，使用 global.namespace
+  namespace: Development  # Environment for all backends.
+  #
+  #  选填，所有 service 共享的拦截器配置
+  filter:  # List of interceptors for all backend function calls.
+  - simpledebuglog
+
+  # 必填，被调服务列表
+  service:  # Configuration for individual backends.
+  - #
+    # 被调服务名
+    # 如果使用 pb，callee 必须与 pb 中定义的服务名保持一致； pacakge_name.service_name； （客户根据pb中的名字来查找 相等的  name, 命中了就会选择该 service）
+    # callee 和 name 至少填写一个，为空时，使用 name 字段
+    # callee: String
+    # 
+    # 被调服务名（客户端调用服务端的服务名），常用于服务发现（注册中心中的服务名）；# name 和 callee 至少填写一个，为空时，使用 callee 字段
+    name: helloworld.HelloWorldService  # Service name for the backend.
+    namespace: Development  # Environment for the backend.
+    # 
+    #  选填，网络类型，为空时，使用 client.network
+    network: tcp  # Network type for the backend: tcp or udp (configuration takes priority).
+    #
+    # # 选填，协议类型，为空时，使用 client.protocol
+    protocol: trpc  # Application layer protocol: trpc or http.
+    #
+    # 选填，拦截器列表，优先级低于 client.filter
+    #  filter: [String]
+    #
+    # 选填，目标服务，非空时，selector 将以 target 中的信息为准
+    target: ip://127.0.0.1:8000  # Service address for requests.
+    timeout: 1000   # Maximum processing time for requests.
+
+
+
+# 插件配置
+plugins:  # Plugin configuration.
+  # # 插件类型
+  log:  # Log configuration.
+    default:  # Default log configuration, supports multiple outputs.
+    - writer: console  # Console standard output (default).
+      level: debug  # Log level for standard output.
+    - writer: file  # Local file log.
+      level: info  # Log level for local file rolling logs.
+      writer_config:
+        filename: ./trpc.log  # Path to store local file rolling logs.
+        max_size: 10  # Maximum size of local file rolling logs in MB.
+        max_backups: 10  # Maximum number of log files.
+        max_age: 7  # Maximum number of days to keep logs.
+        compress: false  # Whether to compress log files.
