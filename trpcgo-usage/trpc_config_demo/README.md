@@ -1,4 +1,4 @@
-## 如何使用trpc 框架插件
+## 如何使用trpc 框架配置
 
 * 参考文档： <https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/framework_conf.zh_CN.md>
 
