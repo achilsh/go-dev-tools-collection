@@ -1,0 +1,24 @@
+syntax = "proto3";
+// 格式为： trpc.{app}.{server}； 通常和下面的服务名 连接起来 等效于 配置文件的 name 
+package trpc.second.helloworld;
+option go_package="second_demo/helloworld";
+
+
+message HelloRequest {
+    string msg = 1;
+}
+
+message HelloReply {
+    string msg = 1;
+}
+
+// 服务名1: Greeter
+service Greeter {
+    rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+// 服务名2： Hello
+service Hello {
+    rpc SayHi (HelloRequest) returns (HelloReply) {}
+}
+
