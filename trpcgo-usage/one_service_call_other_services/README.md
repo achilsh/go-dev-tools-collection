@@ -31,3 +31,8 @@ trpc create -p ./pb/helloworld.proto -o . --mod=first_service_demo -f
 
 * 分别启动下游服务；和 上游服务， 最后启动 上游服务的客户端程序，把整个链路走通：
 上游服务客户端---> 上游服务 ----> 下游服务客户端（嵌入到上游服务内部） ----> 下游服务。
+
+
+
+* 参考服务端开发： https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/server/overview.zh_CN.md
+* 参考客户端开发： https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/client/overview.zh_CN.md
