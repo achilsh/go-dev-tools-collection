@@ -36,3 +36,12 @@ trpc create -p ./pb/helloworld.proto -o . --mod=first_service_demo -f
 
 * 参考服务端开发： https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/server/overview.zh_CN.md
 * 参考客户端开发： https://github.com/trpc-group/trpc-go/blob/main/docs/user_guide/client/overview.zh_CN.md
+
+
+## client 配置文件：
+* 关于"callee"和"name"的区别:
+1) callee 表示下游服务的 Proto Service，格式为：“{package}.{proto service}” 其中 pacakge是 pb 文件中的package name;  {proto service} 是 pb 中的 rpc 中定义的service; 客户端通过pb中的callee找到配置中的项。 
+2) “name”表示下游服务的 Naming Service，用于服务寻址。
+
+* 按照 tRPC-Go 研发规范 建议的，通常情况“callee”和“name”是一样的，用户可以只配置“name”。对于一个 Proto Service 映射到多个 Naming Service 的场景，用户需要同时设置“callee”和“name”.
+
