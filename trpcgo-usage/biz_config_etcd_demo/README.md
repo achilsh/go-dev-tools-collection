@@ -25,3 +25,7 @@ plugins:  # Plugin configuration.
 
  getBizConfig()
 ```
+
+
+* 参考文档： https://github.com/trpc-group/trpc-go/blob/main/config/README.zh_CN.md 
+* 参考文档： https://github.com/trpc-group/trpc-go/blob/main/docs/developer_guide/develop_plugins/config.zh_CN.md
