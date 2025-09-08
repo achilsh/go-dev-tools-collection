@@ -6,6 +6,8 @@
 
 * restful 使用 示例参考： <https://github.com/trpc-group/trpc-go/tree/v1.0.3/examples/features> 目录中的 restful。
 
+* restful 原理解读： https://github.com/trpc-group/trpc-go/blob/main/restful/README.zh_CN.md
+
 * restful 协议定义文档： <https://github.com/trpc-group/trpc-go/tree/main/restful>
 
 ## 根据 Pb helloworld.proto 创建单一的http server
@@ -20,4 +22,7 @@ trpc create -d pb  -p helloworld.proto --mock=false  --nogomod --rpconly --gotag
 
 * 增加配文件， config/server/trpc_go.yaml, 注意protocol 字段是 restful 
 * 编译 go build cmd/server/ ; 运行 server -conf ./config/server/trpc_go.yaml 
+
+
 * 使用浏览器测试接口： http://127.0.0.1:9092/v1/greeter/hello/xsdfad
+
