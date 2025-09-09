@@ -36,16 +36,17 @@ client:  # Backend configuration for client calls.
   filter:  # List of interceptors for all backend function calls.
     - simpledebuglog
   service:  # Configuration for individual backends.
-    # - name: trpc.helloworld.Greeter  # Service name for the backend.
-    #   namespace: Development  # Environment for the backend.
-    #   network: tcp  # Network type for the backend: tcp or udp (configuration takes priority).
-    #   protocol: trpc  # Application layer protocol: trpc or http.
-    #   target: ip://127.0.0.1:8000  # Service address for requests.
-    #   timeout: 1000   # Maximum processing time for requests.
-    - name: http.helloworld.Greeter  # Route name for the service.
-      ip: 127.0.0.1  # Service listening IP address, can use placeholder ${ip}. Use either ip or nic, ip takes priority.
+    - callee: trpc.helloworld.Greeter  # Service name for the backend.
+      name: trpc.helloworld.Greeter
+      namespace: Development  # Environment for the backend.
+      network: tcp  # Network type for the backend: tcp or udp (configuration takes priority).
+      protocol: trpc  # Application layer protocol: trpc or http.
+      target: ip://127.0.0.1:8000  # Service address for requests.
+      timeout: 1000   # Maximum processing time for requests.
+    - callee: trpc.helloworld.Greeter 
+      name: http.helloworld.Greeter  # Route name for the service. 名字服务的服务名
+      target: ip://127.0.0.1:8001  # Service address for requests. # Service listening IP address, can use placeholder ${ip}. Use either ip or nic, ip takes priority.
       # nic: eth0
-      port: 8001  # Service listening port, can use placeholder ${port}.
       network: tcp  # Network listening type: tcp or udp.
       protocol: http  # Application layer protocol: trpc or http.
       timeout: 1000  # Maximum processing time for requests in milliseconds.  

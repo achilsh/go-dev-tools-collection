@@ -14,8 +14,16 @@ import (
 
 func callGreeterHello() {
 	proxy := pb.NewGreeterClientProxy(
-		client.WithTarget("ip://127.0.0.1:8001"),
-		client.WithProtocol("http"),
+
+		//指定连接某个ip和端口
+		// client.WithTarget("ip://127.0.0.1:8001"),
+		// client.WithProtocol("http"),
+
+		//client.WithServiceName 来同时用 called 以及 name 作为 key 进行配置的寻找：比如使用 trpc.helloworld.Greeter
+		// client.WithServiceName("trpc.helloworld.Greeter"),
+
+		//  比如 使用 http.helloworld.Greeter 来路由
+		client.WithServiceName("http.helloworld.Greeter"),
 	)
 	ctx := trpc.BackgroundContext()
 	// Example usage of unary client.

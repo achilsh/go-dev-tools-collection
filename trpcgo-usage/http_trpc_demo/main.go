@@ -11,8 +11,9 @@ import (
 
 func main() {
 	s := trpc.NewServer()
-	// pb.RegisterGreeterService(s.Service("trpc.helloworld.Greeter"), &greeterImpl{})
-	pb.RegisterGreeterService(s, &greeterImpl{})
+	pb.RegisterGreeterService(s.Service("trpc.helloworld.Greeter"), &greeterImpl{})
+	pb.RegisterGreeterService(s.Service("http.helloworld.Greeter"), &greeterImpl{})
+	// pb.RegisterGreeterService(s, &greeterImpl{})
 	if err := s.Serve(); err != nil {
 		log.Fatal(err)
 	}
