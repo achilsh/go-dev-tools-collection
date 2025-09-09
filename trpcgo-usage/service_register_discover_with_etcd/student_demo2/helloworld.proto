@@ -1,0 +1,29 @@
+// Tencent is pleased to support the open source community by making tRPC available.
+//
+// Copyright (C) 2023 Tencent.
+// All rights reserved.
+//
+// If you have downloaded a copy of the tRPC source code from Tencent,
+// please note that tRPC source code is licensed under the  Apache 2.0 License,
+// A copy of the Apache 2.0 License is included in this file.
+
+syntax = "proto3";
+package tprc.student.demo;
+
+option go_package = "student/helloworld";
+
+// HelloRequest is hello request.
+message HelloRequest {
+  string msg = 1;
+}
+
+// HelloResponse is hello response.
+message HelloResponse {
+  string msg = 1;
+}
+
+// HelloWorldService handles hello request and echo message.
+service HelloWorldService {
+  // Hello says hello.
+  rpc Hello(HelloRequest) returns(HelloResponse); // @alias=/student/hello
+}
