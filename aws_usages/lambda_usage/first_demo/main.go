@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
@@ -29,6 +30,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
+	_ = cfg
 	// s3Client = s3.NewFromConfig(cfg)
 }
 
@@ -51,12 +53,19 @@ func HandleEvent(ctx context.Context, event json.RawMessage) error {
 		log.Printf("Failed to unmarshal event: %v", err)
 		return err
 	}
-
+	log.Printf("Received order: %+v", order)
 	// 获取环境变量
 	bucketName := os.Getenv("RECEIPT_BUCKET")
 	_ = bucketName
 
 	// 配置并初始化 SDK 客户端后，您可以使用它与其他 AWS 服务进行交互。
+
+	//
+	// lambdacontext.FunctionName
+	lmbctx, exist := lambdacontext.FromContext(ctx)
+	if exist != false {
+		log.Print(lmbctx.Identity.CognitoIdentityPoolID)
+	}
 	return nil
 }
 
