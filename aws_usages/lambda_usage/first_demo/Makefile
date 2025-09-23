@@ -4,6 +4,9 @@ LAMBDA_NAME=9_3_lmda_func
 # 架构: amd64 或 arm64
 ARCH=amd64
 
+
+#  Amazon Linux 2023
+RunTimeVersion=provided.al2023   ## provided.al2 (Amazon Linux 2)
 # 输出文件
 BINARY=bootstrap
 ZIPFile=myFunction.zip
@@ -34,7 +37,7 @@ create: zip
 	aws lambda create-function \
 		--function-name $(LAMBDA_NAME) \
 		--handler $(BINARY) \
-		--runtime provided.al2 \
+		--runtime $(RunTimeVersion) \
 		--role $(ROLE_ARN) \
 		--zip-file fileb://$(ZIPFile)
 
